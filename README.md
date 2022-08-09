@@ -11,6 +11,51 @@ TinyMaix is a tiny inference Neural Network library specifically for microcontro
 - Support Full Static Memory config
 - [MaixHub](https://maixhub.com) **Online Model Training** support soon~ 
 
+**Run mnist demo on Arduino ATmega328**
+```
+mnist demo
+0000000000000000000000000000
+0000000000000000000000000000
+0000000000000000000000000000
+000000000077AFF9500000000000
+000000000AFFFFFFD10000000000
+00000000AFFFD8BFF70000000000
+00000003FFD2000CF80000000000
+00000004FD10007FF40000000000
+00000000110000DFF40000000000
+00000000000007FFC00000000000
+0000000000004FFE300000000000
+0000000000008FF9000000000000
+00000000000BFF90000000000000
+00000000001EFE20000000000000
+0000000000CFF800000000000000
+0000000004FFB000000000000000
+000000001CFF8000000000000000
+000000008FFA0000000000000000
+00000000FFF10000000000000000
+00000000FFF21111000112999900
+00000000FFFFFFFFA8AFFFFFFF70
+00000000AFFFFFFFFFFFFFFA7730
+0000000007777AFFF97720000000
+0000000000000000000000000000
+0000000000000000000000000000
+0000000000000000000000000000
+0000000000000000000000000000
+0000000000000000000000000000
+===use 49912us
+0: 0
+1: 0
+2: 89
+3: 0
+4: 1
+5: 6
+6: 1
+7: 0
+8: 0
+9: 0
+### Predict output is: Number 2, prob=89
+```
+
 ## TinyMaix Design
 TinyMaix is design for running AI Neural Network Mdoels on resources limited MCUs, which usually called **TinyML**  
 
@@ -25,6 +70,50 @@ Follow this design goal, now TinyMaix is as simple as 5 files to compile~
 We hope TinyMaix can help any MCU run AI Neural Network Mdoels, every one can port it to theirself hardware platform~   
 
 > Note: Although TinyMaix support multi architecture accelerate, but it still need more effort to balance size and speed.  
+
+### Features in design
+- [x] Support up to mobilenet v1, RepVGG backbone
+  - they are most common used, efficient structure for MCUs
+  - [x] Basic Conv2d, dwConv2d, FC, Relu/Relu6/Softmax, GAP, Reshape
+  - [ ] MaxPool, AvgPool (now use stride instead)
+- [x] FP32 model, INT8 quant model
+- [x] Convert tmdl from keras h5 or tflite
+  - model is simple enough to train with keras/tf
+  - tflite have quant functions already
+- [x] Model statistics functions in C 
+  - Optional for reduce code
+
+### Features maybe added
+- [ ] INT16 quant model
+  - Advantages: 
+    - more accuracy
+    - friendly for SIMD/RV32P accelerate
+  - Disadvantages: 
+    - increase FLASH/RAM consume 2X
+- [ ] Concat OP
+  - Advantages: 
+    - support mobilenet v2, more accuracy
+  - Disadvantages: 
+    - increase RAM consume 2X
+    - concat mat cost many time cause model infer slow
+    - need more work to cvt model into flat structure (in script)
+- [ ] Winograd Convolution Optimization
+  - Advantages:
+    - may speed up Conv computing 
+  - Disadvantages: 
+    - increase RAM consume, and consume more memory bandwidth
+    - increase code (.text) size
+    - need many Transforms, weak MCU may cost many time here
+    
+### Features won't be added
+- [ ] BF16 model
+  - most MCU don't have BF16 computing ability
+  - accuracy won't better than INT16 to much
+  - increase FLASH/RAM consume 2X
+- [ ] AVX/vulkan acceleration
+  - TinyMaix is for MCUs, not for powerful PC/mobilephones
+- [ ] other misc OPs
+  - TinyMaix support MCUs to run basic model in minimum resource consumption, if you want more OPs, switch to TFlite-micro/TVM/NCNN... 
 
 ## Fisrt Try
 Try run mobilenet
@@ -84,30 +173,78 @@ After training and save h5 models, you can use scripts in tools to convert to tm
 2. tflite2tmdl.py  
   convert tflite file to tmdl or c header files.    
   python3 tflite2tmdl.py tflite/mnist_q.tflite tmdl/mnist_q.tmdl int8 1 28,28,1 10  
+```
+================ pack model head ================
+mdl_type   =0
+out_deq    =1
+input_cnt  =1
+output_cnt =1
+layer_cnt  =6
+buf_size   =1464
+sub_size   =0
+in_dims    = [3, 28, 28, 1]
+out_dims   = [1, 1, 1, 10]
+================   pack layers   ================
+CONV_2D
+    [3, 28, 28, 1] [3, 13, 13, 4]
+    in_oft:0, size:784;  out_oft:784, size:680
+    padding valid
+    layer_size=152
+CONV_2D
+    [3, 13, 13, 4] [3, 6, 6, 8]
+    in_oft:784, size:680;  out_oft:0, size:288
+    padding valid
+    layer_size=432
+CONV_2D
+    [3, 6, 6, 8] [3, 2, 2, 16]
+    in_oft:0, size:288;  out_oft:1400, size:64
+    padding valid
+    layer_size=1360
+MEAN
+    [3, 2, 2, 16] [1, 1, 1, 16]
+    in_oft:1400, size:64;  out_oft:0, size:16
+    layer_size=48
+FULLY_CONNECTED
+    [1, 1, 1, 16] [1, 1, 1, 10]
+    in_oft:0, size:16;  out_oft:1448, size:16
+    layer_size=304
+SOFTMAX
+    [1, 1, 1, 10] [1, 1, 1, 10]
+    OUTPUT!
+    in_oft:1448, size:16;  out_oft:0, size:56
+    layer_size=48
+================    pack done!   ================
+    model  size 2.4KB (2408 B) FLASH
+    buffer size 1.4KB (1464 B) RAM
+    single layer mode subbuff size 1.4KB (64+1360=1424 B) RAM
+Saved to tmdl/mnist_q.tmdl, tmdl/mnist_q.h
+```
+
 Now you have tmdl or c header files, put it into your project to use it~  
 
-## Available Operations
-- [x] Core
-  - [x] Conv2D  
-  - [x] Fully-Connected
-  - [x] dwConv2D
-- [x] Activations
-  - [x]  Relu/Relu6
-  - [x]  Softmax
-- [x]  Pooling
-  - [x] GAP   
-  - [ ] MaxPool
-  - [ ] AvgPool
-- [x] Shape
-  - [x] Reshape
+## How to train models online with MaixHub
+TODO
 
-## TODO
-concat    
-Preprocess  
-find good backbone for 64KB/128KB/256KB/512KB ram litmit
+## How to add new platform acceleration code
+TinyMaix use basic dot_product function to accelerate Conv computing.  
+You just need add arch_xxx_yyy.h in src dir, and implement your platform's dot_product function:  
+```
+TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t* result);
+```
+
+## TODO 
+1. Preprocess with mean/std 
+2. find good backbone for 64KB/128KB/256KB/512KB ram litmit
 ...
 
-## Contacts
-Caesar Wu: zepan@sipeed.com  
+## Contribution & Contacts
+If you want contribute fucntions to TinyMaix, please read "TinyMaix Design" sections, we only want functions in "Features in design" and "Features maybe added".  
+
+If you want commit your port test result, please commit to benchmark.md.
+You are welcome to port TinyMaix to your chip/boards, it will prove how easy to use TinyMaix run Deeplearning model in MCUs~
+
+If you have question with TinyMaix usage/porting, please feedback Issues in this repo. 
+
+If you have bussiness project consulting or private questions, you can send mail to support@sipeed.com or zepan@sipeed.com (Caesar Wu).  
 
 
