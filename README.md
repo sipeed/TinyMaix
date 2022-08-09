@@ -162,7 +162,8 @@ Note TM_MAX_CSIZE,TM_MAX_KSIZE,TM_MAX_KCSIZE will occupy static buffers.
 And now just put them into your project, compile it~   
 
 ## How to train/convert models
-There are training scripts in examples/mnist to learn how to train simple mnist models.  
+There are training scripts in examples/mnist to learn how to train simple mnist models. 
+> Note: you need install TensorFlow2.x first.
 
 After training and save h5 models, you can use scripts in tools to convert to tmdl or c header files.   
 
