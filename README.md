@@ -1,5 +1,7 @@
 # TinyMaix
 
+[中文](README_ZH.md) | English
+
 TinyMaix is a tiny inference Neural Network library specifically for microcontrollers (TinyML).
 
 **Highlights**
@@ -163,7 +165,7 @@ And now just put them into your project, compile it~
 
 ## How to train/convert models
 There are training scripts in examples/mnist to learn how to train simple mnist models. 
-> Note: you need install TensorFlow2.x first.
+> Note: you need install TensorFlow (>=2.7) first.
 
 After training and save h5 models, you can use scripts in tools to convert to tmdl or c header files.   
 
