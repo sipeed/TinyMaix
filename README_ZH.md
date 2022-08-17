@@ -255,6 +255,7 @@ TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t
 ## TODO 
 1. 预处理使用mean/std 
 2. 针对64/128/256/512KB内存限制，找到合适的骨干网络
+3. 增加例程：KWS,HAR,Gesture,OCR,...
 ...
 
 ## 贡献/联系

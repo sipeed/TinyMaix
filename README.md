@@ -255,6 +255,7 @@ TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t
 ## TODO 
 1. Preprocess with mean/std 
 2. find good backbone for 64KB/128KB/256KB/512KB ram litmit
+3. Add example: KWS,HAR,Gesture,OCR,...
 ...
 
 ## Contribution & Contacts
