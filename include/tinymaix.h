@@ -22,11 +22,13 @@ limitations under the License.
 #define  TM_MDL_INT8    0
 #define  TM_MDL_INT16   1
 #define  TM_MDL_FP32    2
+#define  TM_MDL_FP16    3
 #include "tm_port.h"
 
 /******************************* MARCO ************************************/
 #define TM_MDL_MAGIC 'XIAM'     //mdl magic sign
 #define TM_ALIGN_SIZE   (8)     //8 byte align
+#define TM_ALIGN(addr)  ((((size_t)(addr))+(TM_ALIGN_SIZE-1))/TM_ALIGN_SIZE*TM_ALIGN_SIZE)
 #define TM_MATP(mat,y,x,ch) ((mat)->data + ((y)*(mat)->w + (x))*(mat)->c + (ch))
                                 //HWC
 #if   TM_MDL_TYPE == TM_MDL_INT8
@@ -49,6 +51,16 @@ limitations under the License.
     typedef float   btype_t;    //bias data type
     typedef float   sumtype_t;  //sum data type 
     typedef float   zptype_t;   //zeropoint data type 
+#elif TM_MDL_TYPE == TM_MDL_FP16
+    #if TM_ARCH != TM_ARCH_RV64V
+        #error "only support RV64V's float16!"
+    #endif
+    #include <riscv_vector.h>
+    typedef float16_t mtype_t;    //mat data type
+    typedef float16_t wtype_t;    //weight data type
+    typedef float16_t btype_t;    //bias data type
+    typedef float16_t sumtype_t;  //sum data type 
+    typedef float16_t zptype_t;   //zeropoint data type
 #else 
     #error "Not support this MDL_TYPE!"
 #endif
@@ -272,6 +284,10 @@ tm_err_t tm_stat(tm_mdlbin_t* mdl);                    //stat model
 /******************************* UTILS  ************************************/
 #define TML_GET_INPUT(mdl,lh)   ((mtype_t*)((mdl)->buf + (lh)->in_oft))
 #define TML_GET_OUTPUT(mdl,lh)  ((mtype_t*)((mdl)->buf + (lh)->out_oft))
-#define TML_DEQUANT(lh, x)       (((sumtype_t)(x)-((lh)->out_zp))*((lh)->out_s))
+#if (TM_MDL_TYPE == TM_MDL_INT8)||(TM_MDL_TYPE == TM_MDL_INT16)
+    #define TML_DEQUANT(lh, x)       (((sumtype_t)(x)-((lh)->out_zp))*((lh)->out_s))
+#else 
+    #define TML_DEQUANT(lh, x)       ((float)(x))
+#endif
 
 #endif 

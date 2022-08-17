@@ -7,7 +7,7 @@ TinyMaix是面向单片机的超轻量级的神经网络推理库，即TinyML推
 **关键特性**
 - 核心代码少于**400行**(tm_layers.c+tm_model.c+arch_O0.h), 代码段(.text)少于**3KB**   
 - 低内存消耗，甚至**Arduino ATmega328** (32KB Flash, 2KB Ram) 都能基于TinyMaix跑mnist(手写数字识别)
-- 支持**INT8/FP32**模型，支持keras h5或tflite模型转换 
+- 支持**INT8/FP32/FP16**模型，支持keras h5或tflite模型转换 
 - 支持多种芯片架构的专用指令优化:  **ARM SIMD/NEON/MVEI，RV32P, RV64V** 
 - 友好的用户接口，只需要load/run模型~
 - 支持全静态的内存配置(无需malloc)
@@ -78,7 +78,7 @@ TinyMaix希望成为一个足够简单的TinyML推理库，所以它放弃了很
   - 因为它们对单片机来说是最常用的，最高效的结构
   - [x] 基础的 Conv2d, dwConv2d, FC, Relu/Relu6/Softmax, GAP, Reshape
   - [ ] MaxPool, AvgPool (现在使用stride代替)
-- [x] FP32浮点模型, INT8量化模型
+- [x] FP32浮点模型, INT8量化模型, **FP16**半精度模型
 - [x] 转换keras h5或tflite到tmdl
   - 简单模型使用keras/tf训练已经足够
   - 复用了tflite现成的量化功能
@@ -117,8 +117,25 @@ TinyMaix希望成为一个足够简单的TinyML推理库，所以它放弃了很
 - [ ] 其他多样化的算子
   - TinyMaix仅为单片机提供基础模型算子支持，如果你需要更特殊的算子，可以选择TFlite-micro/TVM/NCNN... 
 
-## 首次试用
-测试运行mobilenet 1000分类图片例程
+## 例程体验
+### mnist
+MNIST是手写数字识别任务，足够简单以至于可以在ATmega328这样的8位单片机上运行。  
+在电脑上测试： 
+```
+cd examples/mnist
+mkdir build
+cd build 
+cmake ..
+make
+./mnist
+```
+
+### mbnet
+mbnet (mobilenet v1) 是适用于移动手机设备的简单图像分类模型，不过对单片机来说也稍微沉重了些。  
+例程里的模型是mobilenet v1 0.25，输入128x128x3的RGB图像，输出1000分类的预测
+它需要至少128KB SRAM 和 512KB Flash, STM32F411是典型可以运行该模型的最低配置。
+
+在PC上测试运行mobilenet 1000分类图片例程
 ```
 cd examples/mbnet
 mkdir build

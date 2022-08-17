@@ -68,11 +68,11 @@ tm_err_t __attribute__((weak)) tm_preprocess(tm_mdl_t* mdl, tm_pp_t pp_type, tm_
 #else
     case TMPP_UINT2FP01:
         for(int i=0; i<in_size; i++)
-            out->dataf[i] = (((uint8_t*)(in->data))[i])/255.0; 
+            out->data[i] = (((uint8_t*)(in->data))[i])/255.0; 
         break;
     case TMPP_UINT2FPN11:
         for(int i=0; i<in_size; i++)
-            out->dataf[i] = ((((uint8_t*)(in->data))[i])-128)/128.0;
+            out->data[i] = ((((uint8_t*)(in->data))[i])-128)/128.0;
         break;
 #endif
     default:    //don't do anything
@@ -138,7 +138,7 @@ tm_err_t __attribute__((weak)) tm_run(tm_mdl_t* mdl, tm_mat_t* in, tm_mat_t* out
                 out[out_idx].data = (mtype_t*)(TML_GET_OUTPUT(mdl, h));
             else {
                 int out_size = h->out_dims[1]*h->out_dims[2]*h->out_dims[3];
-                float* outf = (float*)(TML_GET_OUTPUT(mdl, h) + (out_size+7)/8*8);
+                float* outf = (float*)(TM_ALIGN(TML_GET_OUTPUT(mdl, h) + out_size));
                 for(int i=0; i<out_size; i++) //do dequant
                     outf[i] = TML_DEQUANT(h, (TML_GET_OUTPUT(mdl, h))[i]);
                 out[out_idx].dataf = outf;

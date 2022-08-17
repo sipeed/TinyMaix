@@ -37,7 +37,7 @@ limitations under the License.
 /*************************** TML_CONV2D **********************************/
 static uint32_t k_oft[TM_MAX_KSIZE]; 
 static mtype_t sbuf[TM_MAX_KCSIZE]; 
-#if TM_MDL_TYPE==TM_MDL_FP32
+#if (TM_MDL_TYPE==TM_MDL_FP32) || (TM_MDL_TYPE==TM_MDL_FP16) 
 #define SUMSCALE 1.0
 TM_INLINE void l_postprocess_sum(sumtype_t sum, btype_t b, int act, mtype_t* outp, \
     sctype_t scale, sctype_t out_s, zptype_t out_zp)
@@ -185,8 +185,8 @@ tm_err_t __attribute__((weak)) tml_conv2d_dwconv2d(tm_mat_t* in, tm_mat_t* out, 
                 mtype_t* sptr = sptr_base;
             #if TM_MDL_TYPE == TM_MDL_INT8
                 memset(sbuf, in_zp, dmul?cho*maxk:chi*maxk);    //do padding
-            #elif TM_MDL_TYPE == TM_MDL_FP32
-                memset(sbuf, 0, (dmul?cho*maxk:chi*maxk)*sizeof(float));
+            #elif (TM_MDL_TYPE == TM_MDL_FP32)||(TM_MDL_TYPE == TM_MDL_FP16)
+                memset(sbuf, 0, (dmul?cho*maxk:chi*maxk)*sizeof(mtype_t));
             #else
             #error "unsupport mdl type"
             #endif

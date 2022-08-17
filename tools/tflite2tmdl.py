@@ -61,6 +61,8 @@ b_types   = ["i","i","f","e"]
 b_types_np= [np.int32,np.int32,np.float32,np.float16]
 b_type    = b_types[mdl_type]
 b_type_np = b_types_np[mdl_type]
+bunit_sizes= [4,4,4,2]
+bunit_size = bunit_sizes[mdl_type]
 
 ############################### PACK FUNCTIONS #####################################
 def pack_conv2d_dwconv2d(l, mdl_type):  #conv2d and dwconv2d
@@ -121,7 +123,7 @@ def pack_conv2d_dwconv2d(l, mdl_type):  #conv2d and dwconv2d
     w_oft  = ws_oft + ws_size
     w_size = (w.size*unit_size+7)//8*8
     b_oft  = w_oft+w_size
-    b_size = (b.size*4+7)//8*8
+    b_size = (b.size*bunit_size+7)//8*8
        
     lbody += struct.pack('I',  ws_oft);   #ws_oft
     lbody += struct.pack('I',  w_oft);    #w_oft
@@ -152,8 +154,8 @@ def pack_conv2d_dwconv2d(l, mdl_type):  #conv2d and dwconv2d
     assert len(lbody)%8 == 0
     #bias
     lbody += struct.pack("%d"%(b.size)+b_type,  *b)
-    if b_size!= b.size*4:
-        lbody += bytes(b_size-b.size*4) #align to 8bytes
+    if b_size!= b.size*bunit_size:
+        lbody += bytes(b_size-b.size*bunit_size) #align to 8bytes
     assert len(lbody)%8 == 0
     return lbody
 
@@ -184,7 +186,7 @@ def pack_fc(l, mdl_type):
     w_oft  = ws_oft + ws_size
     w_size= (w.size*unit_size+7)//8*8
     b_oft = w_oft+w_size
-    b_size= (b.size*4+7)//8*8
+    b_size= (b.size*bunit_size+7)//8*8
     
     lbody += struct.pack('I',  ws_oft);   #ws_oft
     lbody += struct.pack('I',  w_oft);    #w_oft
@@ -217,8 +219,9 @@ def pack_fc(l, mdl_type):
     assert len(lbody)%8 == 0
     #bias
     lbody += struct.pack("%d"%(b.size)+b_type,  *(b.astype(b_type_np)))
-    if b_size!= b.size*4:
-        lbody += bytes(b_size-b.size*4) #align to 8bytes
+    if b_size!= b.size*bunit_size:
+        lbody += bytes(b_size-b.size*bunit_size) #align to 8bytes
+
     assert len(lbody)%8 == 0
     return lbody
 
@@ -259,7 +262,7 @@ def shape2dims(shape):
     return dims
 
 def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims):
-    global unit_size,w_type,b_type,b_type_np
+    global unit_size,w_type,b_type,b_type_np,bunit_size
     #mdl_name = "mnist.tmodel"
     fw = open(mdl_name, "wb")
     if ((mdl_type == TM_MDL_FP32) or (mdl_type == TM_MDL_FP16)) and layers[0]["quant"]:
@@ -283,6 +286,7 @@ def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims):
     w_type    = w_types[mdl_type]
     b_type    = b_types[mdl_type]
     b_type_np = b_types_np[mdl_type]
+    bunit_size= bunit_sizes[mdl_type]
 
     # head
     print("================ pack model head ================")
@@ -427,6 +431,7 @@ def print_usage():
     print("       currently only support single input/output convert")
 
 
+# python3 tflite2tmdl.py tflite/mnist_dw_f.tflite tmdl/mnist_dw_fp16.tmdl fp16 1 28,28,1 10
 # python3 tflite2tmdl.py tflite/mnist_dw_q.tflite tmdl/mnist_dw_q.tmdl int8 1 28,28,1 10
 # python3 tflite2tmdl.py tflite/mbnet_f.tflite tmdl/mbnet_f.tmdl fp32 1 224,224,3 1000
 # python3 tflite2tmdl.py tflite/mbnet_q.tflite tmdl/mbnet_q.tmdl int8 1 224,224,3 1000

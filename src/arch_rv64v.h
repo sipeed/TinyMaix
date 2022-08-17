@@ -56,6 +56,7 @@ TM_INLINE  void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_
     if(cnt>0){
         size_t vl = vsetvl_e32m1(PACK_N); 
         vfloat32m1_t sumv = vfmv_v_f_f32m1(0.f, vl);   //set sum=0
+        vfloat32m1_t v_zero = vfmv_v_f_f32m1(0.f, vl);
         for(int i=0; i<cnt; i++){
             vfloat32m1_t s = vle32_v_f32m1(sptr, vl);
             vfloat32m1_t k = vle32_v_f32m1(kptr, vl);
@@ -63,10 +64,40 @@ TM_INLINE  void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_
             sptr += PACK_N;
             kptr += PACK_N;
         }
-        vse32_v_f32m1(sumbuf, sumv, vl);
-        for(int i=0; i<PACK_N; i++){
-            sum += sumbuf[i];
+        v_zero = vfredosum_vs_f32m1_f32m1(v_zero, sumv, v_zero, vl);
+        sum = vfmv_f_s_f32m1_f32(v_zero);
+    }
+    for(int i=0; i<size%PACK_N; i++){
+        sum += *sptr * *kptr;
+        sptr++;kptr++;
+    }
+
+    *result = sum;
+    return;
+}
+
+/********************************** TM_MDL_FP16 ***********************************************/
+#elif TM_MDL_TYPE==TM_MDL_FP16
+#define PACK_N (RVV_VLEN/16)    //fp16, packn=8
+TM_INLINE  void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t* result)
+{ 
+    float16_t sumbuf[PACK_N];
+    float16_t sum = 0;
+    int cnt=size/PACK_N;
+
+    if(cnt>0){
+        size_t vl = vsetvl_e16m1(PACK_N); 
+        vfloat16m1_t sumv = vfmv_v_f_f16m1(0.f, vl);   //set sum=0
+        vfloat16m1_t v_zero = vfmv_v_f_f16m1(0.0f, vl);        
+        for(int i=0; i<cnt; i++){
+            vfloat16m1_t s = vle16_v_f16m1(sptr, vl);
+            vfloat16m1_t k = vle16_v_f16m1(kptr, vl);
+            sumv = vfmacc_vv_f16m1(sumv, s, k, vl);
+            sptr += PACK_N;
+            kptr += PACK_N;
         }
+        v_zero = vfredosum_vs_f16m1_f16m1(v_zero, sumv, v_zero, vl);
+        sum = vfmv_f_s_f16m1_f16(v_zero);
     }
     for(int i=0; i<size%PACK_N; i++){
         sum += *sptr * *kptr;
@@ -92,6 +123,7 @@ TM_INLINE  void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_
     if(cnt>0){
         size_t vl = vsetvl_e8m1(PACK_N); 
         vint32m4_t sumv = vmv_v_x_i32m4(0, vl);         //set sum=0
+        vint32m1_t v_zero = vmv_v_x_i32m1(0, vl);  
         for(int i=0; i<cnt; i++){
             vint8m1_t  s8  = vle8_v_i8m1(sptr, vl);     //load i8
             vint8m1_t  k8  = vle8_v_i8m1(kptr, vl);
@@ -101,10 +133,8 @@ TM_INLINE  void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_
             sptr += PACK_N;
             kptr += PACK_N;
         }
-        vse32_v_i32m4(sumbuf, sumv, vl);
-        for(int i=0; i<PACK_N; i++){
-            sum += sumbuf[i];
-        }
+        v_zero = vredsum_vs_i32m4_i32m1(v_zero, sumv, v_zero, vl);
+        sum = vmv_x_s_i32m1_i32(v_zero);
     }
     for(int i=0; i<size%PACK_N; i++){
         sum += *sptr * *kptr;

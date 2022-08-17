@@ -20,7 +20,7 @@
 |ESP32-S2    |Xtensa LX7|  4MB| 320KB| 240M|2    |---    ||
 |BL618       |RV32P     |  4MB|0.5+4MB|320M|---      |---      ||
 |BL808's E907|RV32P | 16MB|0.8+64MB|320M|<2ms     |525/371      |mdl in psram,O2|
-|BL808's C906|RV64V | 16MB|0.8+64MB|400M(max480M)|<2ms   |315/212   |mdl in psram,O2|
+|BL808's C906|RV64V | 16MB|0.8+64MB|384M(max480M)|<2ms   |315/212   |mdl in psram,O2|
 |K210 MAIX-I |2xRV64GC  | 16MB|   8MB|400M|---     |---      ||
 |F1C100s  LicheePi Nano|ARM9 | 16MB|32MB|400M  |---|---      ||
 |STM32H750VB |ARM CM7   |128KB|1024KB| 480M|<2ms    |1056/954    |strange result, need confirm|
@@ -72,13 +72,14 @@ BL808 E907 core run mbnet 0.25, 128x128x3 input (mdl in psram, cpu run in 320M, 
 
 ## TM_ARCH_RV64V
 Optimization for RISC-V MCU which have V-extend instructions (like T-Head C906), suoport INT8/FP32 acceleration  
-BL808 C906 core run mbnet 0.25, 128x128x3 input (mdl in psram, VLEN=128, cpu run in 400M, O2)    
+BL808 C906 core run mbnet 0.25, 128x128x3 input (mdl in psram, VLEN=128, cpu run in 384M, O2)    
 |Options|infer time|
 |---|---|
 |TM_ARCH_OPT0  && INT8| 315ms|
-|TM_ARCH_RV64V && INT8| 212ms|
+|TM_ARCH_RV64V && INT8| 178ms|
 |TM_ARCH_OPT0  && FP32| 300ms|
-|TM_ARCH_RV64V && FP32| 190ms|
+|TM_ARCH_RV64V && FP32| 182ms|
+|TM_ARCH_RV64V && FP16| 161ms|
 
 # compare to other infer library
 ## NNoM

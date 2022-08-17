@@ -7,7 +7,7 @@ TinyMaix is a tiny inference Neural Network library specifically for microcontro
 **Highlights**
 - Core Code less than **400 lines**(tm_layers.c+tm_model.c+arch_O0.h), code .text section less than **3KB**   
 - Low ram consume, even **Arduino ATmega328** (32KB Flash, 2KB Ram) can run mnist with TinyMaix~  
-- Support **INT8/FP32** model, convert from keras h5 or tflite.
+- Support **INT8/FP32/FP16** model, convert from keras h5 or tflite.
 - Supoort multi architecture accelerate:  **ARM SIMD/NEON/MVEI，RV32P, RV64V** ~
 - User-friendly interfaces, just load/run models~
 - Support Full Static Memory config
@@ -65,9 +65,9 @@ There are many TinyML infer library now, like TFLite micro, microTVM, NNoM, so w
 
 TinyMaix is a weekend hackathons project, so it is simple enough to read though in 30 minutes, and it will help TinyML newbies to understand how is it running.   
 
-TinyMaix aims to be a simple TinyML infer library, it abandon many new features and don't use libs like CMSIS-NN.  
+TinyMaix aims to be a simple TinyML infererence library, it abandon many new features and doesn't use libs like CMSIS-NN.  
 
-Follow this design goal, now TinyMaix is as simple as 5 files to compile~   
+Following this design goal, now TinyMaix is as simple as 5 files to compile~   
 
 We hope TinyMaix can help any MCU run AI Neural Network Mdoels, every one can port it to theirself hardware platform~   
 
@@ -78,7 +78,7 @@ We hope TinyMaix can help any MCU run AI Neural Network Mdoels, every one can po
   - they are most common used, efficient structure for MCUs
   - [x] Basic Conv2d, dwConv2d, FC, Relu/Relu6/Softmax, GAP, Reshape
   - [ ] MaxPool, AvgPool (now use stride instead)
-- [x] FP32 model, INT8 quant model
+- [x] FP32 model, INT8 quant model, FP16 model(**NEW**)
 - [x] Convert tmdl from keras h5 or tflite
   - model is simple enough to train with keras/tf
   - tflite have quant functions already
@@ -117,8 +117,25 @@ We hope TinyMaix can help any MCU run AI Neural Network Mdoels, every one can po
 - [ ] other misc OPs
   - TinyMaix support MCUs to run basic model in minimum resource consumption, if you want more OPs, switch to TFlite-micro/TVM/NCNN... 
 
-## Fisrt Try
-Try run mobilenet
+## Try Demos
+### mnist
+MNIST is handwritten digit recognition task, it is simple enough for even 8bit MCU like ATmega328.  
+Try it on PC:  
+```
+cd examples/mnist
+mkdir build
+cd build 
+cmake ..
+make
+./mnist
+```
+
+### mbnet
+mbnet (mobilenet v1) is simple classification model for mobile devices, but it is still a little heavy for MCUs.  
+The model in demo is mobilenet v1 0.25, it input 128x128x3 RGB image, output 1000 classes predict.  
+It need at least 128KB SRAM and 512KB Flash, STM32F411 is the typical minimum config for this model.  
+
+Try run mobilenet  
 ```
 cd examples/mbnet
 mkdir build
