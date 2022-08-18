@@ -13,13 +13,13 @@ limitations under the License.
 #include "stdio.h"
 #include "tinymaix.h"
 
-#define INCBIN_STYLE INCBIN_STYLE_SNAKE
-#define INCBIN_PREFIX
-#include "incbin.h"
-//INCBIN(mdl, "../../tools/tmdl/mnist_f_valid.tmdl");
-#include "../../tools/tmdl/mnist_q_valid.h"
+#if TM_MDL_TYPE == TM_MDL_INT8
+#include "../../tools/tmdl/mnist_valid_q.h"
+#elif TM_MDL_TYPE == TM_MDL_FP32
+#include "../../tools/tmdl/mnist_valid_f.h"
+#endif
 
-#if 0
+#if 1
 uint8_t mnist_pic[28*28]={
   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -125,7 +125,7 @@ static void parse_output(tm_mat_t* outs)
             maxp = data[i];
         }
     }
-    TM_PRINTF("### Predict output is: Number %d\n", maxi);
+    TM_PRINTF("### Predict output is: Number %d, prob %.3f\n", maxi, maxp);
     return;
 }
 
