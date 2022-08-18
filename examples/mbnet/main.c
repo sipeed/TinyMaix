@@ -15,15 +15,19 @@ limitations under the License.
 
 //https://github.com/fchollet/deep-learning-models/releases
 
-#define INCBIN_STYLE INCBIN_STYLE_SNAKE
-#define INCBIN_PREFIX
-#include "incbin.h"
+//#define INCBIN_STYLE INCBIN_STYLE_SNAKE
+//#define INCBIN_PREFIX
+//#include "incbin.h"
+//INCBIN(mdl, "../../../tools/tmdl/mbnet128_0.25_f.tmdl");
 
 #if TM_MDL_TYPE==TM_MDL_FP32
-//INCBIN(mdl, "../../../tools/tmdl/mbnet128_0.25_f.tmdl");
 #include "../../tools/tmdl/mbnet128_0.25_f.h"
-#else
+#elif TM_MDL_TYPE==TM_MDL_FP16
+#include "../../tools/tmdl/mbnet128_0.25_fp16.h"
+#elif TM_MDL_TYPE==TM_MDL_INT8
 #include "../../tools/tmdl/mbnet128_0.25_q.h"
+#else
+#error "wrong mdl type!"
 #endif 
 
 extern const char* labels[1000];

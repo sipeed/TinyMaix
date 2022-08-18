@@ -10,6 +10,9 @@ speed up TM_ARCH_RV64V infer mbnet v1 0.25:
 |FP32| 190ms| 182ms|4%|
 |FP16| 178ms| 161ms|11%|
 
+tested infer time duty: sbuf:dot:sum ~ 9:5:2   
+need opt sbuf time   
+
 ## 2022.08.08
 First commit to github, support INT8/FP32 model,
 support arch:

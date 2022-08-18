@@ -40,7 +40,7 @@ limitations under the License.
 #define TM_DBG(...)    //TM_PRINTF("###L%d: ",__LINE__);TM_PRINTF(__VA_ARGS__);
 #define TM_DBGL()      TM_PRINTF("###L%d\n",__LINE__);
 
-
+/******************************* DBG TIME CONFIG  ************************************/
 #include <sys/time.h>
 #include <time.h>
 #define  TM_GET_US()       ((uint32_t)(clock()*1000000/CLOCKS_PER_SEC))
@@ -51,6 +51,30 @@ limitations under the License.
                             _time = (float)(_finish-_start)/1000.0;\
                             TM_PRINTF("===%s use %.3f ms\n", (x), _time);\
                             _start=TM_GET_US();}
+
+/******************************* DBG PERFORMANCE CONFIG  ************************************/
+//need clock tick to make accurate statistics
+#define TM_EN_PERF 0
+
+#if TM_EN_PERF
+    #define  TM_GET_TICK(x)     __ASM volatile("csrr %0, mcycle" : "=r"(x)); //edit your self
+
+    #define  TM_TICK_PERUS    (1000) //sysconf(_SC_CLK_TCK)/1000000)
+    #define  TM_PERF_INIT()   uint64_t _perf_t0, _perf_t1;
+    #define  TM_PERF_REG(x)   uint64_t x=0;
+    #define  TM_PERF_START()  TM_GET_TICK(_perf_t0);
+    #define  TM_PERF_ADD(x)   {TM_GET_TICK(_perf_t1);(x)+=(_perf_t1-_perf_t0);TM_GET_TICK(_perf_t0);};
+    #define  TM_PERF_PRINT(x) TM_PRINTF("PERF "#x": %ld us\r\n", (x)/TM_TICK_PERUS)
+#else 
+    #define  TM_GET_TICK(x)   
+    #define  TM_TICK_PERUS    
+    #define  TM_PERF_INIT()   
+    #define  TM_PERF_REG(x)   
+    #define  TM_PERF_START()  
+    #define  TM_PERF_ADD(x)   
+    #define  TM_PERF_PRINT(x)
+#endif
+
 
 /******************************* OPS CONFIG  ************************************/
 

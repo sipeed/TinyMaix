@@ -105,7 +105,7 @@ tm_err_t __attribute__((weak)) tml_conv2d_dwconv2d(tm_mat_t* in, tm_mat_t* out, 
     int kw, int kh, int sx, int sy, int dx, int dy, int act, \
     int pad_top, int pad_bottom, int pad_left, int pad_right, int dmul, \
     sctype_t* ws, sctype_t in_s, zptype_t in_zp, sctype_t out_s, zptype_t out_zp) //kernel: (cho, chi, h, w)
-{   TM_DBGT_INIT();
+{   TM_DBGT_INIT();TM_PERF_INIT();TM_PERF_REG(t_sbuf);TM_PERF_REG(t_dotp);TM_PERF_REG(t_post);
     int pad_flag = (pad_top != 0 ||pad_bottom != 0 ||pad_left != 0 ||pad_right != 0);
     if(dx!=1 || dy!= 1) return TM_ERR_TODO;   
     if(act >= TM_ACT_MAXCNT) return TM_ERR_UNSUPPORT;   
@@ -117,7 +117,7 @@ tm_err_t __attribute__((weak)) tml_conv2d_dwconv2d(tm_mat_t* in, tm_mat_t* out, 
     sumtype_t sum; 
     mtype_t* outp = out->data;
 
-#if TM_MDL_TYPE != TM_MDL_FP32
+#if (TM_MDL_TYPE == TM_MDL_INT8) || (TM_MDL_TYPE == TM_MDL_INT16)
 #if TM_FASTSCALE
 	int32_t outscale = (1<<TM_FASTSCALE_SHIFT)/out_s;
 	for(int c=0; c<out->c;c++) sumscale[c]=1.0/ws[c]/in_s;
@@ -135,9 +135,9 @@ tm_err_t __attribute__((weak)) tml_conv2d_dwconv2d(tm_mat_t* in, tm_mat_t* out, 
                 mtype_t* sptr = (mtype_t*)TM_MATP(in, sy*y, sx*x, 0); 
                 wtype_t* kptr = (wtype_t*)w;
                 for(int c=0; c<out->c; c++){
-                    sum = 0 ;
-                    tm_dot_prod(sptr, kptr, chi, &sum); //size=maxk*chi //pw maxk==1
-                    l_postprocess_sum(sum, b[c], act, outp, SUMSCALE, outscale, out_zp); outp++;
+                    sum = 0 ; TM_PERF_START();
+                    tm_dot_prod(sptr, kptr, chi, &sum); TM_PERF_ADD(t_dotp);//size=maxk*chi //pw maxk==1
+                    l_postprocess_sum(sum, b[c], act, outp, SUMSCALE, outscale, out_zp); outp++; TM_PERF_ADD(t_post);
                     kptr += chi;
                 }
             }
@@ -162,7 +162,8 @@ tm_err_t __attribute__((weak)) tml_conv2d_dwconv2d(tm_mat_t* in, tm_mat_t* out, 
         for (int x = 0; x < out->w; x++) {
             int src_x0 = sx*x - pad_left;
             sumtype_t sum; 
-            slow_flag = ((src_y0<0)+(src_x0<0)+(src_y0+kh>in->h)+(src_x0+kw>in->w));
+            slow_flag = ((src_y0<0)+(src_x0<0)+(src_y0+kh>in->h)+(src_x0+kw>in->w)); 
+            TM_PERF_START();
             if(!slow_flag) {//valid or same valid part
                 mtype_t* sptr_base = (mtype_t*)TM_MATP(in, src_y0, src_x0, 0); //?c/dmul:0
                 mtype_t* sptr = sptr_base; //= (mtype_t*)TM_MATP(in, src_y0, src_x0, 0); //sbuf 不变
@@ -201,16 +202,18 @@ tm_err_t __attribute__((weak)) tml_conv2d_dwconv2d(tm_mat_t* in, tm_mat_t* out, 
                     sptr = sptr_base + (dmul?(cc+1)/dmul:(cc+1));
                 }
             }
+            TM_PERF_ADD(t_sbuf);
             mtype_t* sptr = sbuf;    //sbuf prepare ok~
             for(int c=0; c<out->c; c++){
                 sum = 0;
-                wtype_t* kptr = (wtype_t*)w + c*chi*maxk;
-                tm_dot_prod(sptr, kptr, maxk*chi, &sum);
-                l_postprocess_sum(sum, b[c], act, outp, SUMSCALE, outscale, out_zp); outp++;
+                wtype_t* kptr = (wtype_t*)w + c*chi*maxk;TM_PERF_START();
+                tm_dot_prod(sptr, kptr, maxk*chi, &sum);TM_PERF_ADD(t_dotp);
+                l_postprocess_sum(sum, b[c], act, outp, SUMSCALE, outscale, out_zp); outp++;TM_PERF_ADD(t_post);
                 if(dmul) sptr += maxk; //dwconv need move step
             }
         }
     } 
+    TM_PERF_PRINT(t_sbuf);TM_PERF_PRINT(t_dotp);TM_PERF_PRINT(t_post);
     return TM_OK;
 }
 
