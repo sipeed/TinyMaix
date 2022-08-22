@@ -9,17 +9,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-
+// It is default O0 implement
 #include "tinymaix.h"
 #include "float.h"
 #include "math.h"
 
-#if TM_ARCH==TM_ARCH_O0
-    #include "arch_O0.h"
-#elif TM_ARCH==TM_ARCH_O1
-    #include "arch_O1.h"
-#elif TM_ARCH==TM_ARCH_O2
-    #include "arch_O2.h"
+#if TM_ARCH==TM_ARCH_CPU
+    #include "arch_cpu.h"
 #elif TM_ARCH==TM_ARCH_ARM_SIMD
     #include "arch_arm_simd.h"
 #elif TM_ARCH==TM_ARCH_ARM_NEON
@@ -56,7 +52,7 @@ TM_INLINE void l_postprocess_sum(sumtype_t sum, btype_t b, int act, mtype_t* out
     *outp = (mtype_t)sum;
     return;
 }
-#else
+#elif (TM_MDL_TYPE==TM_MDL_INT8) || (TM_MDL_TYPE==TM_MDL_INT16) 
 
 #if TM_FASTSCALE
     static int32_t sumscale[TM_MAX_CSIZE];
@@ -186,7 +182,7 @@ tm_err_t __attribute__((weak)) tml_conv2d_dwconv2d(tm_mat_t* in, tm_mat_t* out, 
                 mtype_t* sptr = sptr_base;
             #if TM_MDL_TYPE == TM_MDL_INT8
                 memset(sbuf, in_zp, dmul?cho*maxk:chi*maxk);    //do padding
-            #elif (TM_MDL_TYPE == TM_MDL_FP32)||(TM_MDL_TYPE == TM_MDL_FP16)
+            #elif (TM_MDL_TYPE == TM_MDL_FP32)||(TM_MDL_TYPE == TM_MDL_FP16)||(TM_MDL_TYPE == TM_MDL_FP8_143)||(TM_MDL_TYPE == TM_MDL_FP8_152)
                 memset(sbuf, 0, (dmul?cho*maxk:chi*maxk)*sizeof(mtype_t));
             #else
             #error "unsupport mdl type"
@@ -232,8 +228,9 @@ tm_err_t __attribute__((weak)) tml_gap(tm_mat_t* in, tm_mat_t* out, sctype_t in_
         }
     #if TM_MDL_TYPE == TM_MDL_INT8 || TM_MDL_TYPE == TM_MDL_INT16 
         out->data[c] = (mtype_t)((sum/((in->h)*(in->w))-in_zp)*in_s/out_s + out_zp); //requant
-    #else
+    #elif TM_MDL_TYPE == TM_MDL_FP32 || TM_MDL_TYPE == TM_MDL_FP16 
         out->data[c] = (mtype_t)(sum/((in->h)*(in->w)));
+    //#else //#elif TM_MDL_TYPE == TM_MDL_FP8_143 || TM_MDL_TYPE == TM_MDL_FP8_152 
     #endif
     }
     return TM_OK;

@@ -26,6 +26,12 @@ TM_MDL_INT8  = 0
 TM_MDL_INT16 = 1
 TM_MDL_FP32  = 2
 TM_MDL_FP16  = 3
+TM_MDL_FP8_143  = 4
+TM_MDL_FP8_152  = 5
+
+TM_FP8_143_BIAS = 9
+TM_FP8_152_BIAS = 15
+
 
 TML_CONV2D    = 0
 TML_GAP       = 1
@@ -52,22 +58,139 @@ layername2type={\
 MDLBINHEAD_SIZE=64
 LAYERHEAD_SIZE= 48
 
+#e is fp16 https://docs.python.org/3/library/struct.html
+#fp8 https://arxiv.org/abs/2206.02915
+#s.e.m and extra exponents bias
+
 mdl_type = TM_MDL_INT8
-unit_sizes= [1,2,4,2]
+unit_sizes= [1,2,4,2,1,1]
 unit_size = unit_sizes[mdl_type]
-w_types   = ["b","h","f","e"]  #e is fp16 https://docs.python.org/3/library/struct.html
+w_types   = ["b","h","f","e","fp8_143","fp8_152"]  
 w_type    = w_types[mdl_type]
-b_types   = ["i","i","f","e"]
-b_types_np= [np.int32,np.int32,np.float32,np.float16]
+b_types   = ["i","i","f","e","fp8_143","fp8_152"]
+b_types_np= [np.int32,np.int32,np.float32,np.float16,np.uint8,np.uint8]
 b_type    = b_types[mdl_type]
 b_type_np = b_types_np[mdl_type]
-bunit_sizes= [4,4,4,2]
+bunit_sizes= [4,4,4,2,1,1]
 bunit_size = bunit_sizes[mdl_type]
+
+
+############################### UTILS FUNCTIONS #####################################
+def is_mdl_float(mdl_type):
+    return ((mdl_type == TM_MDL_FP32) or (mdl_type == TM_MDL_FP16) or (mdl_type == TM_MDL_FP8_143) or (mdl_type == TM_MDL_FP8_152))
+
+def is_mdl_int(mdl_type):
+    return ((mdl_type == TM_MDL_INT8) or (mdl_type == TM_MDL_INT16)) 
+
+def align8(x):
+    return (x+7)//8*8
+
+def cal_buf_size(layers, mdl_type, out_deq):
+    buf_sizes  = []
+    global unit_sizes 
+    unit_size  = unit_sizes[mdl_type]
+    for l in layers:
+        if l["is_output"] and out_deq and (mdl_type != TM_MDL_FP32) :  #fp16/fp8 also need deq
+            buf_size = align8(np.prod(l["in_shape"])*unit_size)+align8(np.prod(l["out_shape"])*unit_size)+align8(np.prod(l["out_shape"])*4)
+        elif (l["name"] == "SOFTMAX"): #reserve float place for deq or  middle
+            buf_size = align8(np.prod(l["in_shape"])*unit_size)+align8(np.prod(l["out_shape"])*4)
+        else:
+            buf_size = align8(np.prod(l["in_shape"])*unit_size)+align8(np.prod(l["out_shape"])*unit_size)
+        
+        if (l["name"] == "RESHAPE"):
+            buf_size -= align8(np.prod(l["in_shape"])*unit_size) #as reshape is inplace
+        #print("%s: %d"%(l["name"], buf_size))
+        buf_sizes.append(buf_size)
+    buf_size = max(buf_sizes)
+    #print(buf_size)
+    return buf_size
+
+#dims: 3,h,w,c; 2,1,w,c; 1,1,1,c 
+def shape2dims(shape):
+    dims = [len(shape)] + [1]*(3-len(shape))
+    dims.extend(shape)
+    return dims
+
+############################### FP8 FUNCTIONS #####################################
+# fp32:1.8.23_127, fp16: 1.5.10_15, bf16: 1.8.7_127
+# fp8: 1.4.3, 1.5.2
+def fp32_to_fp8(fp32, ecnt,mcnt,bias):
+    buf = np.array(fp32).astype(np.float32).tobytes()
+    data = np.frombuffer(buf, dtype=np.uint32)[0]
+    fp32_s = data>>31
+    fp32_e = (data>>23)&0x0ff
+    fp32_m = (data&0x07fffff)
+    #print("fp32 s.e.m=%d, %d, %d"%(fp32_s, fp32_e, fp32_m))
+    fp8_s = fp32_s
+    fp8_e = fp32_e-127+bias
+    fp8_m = ((fp32_m>>(22-mcnt))+1)>>1
+    if fp8_m>= (1<<mcnt):
+        fp8_m=0
+        fp8_e+=1
+    if fp8_e > (1<<ecnt)-1:
+        fp8_e = (1<<ecnt)-1
+    elif fp8_e < 0:
+        fp8_e = 0
+    #print("fp8 s.e.m=%d, %d, %d"%(fp8_s, fp8_e, fp8_m))
+    fp8 = int((fp8_s<<7)|(fp8_e<<mcnt)|fp8_m)
+    return fp8
+
+def fp32_to_fp8_batch(fp32s, ecnt,mcnt,bias):
+    buf = fp32s.astype(np.float32).tobytes()
+    datas = np.frombuffer(buf, dtype=np.uint32)
+    fp8s = np.zeros(len(fp32s)).astype(np.uint8)
+    for i in range(len(datas)):
+        data = datas[i]
+        fp32_s = data>>31
+        fp32_e = (data>>23)&0x0ff
+        fp32_m = (data&0x07fffff)
+        #print("fp32 s.e.m=%d, %d, %d"%(fp32_s, fp32_e, fp32_m))
+        fp8_s = fp32_s
+        fp8_e = fp32_e-127+bias
+        fp8_m = ((fp32_m>>(22-mcnt))+1)>>1
+        if fp8_m>= (1<<mcnt):
+            fp8_m=0
+            fp8_e+=1
+        if fp8_e > (1<<ecnt)-1:
+            fp8_e = (1<<ecnt)-1
+        elif fp8_e < 0:
+            fp8_e = 0
+        #print("fp8 s.e.m=%d, %d, %d"%(fp8_s, fp8_e, fp8_m))
+        fp8 = (fp8_s<<7)|(fp8_e<<mcnt)|fp8_m
+        fp8s[i] = fp8
+    return fp8s
+
+def fp8_to_fp32(fp8, ecnt,mcnt,bias):
+    fp8_s = fp8>>7
+    fp8_e = (fp8&0x7f)>>mcnt
+    fp8_m = fp8&((1<<mcnt)-1)
+    
+    fp32_s = fp8_s
+    fp32_e = fp8_e-bias+127
+    fp32_m = fp8_m<<(23-mcnt)
+
+    fp32 = (fp32_s<<31)|(fp32_e<<23)|fp32_m
+    buf = np.array(fp32).astype(np.uint32).tobytes()
+    fp32 = np.frombuffer(buf, dtype=np.float32)[0]
+    return fp32
+
+def fill_fp8_data(mdl_type, lbody, data):
+    if mdl_type ==TM_MDL_FP8_143:
+        fp8s = fp32_to_fp8_batch(data, 4,3,TM_FP8_143_BIAS)
+        lbody += struct.pack("%dB"%(fp8s.size),  *fp8s)
+    elif mdl_type ==TM_MDL_FP8_152:
+        fp8s = fp32_to_fp8_batch(data, 5,2,TM_FP8_152_BIAS)
+        lbody += struct.pack("%dB"%(fp8s.size),  *fp8s)
+    else:
+        print("err mdl_type!")
+        assert 0
+    return lbody
+
 
 ############################### PACK FUNCTIONS #####################################
 def pack_conv2d_dwconv2d(l, mdl_type):  #conv2d and dwconv2d
     lbody = b''
-    if (mdl_type != TM_MDL_FP32) and (mdl_type != TM_MDL_FP16) :
+    if is_mdl_int(mdl_type):
         ms = l["i_scale"]
         mzp= l["i_zeropoint"]
         _os= l["o_scale"]
@@ -77,7 +200,7 @@ def pack_conv2d_dwconv2d(l, mdl_type):  #conv2d and dwconv2d
     kw= l["weight"].shape[2]
     kh= l["weight"].shape[1]
     # fuse mzp to bias #need deal with pad==same
-    if (mdl_type != TM_MDL_FP32) and (mdl_type != TM_MDL_FP16) :
+    if is_mdl_int(mdl_type):
         maxk = l["weight"].shape[1]*l["weight"].shape[2]
         mi_c = l["in_shape"][-1] if l["name"] == "CONV_2D" else 1
         mo_c = l["out_shape"][-1]
@@ -119,7 +242,7 @@ def pack_conv2d_dwconv2d(l, mdl_type):  #conv2d and dwconv2d
     lbody += struct.pack('I',  0);#pad
     # cal ws&w&b oft
     ws_oft = LAYERHEAD_SIZE + len(lbody) + 12  #add 4 uint32 oft
-    ws_size= (mo_c*4+7)//8*8 if ((mdl_type != TM_MDL_FP32) and (mdl_type != TM_MDL_FP16)) else 0
+    ws_size= (mo_c*4+7)//8*8 if is_mdl_int(mdl_type) else 0
     w_oft  = ws_oft + ws_size
     w_size = (w.size*unit_size+7)//8*8
     b_oft  = w_oft+w_size
@@ -130,7 +253,7 @@ def pack_conv2d_dwconv2d(l, mdl_type):  #conv2d and dwconv2d
     lbody += struct.pack('I',  b_oft);    #b_oft
     assert len(lbody)%8 == 0
     # weight scale
-    if (mdl_type != TM_MDL_FP32) and (mdl_type != TM_MDL_FP16) :
+    if is_mdl_int(mdl_type):
         ws = l["w_scale"] 
         lbody += struct.pack("%df"%(ws.size), *ws)
         if ws_size!= ws.size*4:
@@ -141,11 +264,15 @@ def pack_conv2d_dwconv2d(l, mdl_type):  #conv2d and dwconv2d
         lbody += w.astype(np.int8).tobytes()
     elif mdl_type == TM_MDL_INT16:
         print("INT16 TODO")
-        assert mdl_type!=TM_MDL_INT16
+        assert 0
     elif mdl_type == TM_MDL_FP32:
         lbody += struct.pack("%df"%(w.size),  *w)
     elif mdl_type == TM_MDL_FP16:
         lbody += struct.pack("%de"%(w.size),  *w)
+    elif mdl_type == TM_MDL_FP8_143:
+        lbody = fill_fp8_data(mdl_type, lbody, w)
+    elif mdl_type == TM_MDL_FP8_152:
+        lbody = fill_fp8_data(mdl_type, lbody, w)
     else:
         print("unsupport mdl type %d"%mdl_type)
         assert 0
@@ -153,7 +280,10 @@ def pack_conv2d_dwconv2d(l, mdl_type):  #conv2d and dwconv2d
         lbody += bytes(w_size-w.size*unit_size) #align to 8bytes
     assert len(lbody)%8 == 0
     #bias
-    lbody += struct.pack("%d"%(b.size)+b_type,  *b)
+    if (mdl_type == TM_MDL_FP8_143) or (mdl_type == TM_MDL_FP8_152):
+        lbody = fill_fp8_data(mdl_type, lbody, b)
+    else:
+        lbody += struct.pack("%d"%(b.size)+b_type,  *b)
     if b_size!= b.size*bunit_size:
         lbody += bytes(b_size-b.size*bunit_size) #align to 8bytes
     assert len(lbody)%8 == 0
@@ -168,7 +298,7 @@ def pack_gap(l, mdl_type):
 
 def pack_fc(l, mdl_type):
     lbody = b''
-    if (mdl_type != TM_MDL_FP32) and (mdl_type != TM_MDL_FP16) :
+    if is_mdl_int(mdl_type):
         ms = l["i_scale"]
         mzp= l["i_zeropoint"]
         _os= l["o_scale"]
@@ -177,12 +307,12 @@ def pack_fc(l, mdl_type):
     mo_c = l["out_shape"][-1]
     w = l["weight"].flatten()  #co,ci
     b = l["bias"].copy() if 'bias' in l else np.zeros((mo_c,))
-    if (mdl_type != TM_MDL_FP32) and (mdl_type != TM_MDL_FP16) :
+    if is_mdl_int(mdl_type):
         tmp = np.array([np.sum(w[c*mi_c:(c+1)*mi_c]) for c in range(mo_c)])
         b += (-mzp*tmp)
     # cal ws&w&b oft
     ws_oft = LAYERHEAD_SIZE + len(lbody) + 16  #add 4 uint32 oft
-    ws_size= (mo_c*4+7)//8*8 if ((mdl_type != TM_MDL_FP32) and (mdl_type != TM_MDL_FP16) ) else 0
+    ws_size= (mo_c*4+7)//8*8 if is_mdl_int(mdl_type) else 0
     w_oft  = ws_oft + ws_size
     w_size= (w.size*unit_size+7)//8*8
     b_oft = w_oft+w_size
@@ -195,7 +325,7 @@ def pack_fc(l, mdl_type):
     assert len(lbody)%8 == 0
     
     # weight scale
-    if (mdl_type != TM_MDL_FP32) and (mdl_type != TM_MDL_FP16)  :
+    if is_mdl_int(mdl_type):
         ws = l["w_scale"] 
         lbody += struct.pack("%df"%(ws.size), *ws)
         if ws_size!= ws.size*4:
@@ -211,6 +341,10 @@ def pack_fc(l, mdl_type):
         lbody += struct.pack("%df"%(w.size),  *w)
     elif mdl_type == TM_MDL_FP16:
         lbody += struct.pack("%de"%(w.size),  *w)
+    elif mdl_type == TM_MDL_FP8_143:
+        lbody = fill_fp8_data(mdl_type, lbody, w)
+    elif mdl_type == TM_MDL_FP8_152:
+        lbody = fill_fp8_data(mdl_type, lbody, w)
     else:
         print("unsupport mdl type %d"%mdl_type)
         assert 0
@@ -218,7 +352,10 @@ def pack_fc(l, mdl_type):
         lbody += bytes(w_size-w.size*unit_size) #align to 8bytes
     assert len(lbody)%8 == 0
     #bias
-    lbody += struct.pack("%d"%(b.size)+b_type,  *(b.astype(b_type_np)))
+    if (mdl_type == TM_MDL_FP8_143) or (mdl_type == TM_MDL_FP8_152):
+        lbody = fill_fp8_data(mdl_type, lbody, b)
+    else:
+        lbody += struct.pack("%d"%(b.size)+b_type,  *b)
     if b_size!= b.size*bunit_size:
         lbody += bytes(b_size-b.size*bunit_size) #align to 8bytes
 
@@ -231,44 +368,15 @@ def pack_softmax(l, mdl_type):
 def pack_reshape(l, mdl_type):
     return b''
 
-############################### UTILS FUNCTIONS #####################################
-def align8(x):
-    return (x+7)//8*8
-
-def cal_buf_size(layers, mdl_type, out_deq):
-    buf_sizes  = []
-    global unit_sizes 
-    unit_size  = unit_sizes[mdl_type]
-    for l in layers:
-        if l["is_output"] and out_deq and (mdl_type != TM_MDL_FP32) :  #fp16 also need deq
-            buf_size = align8(np.prod(l["in_shape"])*unit_size)+align8(np.prod(l["out_shape"])*unit_size)+align8(np.prod(l["out_shape"])*4)
-        elif (l["name"] == "SOFTMAX"): #reserve float place for deq or  middle
-            buf_size = align8(np.prod(l["in_shape"])*unit_size)+align8(np.prod(l["out_shape"])*4)
-        else:
-            buf_size = align8(np.prod(l["in_shape"])*unit_size)+align8(np.prod(l["out_shape"])*unit_size)
-        
-        if (l["name"] == "RESHAPE"):
-            buf_size -= align8(np.prod(l["in_shape"])*unit_size) #as reshape is inplace
-        #print("%s: %d"%(l["name"], buf_size))
-        buf_sizes.append(buf_size)
-    buf_size = max(buf_sizes)
-    #print(buf_size)
-    return buf_size
-
-#dims: 3,h,w,c; 2,1,w,c; 1,1,1,c 
-def shape2dims(shape):
-    dims = [len(shape)] + [1]*(3-len(shape))
-    dims.extend(shape)
-    return dims
-
+############################### PACK FUNCTIONS #####################################
 def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims):
     global unit_size,w_type,b_type,b_type_np,bunit_size
     #mdl_name = "mnist.tmodel"
     fw = open(mdl_name, "wb")
-    if ((mdl_type == TM_MDL_FP32) or (mdl_type == TM_MDL_FP16)) and layers[0]["quant"]:
+    if is_mdl_float(mdl_type) and layers[0]["quant"]:
         print("quant type unmatch with tflite type!")
         exit()
-    elif ((mdl_type == TM_MDL_INT8) or (mdl_type == TM_MDL_INT16)) and not layers[0]["quant"]:
+    elif is_mdl_int(mdl_type) and not layers[0]["quant"]:
         print("quant type unmatch with tflite type!")
         exit()
     # cfg
@@ -361,9 +469,9 @@ def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims):
         lh += struct.pack('4H', *in_dims);
         lh += struct.pack('4H', *out_dims);
         lh += struct.pack('f',  in_s);  #TODO: fast scale
-        lh += struct.pack('f' if mdl_type==TM_MDL_FP32 else 'i',  in_zp)
+        lh += struct.pack('f' if is_mdl_float(mdl_type) else 'i',  in_zp)
         lh += struct.pack('f',  out_s);
-        lh += struct.pack('f' if mdl_type==TM_MDL_FP32 else 'i',  out_zp); 
+        lh += struct.pack('f' if is_mdl_float(mdl_type) else 'i',  out_zp); 
         #print(lh)
         assert len(lh) == LAYERHEAD_SIZE   #print("layer head not align on 8byte!")
         
@@ -425,7 +533,7 @@ def tflite2tmdl(tflite_name, tmdl_name, mdl_type, out_deq, in_dims, out_dims):
 
 def print_usage():
     print("Usage: python3 tflite2tmdl.py tflite_name tmdl_name mdl_type out_deq in_dims out_dims")
-    print("       mdl_type: fp32, int8, int16")
+    print("       mdl_type: fp32, int8, int16, fp16, fp8_143, fp8_152")
     print("       out_deq: if enable output dequant")
     print("       in_dims,out_dims: dims except batch dim, max 3dims")
     print("       currently only support single input/output convert")
@@ -433,10 +541,12 @@ def print_usage():
 
 # python3 tflite2tmdl.py tflite/mnist_dw_f.tflite tmdl/mnist_dw_fp16.tmdl fp16 1 28,28,1 10
 # python3 tflite2tmdl.py tflite/mnist_dw_q.tflite tmdl/mnist_dw_q.tmdl int8 1 28,28,1 10
-# python3 tflite2tmdl.py tflite/mbnet_f.tflite tmdl/mbnet_f.tmdl fp32 1 224,224,3 1000
-# python3 tflite2tmdl.py tflite/mbnet_q.tflite tmdl/mbnet_q.tmdl int8 1 224,224,3 1000
-# python3 tflite2tmdl.py tflite/mbnet_f.tflite tmdl/mbnet_fp16.tmdl fp16 1 224,224,3 1000
-mdl_type_dict={"fp32":TM_MDL_FP32, "int8":TM_MDL_INT8, "int16":TM_MDL_INT16, "fp16":TM_MDL_FP16}
+# python3 tflite2tmdl.py tflite/mbnet_f.tflite tmdl/mbnet_f.tmdl fp32 1 128,128,3 1000
+# python3 tflite2tmdl.py tflite/mbnet_q.tflite tmdl/mbnet_q.tmdl int8 1 128,128,3 1000
+# python3 tflite2tmdl.py tflite/mbnet_f.tflite tmdl/mbnet_fp16.tmdl fp16 1 128,128,3 1000
+# python3 tflite2tmdl.py tflite/mnist_valid_f.tflite tmdl/mbnet_fp8.tmdl fp8_152 1 28,28,1 10
+# python3 tflite2tmdl.py tflite/mbnet_f.tflite tmdl/mbnet_fp8.tmdl fp8_152 1 128,128,3 1000
+mdl_type_dict={"fp32":TM_MDL_FP32, "int8":TM_MDL_INT8, "int16":TM_MDL_INT16, "fp16":TM_MDL_FP16, "fp8_143":TM_MDL_FP8_143, "fp8_152":TM_MDL_FP8_152}
 if __name__ == '__main__':
     if len(sys.argv) != 7:
         print_usage()

@@ -7,7 +7,7 @@ TinyMaix是面向单片机的超轻量级的神经网络推理库，即TinyML推
 **关键特性**
 - 核心代码少于**400行**(tm_layers.c+tm_model.c+arch_O0.h), 代码段(.text)少于**3KB**   
 - 低内存消耗，甚至**Arduino ATmega328** (32KB Flash, 2KB Ram) 都能基于TinyMaix跑mnist(手写数字识别)
-- 支持**INT8/FP32/FP16**模型，支持keras h5或tflite模型转换 
+- 支持**INT8/FP32/FP16**模型，实验性地支持**FP8**模型，支持keras h5或tflite模型转换 
 - 支持多种芯片架构的专用指令优化:  **ARM SIMD/NEON/MVEI，RV32P, RV64V** 
 - 友好的用户接口，只需要load/run模型~
 - 支持全静态的内存配置(无需malloc)
@@ -57,6 +57,17 @@ mnist demo
 9: 0
 ### Predict output is: Number 2, prob=89
 ```
+
+## TODO 
+1. 将 tm_layers.c 优化到 tm_layers_O1.c, 目标提升速度到 1.4~2.0X
+2. 针对64/128/256/512KB内存限制，找到合适的骨干网络
+3. 增加例程： Detector,KWS,HAR,Gesture,OCR,...
+4. ...
+
+如果想参与进TinyMaix的开发，或者想与TinyML爱好者交流，   
+请加入我们的telegram交流群：https://t.me/tinymaix  
+
+
 
 ## TinyMaix 设计思路
 TinyMaix 是专为低资源的单片机设计的AI神经网络推理框架，通常被称为**TinyML**  
@@ -252,11 +263,6 @@ TinyMaix使用基础的点积函数加速卷积运算
 TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t* result);
 ```
 
-## TODO 
-1. 预处理使用mean/std 
-2. 针对64/128/256/512KB内存限制，找到合适的骨干网络
-3. 增加例程：KWS,HAR,Gesture,OCR,...
-...
 
 ## 贡献/联系
 如果你需要向TinyMaix贡献代码，请先阅读“TinyMaix设计思路”一节，我们只需要“设计内的特性”和“可考虑添加的特性”。

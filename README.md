@@ -7,7 +7,7 @@ TinyMaix is a tiny inference Neural Network library specifically for microcontro
 **Highlights**
 - Core Code less than **400 lines**(tm_layers.c+tm_model.c+arch_O0.h), code .text section less than **3KB**   
 - Low ram consume, even **Arduino ATmega328** (32KB Flash, 2KB Ram) can run mnist with TinyMaix~  
-- Support **INT8/FP32/FP16** model, convert from keras h5 or tflite.
+- Support **INT8/FP32/FP16** model, experimentally support **FP8**, convert from keras h5 or tflite.
 - Supoort multi architecture accelerate:  **ARM SIMD/NEON/MVEI，RV32P, RV64V** ~
 - User-friendly interfaces, just load/run models~
 - Support Full Static Memory config
@@ -57,6 +57,16 @@ mnist demo
 9: 0
 ### Predict output is: Number 2, prob=89
 ```
+
+## TODO List
+1. optimize tm_layers.c to tm_layers_O1.c, aimed to speed up to 1.4~2.0X
+2. Train good backbone for 64KB/128KB/256KB/512KB ram litmit
+3. Add example: Detector,KWS,HAR,Gesture,OCR,...
+4. ...
+
+Do you want take participate in development of TinyMaix, or discuss with TinyML hobbyist?  
+Join our telegram group: https://t.me/tinymaix
+
 
 ## TinyMaix Design
 TinyMaix is design for running AI Neural Network Mdoels on resources limited MCUs, which usually called **TinyML**  
@@ -252,10 +262,6 @@ You just need add arch_xxx_yyy.h in src dir, and implement your platform's dot_p
 TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t* result);
 ```
 
-## TODO 
-1. Preprocess with mean/std 
-2. find good backbone for 64KB/128KB/256KB/512KB ram litmit
-3. Add example: KWS,HAR,Gesture,OCR,...
 ...
 
 ## Contribution & Contacts

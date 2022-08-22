@@ -13,6 +13,15 @@ limitations under the License.
 #include "tinymaix.h"
 
 #if TM_ENABLE_STAT
+static const char* mdl_type_str[6] = {
+    "int8",   
+    "int16",     
+    "fp32",    
+    "fp16",  
+    "fp8 1.4.3", 
+    "fp8 1.5.2", 
+};
+
 static const char* tml_str_tbl[TML_MAXCNT] = {
     "Conv2D",   /*TML_CONV2D  = 0,*/
     "GAP",      /*TML_GAP     = 1,*/
@@ -34,7 +43,7 @@ static const int tml_headsize_tbl[TML_MAXCNT] = {
 tm_err_t tm_stat(tm_mdlbin_t* b)
 {   
     printf("================================ model stat ================================\n");
-    printf("mdl_type=%d (0 int8, 1 int16, 2 fp32)\n", b->mdl_type);
+    printf("mdl_type=%d (%s))\n", b->mdl_type, mdl_type_str[b->mdl_type]);
     printf("out_deq=%d \n", b->out_deq);
     printf("input_cnt=%d, output_cnt=%d, layer_cnt=%d\n", b->input_cnt, b->output_cnt, b->layer_cnt);
     uint16_t* idim = b->in_dims;

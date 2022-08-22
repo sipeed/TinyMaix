@@ -1,5 +1,10 @@
 # UPDATES LOG
 
+## 2022.08.22
+Add auto test script.  
+Add experimental FP8 1.4.3/1.5.2 model, run simple mnist model successed.  
+Rename arch_O0 to arch_cpu, Move O1,O2 to TM_OPT_LEVEL setting, start write tm_layer_O1.c   
+
 ## 2022.08.17
 Add Support for RV64V's FP16 model, use RVV1.0 inntrinsic  
 Optimize reduce sum with RVV's vfredosum_vs_f32m1_f32m1   

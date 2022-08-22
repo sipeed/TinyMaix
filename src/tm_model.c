@@ -56,7 +56,7 @@ tm_err_t __attribute__((weak)) tm_preprocess(tm_mdl_t* mdl, tm_pp_t pp_type, tm_
     zptype_t in_zp= l0h->in_zp;
     int in_size = in->h*in->w*in->c;
     switch(pp_type){
-#if TM_MDL_TYPE != TM_MDL_FP32
+#if (TM_MDL_TYPE == TM_MDL_INT8)||(TM_MDL_TYPE == TM_MDL_INT16)
     case TMPP_FP2INT:
         for(int i=0; i<in_size; i++)
             out->data[i] = (mtype_t)(in->dataf[i]/in_s + in_zp);
@@ -102,12 +102,12 @@ tm_err_t __attribute__((weak)) tm_run(tm_mdl_t* mdl, tm_mat_t* in, tm_mat_t* out
         memcpy((void*)&_out, (void*)(h->out_dims), sizeof(uint16_t)*4);
         switch(h->type){
         case TML_CONV2D: 
-        case TML_DWCONV2D:{
+        case TML_DWCONV2D:{ 
             tml_conv2d_dw_t* l = (tml_conv2d_dw_t*)(mdl->layer_body);
             res = tml_conv2d_dwconv2d(&_in, &_out, (wtype_t*)(mdl->layer_body + l->w_oft), (btype_t*)(mdl->layer_body + l->b_oft), \
                 l->kernel_w, l->kernel_h, l->stride_w, l->stride_h, l->dilation_w, l->dilation_h, \
                 l->act, l->pad[0], l->pad[1], l->pad[2], l->pad[3], l->depth_mul, \
-                (sctype_t*)(mdl->layer_body + l->ws_oft), h->in_s, h->in_zp, h->out_s, h->out_zp);
+                (sctype_t*)(mdl->layer_body + l->ws_oft), h->in_s, h->in_zp, h->out_s, h->out_zp); 
             break;}
         case TML_GAP: {
             tml_gap_t* l = (tml_gap_t*)(mdl->layer_body);

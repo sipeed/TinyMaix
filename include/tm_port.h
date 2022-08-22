@@ -13,17 +13,20 @@ limitations under the License.
 #ifndef __TM_PORT_H
 #define __TM_PORT_H
 
-#define TM_ARCH_O0          (0) //default, optimize level 0
-#define TM_ARCH_O1          (1)
-#define TM_ARCH_O2          (2)
-#define TM_ARCH_ARM_SIMD    (3) //ARM Cortex M4/M7, etc.
-#define TM_ARCH_ARM_NEON    (4) //ARM Cortex A7, etc.
-#define TM_ARCH_ARM_MVEI    (5) //ARMv8.1: M55, etc.
-#define TM_ARCH_RV32P       (6) //T-head E907, etc.
-#define TM_ARCH_RV64V       (7) //T-head C906,C910, etc.
+#define TM_ARCH_CPU         (0) //default, pure cpu compute
+#define TM_ARCH_ARM_SIMD    (1) //ARM Cortex M4/M7, etc.
+#define TM_ARCH_ARM_NEON    (2) //ARM Cortex A7, etc.
+#define TM_ARCH_ARM_MVEI    (3) //ARMv8.1: M55, etc.
+#define TM_ARCH_RV32P       (4) //T-head E907, etc.
+#define TM_ARCH_RV64V       (5) //T-head C906,C910, etc.
+
+#define TM_OPT0             (0) //default, least code and buf
+#define TM_OPT1             (1) //opt for speed, need more code and buf
+#define TM_OPT2             (2) //TODO
 
 /******************************* PORT CONFIG  ************************************/
-#define TM_ARCH         TM_ARCH_O0
+#define TM_ARCH         TM_ARCH_CPU
+#define TM_OPT_LEVEL    TM_OPT0 
 #define TM_MDL_TYPE     TM_MDL_INT8
 #define TM_FASTSCALE    (0)         //enable if your chip don't have FPU, may speed up 1/3, but decrease accuracy
 #define TM_ENABLE_STAT  (1)         //enable mdl stat functions

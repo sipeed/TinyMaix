@@ -17,6 +17,12 @@ limitations under the License.
 #include "../../tools/tmdl/mnist_valid_q.h"
 #elif TM_MDL_TYPE == TM_MDL_FP32
 #include "../../tools/tmdl/mnist_valid_f.h"
+#elif TM_MDL_TYPE == TM_MDL_FP16
+#include "../../tools/tmdl/mnist_valid_fp16.h"
+#elif TM_MDL_TYPE == TM_MDL_FP8_143
+#include "../../tools/tmdl/mnist_fp8_143.h"
+#elif TM_MDL_TYPE == TM_MDL_FP8_152
+#include "../../tools/tmdl/mnist_fp8_152.h"
 #endif
 
 #if 1
@@ -151,7 +157,7 @@ int main(int argc, char** argv)
         return -1;
     }
 
-#if TM_MDL_TYPE != TM_MDL_FP32
+#if (TM_MDL_TYPE == TM_MDL_INT8) || (TM_MDL_TYPE == TM_MDL_INT16) 
     res = tm_preprocess(&mdl, TMPP_UINT2INT, &in_uint8, &in); 
 #else
     res = tm_preprocess(&mdl, TMPP_UINT2FP01, &in_uint8, &in); 
@@ -164,7 +170,3 @@ int main(int argc, char** argv)
     tm_unload(&mdl);                 
     return 0;
 }
-
-
-
-

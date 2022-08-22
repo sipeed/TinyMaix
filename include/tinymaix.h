@@ -18,11 +18,12 @@ limitations under the License.
 #include <stdlib.h>
 #include <string.h>
 
-
 #define  TM_MDL_INT8    0
 #define  TM_MDL_INT16   1
 #define  TM_MDL_FP32    2
 #define  TM_MDL_FP16    3
+#define  TM_MDL_FP8_143 4 //experimental
+#define  TM_MDL_FP8_152 5 //experimental
 #include "tm_port.h"
 
 /******************************* MARCO ************************************/
@@ -61,8 +62,29 @@ limitations under the License.
     typedef float16_t btype_t;    //bias data type
     typedef float16_t sumtype_t;  //sum data type 
     typedef float16_t zptype_t;   //zeropoint data type
+#elif (TM_MDL_TYPE == TM_MDL_FP8_143) || (TM_MDL_TYPE == TM_MDL_FP8_152)
+    #if TM_ARCH != TM_ARCH_CPU
+        #error "only support CPU simulation now!"
+    #endif
+    typedef uint8_t mtype_t;    //mat data type
+    typedef uint8_t wtype_t;    //weight data type
+    typedef uint8_t btype_t;    //bias data type
+    typedef float sumtype_t;    //sum data type 
+    typedef float zptype_t;     //zeropoint data type
 #else 
     #error "Not support this MDL_TYPE!"
+#endif
+
+#if TM_MDL_TYPE == TM_MDL_FP8_143
+    #define TM_FP8_SCNT (1)
+    #define TM_FP8_ECNT (4)
+    #define TM_FP8_MCNT (3)
+    #define TM_FP8_BIAS (9)
+#elif TM_MDL_TYPE == TM_MDL_FP8_152
+    #define TM_FP8_SCNT (1)
+    #define TM_FP8_ECNT (5)
+    #define TM_FP8_MCNT (2)
+    #define TM_FP8_BIAS (15)
 #endif
 
 typedef float sctype_t;
@@ -113,7 +135,8 @@ typedef enum {
     TMPP_FP2INT    = 1,  //user own fp buf -> int input buf
     TMPP_UINT2INT  = 2,  //int8: cvt in place; int16: can't cvt in place
     TMPP_UINT2FP01 = 3,  // u8/255.0
-    TMPP_UINT2FPN11= 4,  // (u8-128)/128  
+    TMPP_UINT2FPN11= 4,  // (u8-128)/128 
+    TMPP_UINT2DTYPE= 5,  //uint8 to fp16,fp8
     TMPP_MAXCNT,
 }tm_pp_t;
 
@@ -280,13 +303,19 @@ tm_err_t tml_reshape(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_t in_zp,
 tm_err_t tm_stat(tm_mdlbin_t* mdl);                    //stat model
 #endif
 
+/******************************* UTILS FUCNTION ************************************/
+uint8_t __attribute__((weak)) tm_fp32to8(float fp32);
+float __attribute__((weak)) tm_fp8to32(uint8_t fp8);
+
 
 /******************************* UTILS  ************************************/
 #define TML_GET_INPUT(mdl,lh)   ((mtype_t*)((mdl)->buf + (lh)->in_oft))
 #define TML_GET_OUTPUT(mdl,lh)  ((mtype_t*)((mdl)->buf + (lh)->out_oft))
 #if (TM_MDL_TYPE == TM_MDL_INT8)||(TM_MDL_TYPE == TM_MDL_INT16)
     #define TML_DEQUANT(lh, x)       (((sumtype_t)(x)-((lh)->out_zp))*((lh)->out_s))
-#else 
+#elif (TM_MDL_TYPE == TM_MDL_FP8_143) || (TM_MDL_TYPE == TM_MDL_FP8_152)
+    #define TML_DEQUANT(lh, x)       (tm_fp8to32(x))
+#else   //FP32,FP16
     #define TML_DEQUANT(lh, x)       ((float)(x))
 #endif
 
