@@ -65,7 +65,7 @@ mnist demo
 4. ...
 
 Do you want take participate in development of TinyMaix, or discuss with TinyML hobbyist?  
-Join our telegram group: https://t.me/tinymaix
+**Join our telegram group:** https://t.me/tinymaix
 
 
 ## TinyMaix Design
