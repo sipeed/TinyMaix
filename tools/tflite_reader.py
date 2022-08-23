@@ -76,8 +76,8 @@ def read_tflite(tflite_name):
     interpreter.allocate_tensors()
 
     data = CreateDictFromFlatbuffer(model_buffer)
-    op_codes = data['operator_codes']  
-    subg = data['subgraphs'][0]      
+    op_codes = data['operator_codes']
+    subg = data['subgraphs'][0]
     tensors = subg['tensors']          #weight, bias here
     input_idxs = subg['inputs']
     output_idxs = subg['outputs']
@@ -87,7 +87,7 @@ def read_tflite(tflite_name):
         tmp = tensors[i]["name"]
         tmp = bytearray(tmp)
         tensors[i]["name"] = tmp.decode('utf-8')
-    
+
     # export layer param
     last_pad = None
     for idx in range(len(subg['operators'])):
@@ -99,27 +99,27 @@ def read_tflite(tflite_name):
         layer_name = BuiltinCodeToName(op_code) 
         l["name"]=layer_name
         print(layer_name)
-    
+
         #layer param
         layer_param = layer['builtin_options']
         print(layer_param)
         if layer_param is not None:
             l.update(layer_param)
-        
+
         #layer input/output idx
         input_tensor_idx = layer['inputs']
         output_tensor_idx = layer['outputs']
-        
+
         if len(output_tensor_idx)>1:
             print("Not support multi output yet")
             return None
-        
+
         if output_tensor_idx[0] in output_idxs:
             l.update({"is_output":1})
             print("OUTPUT!")
         else:
             l.update({"is_output":0})
-            
+
         #input
         input_idx = input_tensor_idx[0]
         if last_pad == None:
@@ -149,7 +149,7 @@ def read_tflite(tflite_name):
         else:
             l.update({"o_scale":1})
             l.update({"o_zeropoint":0})
-        
+
         if layer_name == "CONV_2D" or layer_name == "DEPTHWISE_CONV_2D":
             #filter weight
             weight_idx = input_tensor_idx[1]
@@ -226,21 +226,20 @@ def read_tflite(tflite_name):
                     pad = interpreter.get_tensor(pad_idx)
                     #print(pad)
                     assert pad[0,0]==0 and pad[0,1]==0 and pad[3,0]==0 and pad[3,1]==0
-                    #l.update({"pad":[pad[1][0], pad[1][1], pad[2][0], pad[2][1]]})   
+                    #l.update({"pad":[pad[1][0], pad[1][1], pad[2][0], pad[2][1]]})
                     last_pad = [pad[1][0], pad[1][1], pad[2][0], pad[2][1]]
                     continue
                 else:
-                    print("only deal with pad+conv_valid")
-                    assert 0             
+                    raise Exception("only deal with pad+conv_valid")
             else:
-                print("only deal with pad+conv/dwconv")
-                assert 0 
-        elif layer_name == "SHAPE" or layer_name == "STRIDED_SLICE" or layer_name == "PACK":
+                raise Exception("only deal with pad+conv/dwconv")
+        elif layer_name in ["SHAPE", "STRIDED_SLICE", "PACK"]:
             print("    ignore %s"%layer_name)
             continue
+        elif layer_name == "QUANTIZE":
+            raise Exception("QUANTIZE not supported, maybe tflite is not quantized model, check your tflite model")
         else:
-            print("Not support layer %s"%layer_name)
-            assert 0
+            raise Exception("Not support layer %s"%layer_name)
         layers.append(l)
         last_pad = None
     return layers

@@ -20,17 +20,23 @@ import time
 from PIL import Image
 
 from os import environ
-environ['CUDA_VISIBLE_DEVICES'] = '0'
+# environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 # norm_type: "0to1", "n1to1"
-def h5_to_tflite(h5_name, tflite_name, is_quant, quant_dir, norm_type):
+def h5_to_tflite(h5_name, tflite_name, is_quant, quant_dir, norm_type = None, mean = 0.0, std = 0.0):
     def representative_data_gen():
         files = os.listdir(quant_dir)
-        for f in files:
-            if f[-4:] != ".jpg" and f[-4:] != ".png" and f[-4:] != ".bmp" and f[-4:] != ".ppm" and f[-4:] != ".pgm":
-                continue 
-            f = quant_dir+"/"+f
-            img = Image.open(f)
+        valid_files = []
+        valid_format = [".jpg", ".jpeg", ".png", ".bmp", ".ppm", ".pgm"]
+        for name in files:
+            ext = os.path.splitext(name)[1].lower()
+            if ext not in valid_format:
+                continue
+            valid_files.append(os.path.join(quant_dir, name))
+        if len(valid_files) == 0:
+            raise Exception("No valid files in quant_input dir {}, support format: ".format(quant_dir, valid_format))
+        for path in valid_files:
+            img = Image.open(path)
             img = np.array(img).astype(np.float32)
             shape = img.shape
             if len(shape) == 2:
@@ -38,10 +44,15 @@ def h5_to_tflite(h5_name, tflite_name, is_quant, quant_dir, norm_type):
             else:
                 shape = (1, shape[0], shape[1], shape[2])
             img = img.reshape(shape)
-            if norm_type == "0to1":
-                img = img/255.0
-            elif norm_type == "n1to1":
-                img = (img-128)/128
+            if norm_type is not None:
+                if norm_type == "0to1":
+                    img = img/255.0
+                elif norm_type == "n1to1":
+                    img = (img-128)/128
+                else:
+                    raise Exception("Unsupported norm_type: {}".format(norm_type))
+            else:
+                img = (img - mean) / std
             yield [img]
 
     if is_quant==0:
@@ -94,5 +105,5 @@ if __name__ == '__main__':
             exit()
         quant_dir   = sys.argv[4]
         norm_type   = sys.argv[5]
-    h5_to_tflite(h5_name, tflite_name, is_quant, quant_dir, norm_type)
+    h5_to_tflite(h5_name, tflite_name, is_quant, quant_dir, norm_type = norm_type)
 
