@@ -5,7 +5,7 @@
 TinyMaix是面向单片机的超轻量级的神经网络推理库，即TinyML推理库，可以让你在任意单片机上运行轻量级深度学习模型~
 
 **关键特性**
-- 核心代码少于**400行**(tm_layers.c+tm_model.c+arch_O0.h), 代码段(.text)少于**3KB**   
+- 核心代码少于**400行**(tm_layers.c+tm_model.c+arch_cpu.h), 代码段(.text)少于**3KB**   
 - 低内存消耗，甚至**Arduino ATmega328** (32KB Flash, 2KB Ram) 都能基于TinyMaix跑mnist(手写数字识别)
 - 支持**INT8/FP32/FP16**模型，实验性地支持**FP8**模型，支持keras h5或tflite模型转换 
 - 支持多种芯片架构的专用指令优化:  **ARM SIMD/NEON/MVEI，RV32P, RV64V** 
@@ -183,7 +183,7 @@ tm_err_t tm_run   (tm_mdl_t* mdl, tm_mat_t* in, tm_mat_t* out);
 ## 如何移植
 TinyMaix的核心文件只有这5个：tm_model.c, tm_layers.c, tinymaix.h, tm_port.h, arch_xxx.h  
 
-如果你使用没有任何指令加速的普通单片机，选择 arch_O0.h, 否则选择对应架构的头文件 
+如果你使用没有任何指令加速的普通单片机，选择 arch_cpu.h, 否则选择对应架构的头文件 
 
 然后你需要编辑tm_port.h，填写你需要的配置，所有配置宏后面都有注释说明 
 
