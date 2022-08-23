@@ -90,8 +90,14 @@ for e in range(1<<e_cnt):
 ```
 
 ## FP8 model test  
-Test success in simple MNIST models, still fail in mobilenet...
-Here is the mnist fp8 model result:   
+Test success in simple MNIST models, still fail in mobilenet...   
+You can enter example/mnist dir, and set tm_port.h :
+```
+#define TM_ARCH         TM_ARCH_CPU
+#define TM_OPT_LEVEL    TM_OPT0 
+#define TM_MDL_TYPE     TM_MDL_FP8_152
+```
+Compile and run, here is the mnist fp8 model result:   
 ```
 mnist demo
   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,

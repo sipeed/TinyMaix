@@ -5,7 +5,7 @@
 TinyMaix is a tiny inference Neural Network library specifically for microcontrollers (TinyML).
 
 **Highlights**
-- Core Code less than **400 lines**(tm_layers.c+tm_model.c+arch_O0.h), code .text section less than **3KB**   
+- Core Code less than **400 lines**(tm_layers.c+tm_model.c+arch_cpu.h), code .text section less than **3KB**   
 - Low ram consume, even **Arduino ATmega328** (32KB Flash, 2KB Ram) can run mnist with TinyMaix~  
 - Support **INT8/FP32/FP16** model, experimentally support **FP8**, convert from keras h5 or tflite.
 - Supoort multi architecture accelerate:  **ARM SIMD/NEON/MVEI，RV32P, RV64V** ~
@@ -65,7 +65,7 @@ mnist demo
 4. ...
 
 Do you want take participate in development of TinyMaix, or discuss with TinyML hobbyist?  
-Join our telegram group: https://t.me/tinymaix
+**Join our telegram group:** https://t.me/tinymaix
 
 
 ## TinyMaix Design
@@ -182,7 +182,7 @@ tm_err_t tm_run   (tm_mdl_t* mdl, tm_mat_t* in, tm_mat_t* out);
 ## How to port
 The core file is those 5 files: tm_model.c, tm_layers.c, tinymaix.h, tm_port.h, arch_xxx.h  
 
-If you are using normal mcu without any acceleration instructions, choose arch_O0.h, otherwise choose corresponding architecture header.  
+If you are using normal mcu without any acceleration instructions, choose arch_cpu.h, otherwise choose corresponding architecture header.  
 
 And you should edit tm_port.h to fill your desired configs, all config macro have annotation follow it.   
 
