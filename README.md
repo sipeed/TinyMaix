@@ -11,7 +11,7 @@ TinyMaix is a tiny inference Neural Network library specifically for microcontro
 - Supoort multi architecture accelerate:  **ARM SIMD/NEON/MVEI，RV32P, RV64V** ~
 - User-friendly interfaces, just load/run models~
 - Support Full Static Memory config
-- [MaixHub](https://maixhub.com) **Online Model Training** support soon~ 
+- [MaixHub](https://maixhub.com) **Online Model Training** support
 
 **Run mnist demo on Arduino ATmega328**
 ```
@@ -253,11 +253,22 @@ Saved to tmdl/mnist_q.tmdl, tmdl/mnist_q.h
 Now you have tmdl or c header files, put it into your project to use it~  
 
 ## How to train models online with MaixHub
-TODO
+
+You can download models from [MaixHub](https://maixhub.com) or train your AI models online easily with MaixHub, don't need AI knowledge, train your model just click your mouse.
+
+* Register [MaixHub](https://maixhub.com) account and login.
+* You can download TinyMaix models from [model zoo](https://maixhub.com/model/zoo) or upload your models to model zoo for sharing.
+* Create a train project, collect dataset and train models online, finally you will get a `.tmdl` file and a `.h` file, use one of them in your code.
+> There's two type: classification and detection, for first time usage, use **classification is recommended**.
+> There's many backbone, you should select proper backbone according to your MCU's RAM size, the smaller RAM size, should choose the smaller backbone.
+> For easier understanding how MaixHub works, at first time you can choose tfjs platform instead of tinymaix to run model on your mobile phone.
+* Find demo in [examples](./examples) folder, use the `maixhub_image_classification` demo or `maixhub_image_detection` demo to run your model.
+
 
 ## How to add new platform acceleration code
+
 TinyMaix use basic dot_product function to accelerate Conv computing.  
-You just need add arch_xxx_yyy.h in src dir, and implement your platform's dot_product function:  
+You just need add arch_xxx_yyy.h in src dir, and implement your platform's dot_product function:
 ```
 TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t* result);
 ```

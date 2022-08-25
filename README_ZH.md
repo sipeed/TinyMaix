@@ -11,7 +11,7 @@ TinyMaix是面向单片机的超轻量级的神经网络推理库，即TinyML推
 - 支持多种芯片架构的专用指令优化:  **ARM SIMD/NEON/MVEI，RV32P, RV64V** 
 - 友好的用户接口，只需要load/run模型~
 - 支持全静态的内存配置(无需malloc)
-- 即将支持[MaixHub](https://maixhub.com) **在线模型训练** 
+- [MaixHub](https://maixhub.com) **在线模型训练**支持
 
 **在Arduino ATmega328上运行mnist demo**
 ```
@@ -253,11 +253,21 @@ Saved to tmdl/mnist_q.tmdl, tmdl/mnist_q.h
 
 现在你有了tmdl或者C头文件，把它放到你的工程里编译吧~
 
-## 涂黑使用Maixhub在线训练模型
-TODO
+## 使用 Maixhub 在线训练模型
+
+使用 [MaixHub](https://maixhub.com), 你可以下载或者上传已有模型， 同时可以在线训练你的 AI 模型， 不需要编写训练代码，也不需要机器学习基础，点点鼠标模型就训练好啦！
+
+* 注册 [MaixHub](https://maixhub.com) 并登录。
+* 你可以从[模型库](https://maixhub.com/model/zoo)下载已有模型，或者上传分享你的模型。
+* 创建一个在线模型训练项目， 采集数据集并在线训练，最后会得到`.tmdl`文件和`.h`文件，用其中一个即可。
+> 有两种项目类别，分类 和 检测， **第一次使用建议使用 分类**。
+> 训练是有多个骨干网络(backbone)可选择，根据你的单片机的内存大小选择合适的骨干网络，内存越小则需要选择更小的骨干网络。
+> 为了更好地理解 MaixHub 的使用方法， 开始可以不选择 tinymaix 平台， 而是选择 tfjs 平台训练，训练出可以在手机上运行的模型进行体验。
+* 在 [examples](./examples) 目录下找到对应的例程，比如 `maixhub_image_classification` 或者 `maixhub_image_detection` 来运行你训练的模型
 
 ## 怎样添加新平台的加速代码
-TinyMaix使用基础的点积函数加速卷积运算   
+
+TinyMaix使用基础的点积函数加速卷积运算
 你需要在src里添加arch_xxx_yyy.h, 并晚上你自己平台的点积加速函数：
 ```
 TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t* result);

@@ -18,7 +18,10 @@ import numpy as np
 import tensorflow as tf
 import time, struct
 from PIL import Image
-from tflite_reader import read_tflite
+try:
+    from .tflite_reader import read_tflite
+except:
+    from tflite_reader import read_tflite
 
 
 # constant
@@ -96,7 +99,7 @@ def cal_buf_size(layers, mdl_type, out_deq):
             buf_size = align8(np.prod(l["in_shape"])*unit_size)+align8(np.prod(l["out_shape"])*4)
         else:
             buf_size = align8(np.prod(l["in_shape"])*unit_size)+align8(np.prod(l["out_shape"])*unit_size)
-        
+
         if (l["name"] == "RESHAPE"):
             buf_size -= align8(np.prod(l["in_shape"])*unit_size) #as reshape is inplace
         #print("%s: %d"%(l["name"], buf_size))
@@ -164,7 +167,7 @@ def fp8_to_fp32(fp8, ecnt,mcnt,bias):
     fp8_s = fp8>>7
     fp8_e = (fp8&0x7f)>>mcnt
     fp8_m = fp8&((1<<mcnt)-1)
-    
+
     fp32_s = fp8_s
     fp32_e = fp8_e-bias+127
     fp32_m = fp8_m<<(23-mcnt)
@@ -247,7 +250,7 @@ def pack_conv2d_dwconv2d(l, mdl_type):  #conv2d and dwconv2d
     w_size = (w.size*unit_size+7)//8*8
     b_oft  = w_oft+w_size
     b_size = (b.size*bunit_size+7)//8*8
-       
+
     lbody += struct.pack('I',  ws_oft);   #ws_oft
     lbody += struct.pack('I',  w_oft);    #w_oft
     lbody += struct.pack('I',  b_oft);    #b_oft
@@ -317,13 +320,13 @@ def pack_fc(l, mdl_type):
     w_size= (w.size*unit_size+7)//8*8
     b_oft = w_oft+w_size
     b_size= (b.size*bunit_size+7)//8*8
-    
+
     lbody += struct.pack('I',  ws_oft);   #ws_oft
     lbody += struct.pack('I',  w_oft);    #w_oft
     lbody += struct.pack('I',  b_oft);    #b_oft
     lbody += struct.pack('I',  0);        #reserve, align 8
     assert len(lbody)%8 == 0
-    
+
     # weight scale
     if is_mdl_int(mdl_type):
         ws = l["w_scale"] 
@@ -369,7 +372,7 @@ def pack_reshape(l, mdl_type):
     return b''
 
 ############################### PACK FUNCTIONS #####################################
-def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims):
+def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims, write_c_header=True):
     global unit_size,w_type,b_type,b_type_np,bunit_size
     #mdl_name = "mnist.tmodel"
     fw = open(mdl_name, "wb")
@@ -399,7 +402,7 @@ def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims):
     # head
     print("================ pack model head ================")
     model_size = 0
-    head  = b'MAIX';                      
+    head  = b'MAIX'
     head += struct.pack('B',  mdl_type);  print("mdl_type   =%d"%mdl_type)
     head += struct.pack('B',  out_deq);   print("out_deq    =%d"%out_deq)
     head += struct.pack('H',  input_cnt); print("input_cnt  =%d"%input_cnt)
@@ -414,7 +417,7 @@ def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims):
     assert len(head)%8 == 0   #print("head not align on 8byte!")
     fw.write(head)
     model_size += len(head)
-        
+
     # layers
     print("================   pack layers   ================")
     out_oft = 0
@@ -428,7 +431,7 @@ def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims):
         tmp = l["in_shape"][1:]; in_dims = [len(tmp)] + [1]*(3-len(tmp)); in_dims.extend(tmp)
         tmp = l["out_shape"][1:]; out_dims = [len(tmp)] + [1]*(3-len(tmp)); out_dims.extend(tmp)
         print("   ",in_dims, out_dims)
-            
+
         # layer head
         layer_type = layername2type[l["name"]]
         if l["is_output"]:
@@ -437,7 +440,7 @@ def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims):
             else:
                 print("only support 1 output")
                 assert 0
-            
+
         layer_size = 0  #dummy
         in_size = out_size
         if (mdl_type != TM_MDL_FP32 and l["is_output"] and out_deq):  #reserve float place for deq #fp16 also need "deq"
@@ -446,7 +449,7 @@ def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims):
             out_size = align8(np.prod(out_dims[1:])*4)
         else:
             out_size = align8(np.prod(out_dims[1:])*unit_size)
-            
+
         in_oft     = out_oft 
         if (l["name"] == "RESHAPE"): # inplace
             out_oft= in_oft
@@ -459,7 +462,7 @@ def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims):
         else:
             in_s  = 1; in_zp = 0;
             out_s = 1; out_zp= 0;
-            
+
         lh = bytearray(0)
         lh += struct.pack('H',  layer_type);
         lh += struct.pack('H',  l["is_output"]);
@@ -474,7 +477,7 @@ def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims):
         lh += struct.pack('f' if is_mdl_float(mdl_type) else 'i',  out_zp); 
         #print(lh)
         assert len(lh) == LAYERHEAD_SIZE   #print("layer head not align on 8byte!")
-        
+
         # layer body
         if l["name"] == "CONV_2D" or l["name"] == "DEPTHWISE_CONV_2D":
             lbody = pack_conv2d_dwconv2d(l, mdl_type)
@@ -489,7 +492,7 @@ def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims):
         else:
             print("unsupport layer type %s"%l["name"])
             assert 0
-            
+
         # fill layer size
         layer_size = len(lh)+len(lbody)
         lh[4:8] = struct.pack("I", layer_size)
@@ -503,33 +506,37 @@ def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims):
     print("================    pack done!   ================")
     fw.close()
     # write c header file
-    hmdl = ".".join(mdl_name.split(".")[:-1])+".h"
-    fr=open(mdl_name, "rb")
-    fw=open(hmdl, "w")
-    data = fr.read()
-    fw.writelines("#include <stdint.h>\r\n")
-    fw.writelines("#define MDL_BUF_LEN (%d)\r\n"%buf_size)
-    fw.writelines("#define LBUF_LEN (%d)\r\n"%(MDLBINHEAD_SIZE+max(layer_sizes)))
-    fw.writelines("const uint8_t mdl_data[%d]={\\\r\n\t"%(len(data)))
-    for i in range(len(data)):
-        fw.writelines("0x%02x, "%(data[i]))
-        if i%16 == 15:
-            fw.writelines("\r\n\t")
-    fw.writelines("\r};\r\n")
-    fr.close()
-    fw.close()
+    if write_c_header:
+        hmdl = ".".join(mdl_name.split(".")[:-1])+".h"
+        fr=open(mdl_name, "rb")
+        data = fr.read()
+        fr.close()
+        with open(hmdl, "w", encoding="utf-8") as fw:
+            fw.writelines("#ifndef __MODEL_FILE__H\r\n")
+            fw.writelines("#define __MODEL_FILE__H\r\n\r\n")
+            fw.writelines("#include <stdint.h>\r\n")
+            fw.writelines("#define MDL_BUF_LEN (%d)\r\n"%buf_size)
+            fw.writelines("#define LBUF_LEN (%d)\r\n"%(MDLBINHEAD_SIZE+max(layer_sizes)))
+            fw.writelines("const uint8_t mdl_data[%d]={\\\r\n\t"%(len(data)))
+            for i in range(len(data)):
+                fw.writelines("0x%02x, "%(data[i]))
+                if i%16 == 15:
+                    fw.writelines("\r\n\t")
+            fw.writelines("\r};\r\n")
+            fw.writelines("\r\n#endif\r\n")
 
     print("    model  size %.1fKB (%d B) FLASH"%(model_size/1024, model_size))
     print("    buffer size %.1fKB (%d B) RAM"%(buf_size/1024, buf_size))
     print("    single layer mode subbuff size %.1fKB (%d+%d=%d B) RAM"%\
         ((MDLBINHEAD_SIZE+max(layer_sizes))/1024, MDLBINHEAD_SIZE, max(layer_sizes), MDLBINHEAD_SIZE+max(layer_sizes)))
-    print("Saved to %s, %s"%(mdl_name, hmdl))
+    print("Saved to tinymaix model to %s" % mdl_name)
+    if write_c_header:
+        print("Saved to tinymaix model header to %s" % hmdl)
     #!ls -lh $mdl_name
 
-def tflite2tmdl(tflite_name, tmdl_name, mdl_type, out_deq, in_dims, out_dims):
+def tflite2tmdl(tflite_name, tmdl_name, mdl_type, out_deq, in_dims, out_dims, write_c_header=True):
     layers = read_tflite(tflite_name)
-    pack_tmdl(layers, tmdl_name, mdl_type, out_deq, in_dims, out_dims)
-    return
+    pack_tmdl(layers, tmdl_name, mdl_type, out_deq, in_dims, out_dims, write_c_header=write_c_header)
 
 def print_usage():
     print("Usage: python3 tflite2tmdl.py tflite_name tmdl_name mdl_type out_deq in_dims out_dims")
@@ -564,6 +571,6 @@ if __name__ == '__main__':
     out_dims = out_dims.split(",")
     out_dims = [int(i) for i in out_dims]
     tflite2tmdl(tflite_name, tmdl_name, mdl_type, out_deq, in_dims, out_dims)
-    
+
 
 
