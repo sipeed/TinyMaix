@@ -1,5 +1,9 @@
 # UPDATES LOG
 
+## 2022.08.29
+too busy recently... Slightly optimize for O1.
+prepare add kws example.
+
 ## 2022.08.22
 Add auto test script.  
 Add experimental FP8 1.4.3/1.5.2 model, run simple mnist model successed.  
