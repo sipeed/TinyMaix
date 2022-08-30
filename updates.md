@@ -1,8 +1,12 @@
 # UPDATES LOG
 
+## 2022.08.30
+take time to optimize O0&O1.  now new O0 almost as fast as old O1~   
+fast RVV fp16 model in 97ms now!!!   
+
 ## 2022.08.29
-too busy recently... Slightly optimize for O1.
-prepare add kws example.
+too busy recently... Slightly optimize for O1.   
+prepare add kws example.   
 
 ## 2022.08.22
 Add auto test script.  

@@ -75,11 +75,11 @@ Optimization for RISC-V MCU which have V-extend instructions (like T-Head C906),
 BL808 C906 core run mbnet 0.25, 128x128x3 input (mdl in psram, VLEN=128, cpu run in 384M, O2)    
 |ARCH|MDL_TYPE|OPT0 time|OPT1 time|
 |---|---|---|---|---|
-|TM_ARCH_CPU  | INT8| 315ms| 194ms|
-|TM_ARCH_CPU  | FP32| 300ms| 258ms|
-|TM_ARCH_RV64V| INT8| 178ms| 141ms|
-|TM_ARCH_RV64V| FP32| 182ms| 156ms|
-|TM_ARCH_RV64V| FP16| 161ms| 125ms|
+|TM_ARCH_CPU  | INT8| 185ms| 150ms|
+|TM_ARCH_CPU  | FP32| 258ms| 215ms|
+|TM_ARCH_RV64V| INT8| 148ms| 113ms|
+|TM_ARCH_RV64V| FP32| 190ms| 145ms|
+|TM_ARCH_RV64V| FP16| 154ms|  97ms|
 
 # compare to other infer library
 ## NNoM
