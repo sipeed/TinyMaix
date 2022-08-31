@@ -230,10 +230,10 @@ TM_INLINE tm_err_t l_tml_conv2d(tm_mat_t* in, tm_mat_t* out, wtype_t* w, btype_t
                 tm_dot_prod_pack2(sptr, kptr, maxk*chi, sums);
                 l_postprocess_sum(sums[0], b[c], act, outp, SUMSCALE, outscale, out_zp); c++; outp++;
                 l_postprocess_sum(sums[1], b[c], act, outp, SUMSCALE, outscale, out_zp); c++; outp++;
-                kptr += chi*maxk*BATCH_SIZE;//*2;
+                kptr += chi*maxk*BATCH_SIZE;
             }
             for(; c<out->c; c++){
-                tm_dot_prod(sptr, kptr, maxk*chi, &sum); //size=maxk*chi //pw maxk==1
+                tm_dot_prod(sptr, kptr, maxk*chi, &sum); 
                 l_postprocess_sum(sum, b[c], act, outp, SUMSCALE, outscale, out_zp); outp++;
                 kptr += chi*maxk;
             }

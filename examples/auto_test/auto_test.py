@@ -14,6 +14,8 @@ def runcmd(cmd):
         a.append(line.decode("utf8").strip())
     return a
 
+
+print("This script only test INT8/FP32, you need change OPT0&OPT1")
 t00= time.time()
 print("================Step1: test MNIST")
 if "mnist_f" in test_list:
@@ -91,7 +93,8 @@ if "mbnet_f" in test_list:
     cmd="cd ../mbnet && sed -i 's/#define TM_MDL_TYPE     TM_MDL_INT8/#define TM_MDL_TYPE     TM_MDL_FP32/g' ../../include/tm_port.h && rm -rf build && mkdir build && cd build && cmake .. && make && ./mbnet"
     res = runcmd(cmd)
     print(res[-1])
-    if res[-1] == "### Predict output is: Class 292 (tiger, Panthera tigris), Prob 0.866":
+    if res[-1] == "### Predict output is: Class 292 (tiger, Panthera tigris), Prob 0.866" or \
+        res[-1] == "### Predict output is: Class 292 (tiger, Panthera tigris), Prob 0.891":
         print("====Step2.1.2: OK~")
         runcmd("rm ../../tools/tmdl/mbnet128_0.25_f.tmdl")  #clean tmdl
     else:

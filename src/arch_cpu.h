@@ -61,7 +61,7 @@ TM_INLINE  void tm_dot_prod_pack2(mtype_t* sptr, mtype_t* kptr, uint32_t size, s
     }
     for(; i <size; i++){
         sum0 += sptr[i]*kptr0[i]; 
-        sum0 += sptr[i]*kptr1[i]; 
+        sum1 += sptr[i]*kptr1[i]; 
     }
 
     result[0] = sum0;

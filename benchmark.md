@@ -65,14 +65,14 @@ Strange result, need confirm...
 Optimization for RISC-V MCU which have P-extend instructions (like T-Head E907), suoport INT8 acceleration  
 BL808 E907 core run mbnet 0.25, 128x128x3 input (mdl in psram, cpu run in 320M, O2)    
 
-|Options|infer time|
-|---|---|
-|TM_ARCH_OPT0  && INT8| 525ms|
-|TM_ARCH_RV32P && INT8| 371ms|
+|ARCH|MDL_TYPE|OPT0 time|OPT1 time|
+|---|---|---|---|---|
+|TM_ARCH_CPU  | INT8| 443ms| 283ms|
+|TM_ARCH_RV32P| INT8| 345ms| 188ms|
 
 ## TM_ARCH_RV64V
 Optimization for RISC-V MCU which have V-extend instructions (like T-Head C906), suoport INT8/FP32 acceleration  
-BL808 C906 core run mbnet 0.25, 128x128x3 input (mdl in psram, VLEN=128, cpu run in 384M, O2)    
+BL808 C906 core run mbnet 0.25, 128x128x3 input (mdl in psram, VLEN=128, cpu run in 480M, O2)    
 |ARCH|MDL_TYPE|OPT0 time|OPT1 time|
 |---|---|---|---|---|
 |TM_ARCH_CPU  | INT8| 185ms| 150ms|
