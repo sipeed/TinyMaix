@@ -96,7 +96,7 @@ TM_INLINE  void tm_dot_prod_pack2(mtype_t* sptr, mtype_t* kptr, uint32_t size, s
 			//r2:*sptr  r3:*kptr0  r4:(*sptr)>>8  r5:(*kptr0)>>8  r6:*kptr1  r7:(*kptr1)>>8
     cnt = size % 4;
     while (cnt){
-        sum0 += (int32_t) ((int16_t) *sptr++ * *kptr0++);
+        sum0 += (int32_t) ((int16_t) *sptr * *kptr0++);
 		sum1 += (int32_t) ((int16_t) *sptr++ * *kptr1++);
         cnt--;
     }

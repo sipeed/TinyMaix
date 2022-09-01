@@ -90,7 +90,7 @@ TM_INLINE  void tm_dot_prod_pack2(mtype_t* sptr, mtype_t* kptr, uint32_t size, s
 
     cnt = size % PARALLEL_CNT;
     while (cnt > 0U){
-        sum0 += (int32_t) ((int16_t) *sptr++ * *kptr0++);
+        sum0 += (int32_t) ((int16_t) *sptr * *kptr0++);
         sum1 += (int32_t) ((int16_t) *sptr++ * *kptr1++);
         cnt--;
     }
@@ -179,8 +179,8 @@ TM_INLINE  void tm_dot_prod_pack2(mtype_t* sptr, mtype_t* kptr, uint32_t size, s
     
     cnt = size % PARALLEL_CNT;
     while (cnt > 0U){
-        sum0 += (int32_t) ((int16_t) *sptr++ * *kptr0++);
-        sum1 += (int32_t) ((int16_t) *sptr++ * *kptr1++);
+        sum0 +=  (*sptr * *kptr0++);
+        sum1 +=  (*sptr++ * *kptr1++);
         cnt--;
     }
 
