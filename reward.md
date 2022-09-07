@@ -14,7 +14,7 @@ Rules:
 4. Write a porting log (refer to doc/porting/port_STM32F411.md), and submit PR to this repo.
 
 # Advanced feature Awards
-Those who provide TinyMaix with the following advanced function improvements can receive a Quad-Core C910 board in addition!  
+Those who provide TinyMaix with the following advanced function improvements will get a Quad-Core C910 board in addition!  
 1. Add mobilenetv2 support for TinyMaix, that is, mainly add concat operator (involving model conversion script and tinymaix C code, requiring model structure compatibility)
 2. Take mobilenet V1 0.25 96x96 as the test model and the corresponding architecture O1 as the benchmark to try to optimize the execution speed and increase the execution speed by at least 15%
 3. Improve FP8 support for tinymaix, support FP8 mobilenetv1 model
