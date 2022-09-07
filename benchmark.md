@@ -14,8 +14,8 @@
 
 |Chip/Board  |Core    |Flash|RAM     |Freq |mnist|cifar|mbnet96|Note|
 |---         |---     |---  |---     |---  |---  |---  |---    |---|
-|Atmega328   |AVR     | 32KB|     2KB|  16M|50(*)|XXX  |---    ||
-|STM32G030F6 |ARM CM0+| 32KB|     8KB|  64M|18   |XXX  |---    ||
+|Atmega328   |AVR     | 32KB|     2KB|  16M|50(*)|XXX  |XXX    ||
+|STM32G030F6 |ARM CM0+| 32KB|     8KB|  64M|18   |XXX  |XXX    ||
 |nRF52840    |ARM CM4 |  1MB|   256KB|  64M|---  |---  |---    ||
 |STM32F103C8 |ARM CM3 | 64KB|    20KB|  72M|8    |XXX  |XXX    ||
 |STM32F411CE |ARM CM4 |512KB|   128KB| 150M|3    |76   |420    ||
