@@ -16,15 +16,8 @@
 |---         |---     |---  |---     |---  |---  |---  |---    |---|
 |Atmega328   |AVR     | 32KB|     2KB|  16M|50(*)|XXX  |XXX    ||
 |STM32G030F6 |ARM CM0+| 32KB|     8KB|  64M|18   |XXX  |XXX    ||
-|nRF52840    |ARM CM4 |  1MB|   256KB|  64M|---  |---  |---    ||
 |STM32F103C8 |ARM CM3 | 64KB|    20KB|  72M|8    |XXX  |XXX    ||
 |STM32F411CE |ARM CM4 |512KB|   128KB| 150M|3    |76   |420    ||
-|RP2040      |ARM CM0+|  2MB|   264KB| 133M|---  |---  |---    ||
-|BL702       |RV32    |512KB|   132KB| 144M|3    |---  |---    ||
-|ESP32-C3    |Xtensa  |  4MB|   400KB| 160M|---  |---  |---    ||
-|ESP32-S2    |Xtensa  |  4MB|   320KB| 240M|2    |---  |---    ||
-|ESP32-S3    |Xtensa  |  4MB|   512KB| 240M|---  |---  |---    ||
-|BL618       |RV32P   |  4MB|0.5+ 4MB| 320M|---  |---  |---    ||
 |BL808's E907|RV32P   | 16MB|0.8+64MB| 320M|<1   |35   |159    |mdl in psram|
 |STM32H750   |ARM CM7 |  1MB|  1024KB| 480M|<1   |15   |66     ||
 |BL808's C906|RV64V   | 16MB|0.8+64MB| 480M|<1   |10   |60     ||
