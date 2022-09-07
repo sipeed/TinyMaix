@@ -6,8 +6,8 @@ set(CMAKE_AR "ar")
 set(CMAKE_RANLIB "ranlib")
 set(CMAKE_STRIP "strip")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Os " CACHE STRING "c flags")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Os " CACHE STRING "c++ flags")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Os ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Os ")
 
 aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/../../src lib_tinymaix) 
 

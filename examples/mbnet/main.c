@@ -15,27 +15,40 @@ limitations under the License.
 
 //https://github.com/fchollet/deep-learning-models/releases
 
-//#define INCBIN_STYLE INCBIN_STYLE_SNAKE
-//#define INCBIN_PREFIX
-//#include "incbin.h"
-//INCBIN(mdl, "../../../tools/tmdl/mbnet128_0.25_f.tmdl");
 
-#if TM_MDL_TYPE==TM_MDL_FP32
-#include "../../tools/tmdl/mbnet128_0.25_f.h"
-#elif TM_MDL_TYPE==TM_MDL_FP16
-#include "../../tools/tmdl/mbnet128_0.25_fp16.h"
-#elif TM_MDL_TYPE==TM_MDL_INT8
-#include "../../tools/tmdl/mbnet128_0.25_q.h"
-#elif TM_MDL_TYPE==TM_MDL_FP8_143
-#include "../../tools/tmdl/mbnet128_0.25_fp8_143.h"
-#elif TM_MDL_TYPE==TM_MDL_FP8_152
-#include "../../tools/tmdl/mbnet128_0.25_fp8_152.h"
+#define IMG_L 128
+
+#if IMG_L==128
+    #include "pic128.h"
+    #if TM_MDL_TYPE==TM_MDL_FP32
+    #include "../../tools/tmdl/mbnet128_0.25_f.h"
+    #elif TM_MDL_TYPE==TM_MDL_FP16
+    #include "../../tools/tmdl/mbnet128_0.25_fp16.h"
+    #elif TM_MDL_TYPE==TM_MDL_INT8
+    #include "../../tools/tmdl/mbnet128_0.25_q.h"
+    #elif TM_MDL_TYPE==TM_MDL_FP8_143
+    #include "../../tools/tmdl/mbnet128_0.25_fp8_143.h"
+    #elif TM_MDL_TYPE==TM_MDL_FP8_152
+    #include "../../tools/tmdl/mbnet128_0.25_fp8_152.h"
+    #else
+    #error "wrong mdl type!"
+    #endif 
+#elif IMG_L==96
+    #include "pic96.h"
+    #if TM_MDL_TYPE==TM_MDL_FP32
+    #include "../../tools/tmdl/mbnet96_0.25_f.h"
+    #elif TM_MDL_TYPE==TM_MDL_FP16
+    #include "../../tools/tmdl/mbnet96_0.25_fp16.h"
+    #elif TM_MDL_TYPE==TM_MDL_INT8
+    #include "../../tools/tmdl/mbnet96_0.25_q.h"
+    #else
+    #error "wrong mdl type!"
+    #endif 
 #else
-#error "wrong mdl type!"
-#endif 
+    #error "err pic size"
+#endif
 
 extern const char* labels[1000];
-extern const unsigned char pic[];
 
 //generate pic c array
 /*
@@ -134,7 +147,3 @@ int main(int argc, char** argv)
     tm_unload(&mdl);                 
     return 0;
 }
-
-
-
-

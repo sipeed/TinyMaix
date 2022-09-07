@@ -355,6 +355,7 @@ def pack_fc(l, mdl_type):
         lbody += bytes(w_size-w.size*unit_size) #align to 8bytes
     assert len(lbody)%8 == 0
     #bias
+    b=b.astype(b_type_np)
     if (mdl_type == TM_MDL_FP8_143) or (mdl_type == TM_MDL_FP8_152):
         lbody = fill_fp8_data(mdl_type, lbody, b)
     else:
