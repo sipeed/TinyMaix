@@ -116,8 +116,6 @@ static void parse_output(tm_mat_t* outs)
     return;
 }
 
-#define IMG_L 128
-
 int main(int argc, char** argv)
 {   TM_DBGT_INIT();
     TM_PRINTF("mbnet demo\n");

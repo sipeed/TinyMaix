@@ -26,12 +26,12 @@ https://github.com/Zepan/TinyMaix_STM32F411
 
 
 ## Result
-|config  |mnist|cifar|mbnet96|Note|
-|---     |---  |---  |---    |--- |
-|O0 CPU  |2    |136  |549    ||
-|O1 CPU  |2    |120  |554    ||
-|O0 SIMD |2    |107  |422    ||
-|O1 SIMD |2    |75   |420    ||
+|config  |mnist|cifar|mbnet96|mbnet128|Note|
+|---     |---  |---  |---    |---     |---|
+|O0 CPU  |2    |136  |549    |902     ||
+|O1 CPU  |2    |120  |554    |798     ||
+|O0 SIMD |2    |107  |422    |681     ||
+|O1 SIMD |2    |75   |420    |558     ||
 
 
 ## Note
