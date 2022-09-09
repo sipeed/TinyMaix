@@ -11,7 +11,7 @@
 |Acceleration| ARM SIMD|
 
 ## Board
-WeAct Studio STM32F411CEU6 V3.0
+WeAct Studio STM32F411CEU6 V3.0  
 <a href="assets/STM32F411CEU6.png"><img width=300 src="assets/STM32F411CEU6.png"/></a>
 
 ## Development Environment
@@ -26,17 +26,21 @@ https://github.com/Zepan/TinyMaix_STM32F411
 
 
 ## Result
-|config  |mnist|cifar|mbnet96|mbnet128|Note|
+|config  |mnist|cifar|vww96|mbnet128|Note|
 |---     |---  |---  |---    |---     |---|
-|O0 CPU  |2    |136  |549    |902     ||
-|O1 CPU  |2    |120  |554    |798     ||
-|O0 SIMD |2    |107  |422    |681     ||
-|O1 SIMD |2    |75   |420    |558     ||
+|O0 CPU  |2    |136  |490    |902     ||
+|O1 CPU  |2    |120  |495    |798     ||
+|O0 SIMD |2    |107  |368    |681     ||
+|O1 SIMD |2    |75   |366    |558     ||
 
 
 ## Note
 STM32F411 Flash is too small to place 96x96 image, use random data instead.  
 O1 slow than O0 is beacuse Flash random read speed limit.   
-Use mbnet 128 input will much faster.
+
+
+## Author
+zepan@sipeed.com
+
 
 
