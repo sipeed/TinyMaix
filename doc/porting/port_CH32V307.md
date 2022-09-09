@@ -14,7 +14,7 @@
 
 CH32V307V-R0-1v0
 
-<a href="assets/CH32V307VCT6.png"><img width=300 src="assets/CH32V307VCT6.JPG"/></a>
+<a href="assets/CH32V307VCT6.jpg"><img width=300 src="assets/CH32V307VCT6.jpg"/></a>
 
 ## Development Environment
 
