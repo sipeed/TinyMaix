@@ -29,7 +29,7 @@ if __name__ == '__main__':
     img_name  = sys.argv[1]
     img = Image.open(img_name)
     img = np.array(img)
-    fw = open("pic.c", "w")
+    fw = open("pic.h", "w")
     fw.writelines("const unsigned char pic[%d*%d*%d]={\\\n"%(img.shape[0],img.shape[1],img.shape[2]))
     for y in range(img.shape[0]):
         for x in range(img.shape[1]):

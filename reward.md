@@ -10,7 +10,7 @@ Rules:
 3. The benchmark of the runnable model within the chip capability need to be tested, from low to high is:
    1. mnist   2KB Flash,  2KB RAM    //Handwritten digit recognition (28x28x1)
    2. cifar  89KB Flash, 11KB RAM    //10 classes classification(32x32x3)
-   3. mbnet 485KB Flash, 54KB RAM    //1000 classes，mobilenet v1 0.25,  96x96x3 input
+   3. vww   227KB Flash, 54KB RAM    //2 classes，mobilenet v1 0.25, 96x96x3 input
    4. mbnet 485KB Flash, 96KB RAM    //1000 classes，mobilenet v1 0.25,128x128x3 input
 4. Write a porting log (refer to doc/porting/port_STM32F411.md), and submit PR to this repo.
 

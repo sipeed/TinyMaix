@@ -1,26 +1,40 @@
-# Benchmark
-> Sort by cpu Freq; model time unit is ms;  
-> mnist: 28x28x1 input,4->8->16, pad valid  
-> __ mnist_q_valid.tmdl   2.4KB Flash 1.4KB RAM  
-> cifar: 32x32x3 input, 32->32->64->1024->10, 5x5 conv
-> __ cifar10_q_valid.tmdl 89KB Flash 11KB RAM  
-> mbnet96: mobile net v1 0.25 96x96x3 input  
-> __ mbnet96_0.25_q.tmdl 485KB Flash 54KB RAM  (suit for MCU have >=512KB Flash, >=64KB RAM)  
-> __ https://github.com/fchollet/deep-learning-models/releases  
- 
+# Benchmark 
+## Test Models
+### mnist
+mnist: 28x28x1 input,4->8->16, pad valid  
+mnist_q_valid.h   2.4KB Flash 1.4KB RAM  
+suit for MCU have >=16KB Flash, >=2KB RAM 
+### cifar
+cifar: 32x32x3 input, 32->32->64->1024->10, 5x5 conv  
+cifar10_q.h 89KB Flash 11KB RAM   
+suit for MCU have >=128KB Flash, >=20KB RAM  
+### vww96
+vww96: vww model based on mobile net v1 0.25 96x96x3 input  
+vww96_q.tmdl 227KB Flash 54KB RAM  
+suit for MCU have >=256KB Flash, >=64KB RAM  
+https://mlcommons.org/en/inference-tiny-07/
+### mbnet128
+mbnet128: mobile net v1 0.25 128x128x3 input  
+mbnet128_0.25_q.tmdl 485KB Flash 96KB RAM  
+suit for MCU have >=512KB Flash, >=128KB RAM   
+https://github.com/fchollet/deep-learning-models/releases  
 
+## Test Record
+model infer time unit is ms;   
+Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist   
 > Note1: arduino run another smaller mnist model due to limited memory  
-> Note2: mbnet96 record fastest model type's infer time, for example, C906 use FP16.
+> Note2: all model record fastest model type's infer time, for example, C906 use FP16 result.
+> Note3: XXX means impossible run this model on that chip
 
-|Chip/Board  |Core    |Flash|RAM     |Freq |mnist|cifar|mbnet96|Note|
-|---         |---     |---  |---     |---  |---  |---  |---    |---|
-|Atmega328   |AVR     | 32KB|     2KB|  16M|50(*)|XXX  |XXX    ||
-|STM32G030F6 |ARM CM0+| 32KB|     8KB|  64M|18   |XXX  |XXX    ||
-|STM32F103C8 |ARM CM3 | 64KB|    20KB|  72M|8    |XXX  |XXX    ||
-|STM32F411CE |ARM CM4 |512KB|   128KB| 150M|3    |76   |420    ||
-|BL808's E907|RV32P   | 16MB|0.8+64MB| 320M|<1   |35   |159    |mdl in psram|
-|STM32H750   |ARM CM7 |  1MB|  1024KB| 480M|<1   |15   |66     ||
-|BL808's C906|RV64V   | 16MB|0.8+64MB| 480M|<1   |10   |60     ||
+|Chip/Board  |Core    |Flash|RAM     |Freq |mbnet|vww96|cifar|mnist|Note|
+|---         |---     |---  |---     |---  |---  |---  |---  |---  |---|
+|BL808's C906|RV64V   | 16MB|0.8+64MB| 480M| 81  | 57  | 10  | <1  ||
+|STM32H750   |ARM CM7 |  1MB|  1024KB| 480M| 94  | 64  | 15  | <1  ||
+|BL808's E907|RV32P   | 16MB|0.8+64MB| 320M| 188 | 149 | 35  | <1  |mdl in psram|
+|STM32F411CE |ARM CM4 |512KB|   128KB| 150M| 558 | 366 | 75  |  2  ||
+|STM32F103C8 |ARM CM3 | 64KB|    20KB|  72M| XXX | XXX | XXX |  8  ||
+|STM32G030F6 |ARM CM0+| 32KB|     8KB|  64M| XXX | XXX | XXX | 18  ||
+|Atmega328   |AVR     | 32KB|     2KB|  16M| XXX | XXX | XXX |50(*)||
 
 
 
