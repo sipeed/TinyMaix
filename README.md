@@ -5,6 +5,7 @@
 TinyMaix is a tiny inference Neural Network library specifically for microcontrollers (TinyML).   
 We design it follow the rule:  **Easy-to-Use** > **Portable** > **Speed** > **Space**  
 
+Introduction to tinyML: [**TinyML**](tinyml_intro.md)  
 See tested chips and benchmark:  [**benchmark**](benchmark.md)  
 Good News:  [**Rewarded Porting TinyMaix**](reward.md)
 
