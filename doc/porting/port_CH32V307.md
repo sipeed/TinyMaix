@@ -29,10 +29,10 @@ https://github.com/dreamcmi/CH32V307-TinyMaix
 
 ## Result
 
-| config | mnist | cifar | vww96  | mbnet96 | mbnet128 | Note |
-| ------ | ----- | ----- | ------ | ------- | -------- | ---- |
-| O0 CPU | 1.23  | 75.77 | 356.92 | *       | *        |      |
-| O1 CPU | 1.14  | 63.78 | 362.62 | *       | *        |      |
+| config | mnist | cifar | vww96  | mbnet128 | Note |
+| ------ | ----- | ----- | ------ | -------- | ---- |
+| O0 CPU | 1.23  | 75.77 | 356.92 | XXX      |      |
+| O1 CPU | 1.14  | 63.78 | 362.62 | XXX      |      |
 
 **PS: Because the flash of the CH32V307 chip has a 0 wait area, there will be a waiting time in the part after the FLASH REGION exceeds 192k.**
 
