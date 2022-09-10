@@ -31,6 +31,7 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 |BL808's C906|RV64V   | 16MB|0.8+64MB| 480M| 81  | 57  | 10  | <1  ||
 |STM32H750   |ARM CM7 |  1MB|  1024KB| 480M| 94  | 64  | 15  | <1  ||
 |BL808's E907|RV32P   | 16MB|0.8+64MB| 320M| 188 | 149 | 35  | <1  |mdl in psram|
+|STM32G474RE |ARM CM4 |512KB|   128KB| 170M| XXX | 195 | 43  |  1  ||
 |STM32F411CE |ARM CM4 |512KB|   128KB| 150M| 558 | 366 | 75  |  2  ||
 |CH32V307    |RISCV32 IMAC|480KB|128KB|144M| XXX | 357 | 64  |  1  ||
 |STM32F103C8 |ARM CM3 | 64KB|    20KB|  72M| XXX | XXX | XXX |  8  ||
