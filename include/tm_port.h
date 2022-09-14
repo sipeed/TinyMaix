@@ -69,14 +69,14 @@ limitations under the License.
     #define  TM_PERF_START(x)  TM_GET_TICK(_##x##_t0);
     #define  TM_PERF_ADD(x)   {TM_GET_TICK(_##x##_t1);(x)+=(_##x##_t1-_##x##_t0);TM_GET_TICK(_##x##_t0);};
     #define  TM_PERF_PRINT(x) TM_PRINTF("PERF "#x": %ld us\r\n", (x)/TM_TICK_PERUS)
-#else 
-    #define  TM_GET_TICK(x)   
-    #define  TM_TICK_PERUS    
-    #define  TM_PERF_REG(x) 
-    #define  TM_PERF_EXTREG(x)   
-    #define  TM_PERF_INIT(x)  
-    #define  TM_PERF_START(x)  
-    #define  TM_PERF_ADD(x)   
+#else
+    #define  TM_GET_TICK(x)
+    #define  TM_TICK_PERUS
+    #define  TM_PERF_REG(x)
+    #define  TM_PERF_EXTREG(x)
+    #define  TM_PERF_INIT(x)
+    #define  TM_PERF_START(x)
+    #define  TM_PERF_ADD(x)
     #define  TM_PERF_PRINT(x)
 #endif
 
