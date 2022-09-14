@@ -18,14 +18,15 @@ limitations under the License.
 #include "model_final.h"  // model header file generted by maixhub
 
 /////////////////// config ////////////////////////
-static int class_num = PARAM_CLASS_NUM;                        // class number
-static const char* labels[] = PARAM_LABELS;                    // class names
+static int class_num = PARAM_CLASS_NUM;                              // class number
+static const char* labels[] = PARAM_LABELS;                          // class names
 static int input_w = PARAM_INPUT_W, input_h = PARAM_INPUT_H;         // input resolution
-static float anchors[PARAM_ANCHOR_NUM * 2] = PARAM_ANCHORS;         // anchors, the same as train's
+static float anchors[PARAM_ANCHOR_NUM * 2] = PARAM_ANCHORS;          // anchors, the same as train's
 extern unsigned char pic[PARAM_INPUT_W * PARAM_INPUT_H * PARAM_INPUT_C];         // test input image, hwc, RGBRGB...RGBRGB
 static float mean = PARAM_MEAN, std = PARAM_STD;             // preprocess params, input = (data - mean) / std
-                                                 // must the same as the used when training
-                                                 // can find in report.json
+                                                             // must the same as the used when training
+                                                             // can find in report.json
+#define PREPROCESS_USE_NORMAL_PROCEDURE 0                    // 0: use fast preprocess, 1: use normal preprocess
 ///////////////////////////////////////////////////
 static int recognize_count = 0;
 
@@ -101,9 +102,15 @@ void maixhub_image_preprocess_quantize(tm_mdl_t* mdl, uint8_t *img_data, int w, 
     for(int i = 0; i < h * w; ++i)
     {
         #if TM_MDL_TYPE == TM_MDL_INT8
-            *quant_p++ = (mtype_t)(((float)*p++ - mean) / std / in_s + in_zp);
-            *quant_p++ = (mtype_t)(((float)*p++ - mean) / std / in_s + in_zp);
-            *quant_p++ = (mtype_t)(((float)*p++ - mean) / std / in_s + in_zp);
+            #if PREPROCESS_USE_NORMAL_PROCEDURE
+                *quant_p++ = (mtype_t)(((float)*p++ - mean) / std / in_s + in_zp);
+                *quant_p++ = (mtype_t)(((float)*p++ - mean) / std / in_s + in_zp);
+                *quant_p++ = (mtype_t)(((float)*p++ - mean) / std / in_s + in_zp);
+            #else
+                *quant_p++ = (mtype_t)((int16_t)*p++ - 128);
+                *quant_p++ = (mtype_t)((int16_t)*p++ - 128);
+                *quant_p++ = (mtype_t)((int16_t)*p++ - 128);
+            #endif
         #else
             *quant_p++ = ((float)*p++ - mean) / std;
             *quant_p++ = ((float)*p++ - mean) / std;
