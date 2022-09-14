@@ -63,3 +63,10 @@ __pycache__
 .ipynb_checkpoints
 
 
+# maixhub model files
+*.zip
+report.json
+model*.h
+model*.tmdl
+img_data.c
+

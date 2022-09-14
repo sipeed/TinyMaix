@@ -258,10 +258,12 @@ You can download models from [MaixHub](https://maixhub.com) or train your AI mod
 
 * Register [MaixHub](https://maixhub.com) account and login.
 * You can download TinyMaix models from [model zoo](https://maixhub.com/model/zoo) or upload your models to model zoo for sharing.
-* Create a train project, collect dataset and train models online, finally you will get a `.tmdl` file and a `.h` file, use one of them in your code.
-> There's two type: classification and detection, for first time usage, use **classification is recommended**.
-> There's many backbone, you should select proper backbone according to your MCU's RAM size, the smaller RAM size, should choose the smaller backbone.
-> For easier understanding how MaixHub works, at first time you can choose tfjs platform instead of tinymaix to run model on your mobile phone.
+* Create a train project, collect dataset and train models online, finally you will get files:
+  * `.tmdl` file and `.h` file, use one of them in your code.
+  * `report.json`, report info, json format, we can find labels or anchors in this file, we will use these params in our code. Attention, these params will change in every training, you should copy these params to your code when change model, or you will the result will be wrong.
+> * There's two type: classification and detection, for first time usage, use **classification is recommended**.
+> * There's many backbone, you should select proper backbone according to your MCU's RAM size, the smaller RAM size, should choose the smaller backbone.
+> * For easier understanding how MaixHub works, at first time you can choose tfjs platform instead of tinymaix to run model on your mobile phone.
 * Find demo in [examples](./examples) folder, use the `maixhub_image_classification` demo or `maixhub_image_detection` demo to run your model.
 
 

@@ -18,18 +18,26 @@ import os,sys
 import numpy as np
 
 def print_usage():
-    print("Usage: python3 img2c.py img_name")
+    print("Usage:")
+    print("       python3 img2c.py img_name")
+    print("       python3 img2c.py img_name resize_width resize_height")
 
-# python3 resize_img.py imagenet quant_imagenet 224,224,3
+
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
+    if len(sys.argv) != 2 and len(sys.argv) != 4:
         print_usage()
         exit()
-
     img_name  = sys.argv[1]
     img = Image.open(img_name)
+    if len(sys.argv) >= 4:
+        img_width = int(sys.argv[2])
+        img_height = int(sys.argv[3])
+        img = img.resize((img_width, img_height), Image.ANTIALIAS)
+
     img = np.array(img)
-    fw = open("pic.c", "w")
+    out_path = os.path.splitext(img_name)[0] + ".c"
+    print("Write c file to ", out_path)
+    fw = open(out_path, "w")
     fw.writelines("const unsigned char pic[%d*%d*%d]={\\\n"%(img.shape[0],img.shape[1],img.shape[2]))
     for y in range(img.shape[0]):
         for x in range(img.shape[1]):
