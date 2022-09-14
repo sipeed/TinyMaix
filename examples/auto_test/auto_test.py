@@ -14,6 +14,8 @@ def runcmd(cmd):
         a.append(line.decode("utf8").strip())
     return a
 
+
+print("This script only test INT8/FP32, you need change OPT0&OPT1")
 t00= time.time()
 print("================Step1: test MNIST")
 if "mnist_f" in test_list:
@@ -23,7 +25,7 @@ if "mnist_f" in test_list:
     cmd="cd ../../tools/ && python3 h5_to_tflite.py h5/mnist_valid.h5 tflite/mnist_valid_f.tflite 0 && python3 tflite2tmdl.py tflite/mnist_valid_f.tflite tmdl/mnist_valid_f.tmdl fp32 1 28,28,1 10"
     res = runcmd(cmd)
     print(res[-1])
-    if res[-1] == "Saved to tmdl/mnist_valid_f.tmdl, tmdl/mnist_valid_f.h":
+    if res[-1] == "Saved to tinymaix model header to tmdl/mnist_valid_f.h":
         print("====Step1.1.1: OK~")
     else:
         print("====Step1.1.1: ERR!!!")
@@ -50,7 +52,7 @@ if "mnist_q" in test_list:
     cmd="cd ../../tools/ && python3 h5_to_tflite.py h5/mnist_valid.h5 tflite/mnist_valid_q.tflite 1 quant_img_mnist/ 0to1 && python3 tflite2tmdl.py tflite/mnist_valid_q.tflite tmdl/mnist_valid_q.tmdl int8 1 28,28,1 10"
     res = runcmd(cmd)
     print(res[-1])
-    if res[-1] == "Saved to tmdl/mnist_valid_q.tmdl, tmdl/mnist_valid_q.h":
+    if res[-1] == "Saved to tinymaix model header to tmdl/mnist_valid_q.h":
         print("====Step1.2.1: OK~")
     else:
         print("====Step1.2.1: ERR!!!")
@@ -80,7 +82,7 @@ if "mbnet_f" in test_list:
     cmd="cd ../../tools/ && python3 h5_to_tflite.py h5/mbnet128_0.25.h5 tflite/mbnet128_0.25_f.tflite 0 && python3 tflite2tmdl.py tflite/mbnet128_0.25_f.tflite tmdl/mbnet128_0.25_f.tmdl fp32 1 128,128,3 1000"
     res = runcmd(cmd)
     print(res[-1])
-    if res[-1] == "Saved to tmdl/mbnet128_0.25_f.tmdl, tmdl/mbnet128_0.25_f.h":
+    if res[-1] == "Saved to tinymaix model header to tmdl/mbnet128_0.25_f.h":
         print("====Step2.1.1: OK~")
     else:
         print("====Step2.1.1: ERR!!!")
@@ -91,7 +93,8 @@ if "mbnet_f" in test_list:
     cmd="cd ../mbnet && sed -i 's/#define TM_MDL_TYPE     TM_MDL_INT8/#define TM_MDL_TYPE     TM_MDL_FP32/g' ../../include/tm_port.h && rm -rf build && mkdir build && cd build && cmake .. && make && ./mbnet"
     res = runcmd(cmd)
     print(res[-1])
-    if res[-1] == "### Predict output is: Class 292 (tiger, Panthera tigris), Prob 0.866":
+    if res[-1] == "### Predict output is: Class 292 (tiger, Panthera tigris), Prob 0.866" or \
+        res[-1] == "### Predict output is: Class 292 (tiger, Panthera tigris), Prob 0.891":
         print("====Step2.1.2: OK~")
         runcmd("rm ../../tools/tmdl/mbnet128_0.25_f.tmdl")  #clean tmdl
     else:
@@ -109,7 +112,7 @@ if "mbnet_q" in test_list:
     cmd="cd ../../tools/ && python3 h5_to_tflite.py h5/mbnet128_0.25.h5 tflite/mbnet128_0.25_q.tflite 1 quant_img128/ 0to1 && python3 tflite2tmdl.py tflite/mbnet128_0.25_q.tflite tmdl/mbnet128_0.25_q.tmdl int8 1 128,128,3 1000"
     res = runcmd(cmd)
     print(res[-1])
-    if res[-1] == "Saved to tmdl/mbnet128_0.25_q.tmdl, tmdl/mbnet128_0.25_q.h":
+    if res[-1] == "Saved to tinymaix model header to tmdl/mbnet128_0.25_q.h":
         print("====Step2.2.1: OK~")
     else:
         print("====Step2.2.1: ERR!!!")

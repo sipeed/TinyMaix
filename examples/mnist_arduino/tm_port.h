@@ -13,7 +13,7 @@ limitations under the License.
 #ifndef __TM_PORT_H
 #define __TM_PORT_H
 
-#include "arduino.h"
+#include <Arduino.h>
 
 #define TM_ARCH_OPT0        (0) //default
 #define TM_ARCH_OPT1        (1)

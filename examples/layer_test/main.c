@@ -19,7 +19,7 @@ void dump_mat(tm_mat_t* mat)
     for(int y=0; y<mat->h; y++){
         for(int x=0; x<mat->w; x++){
             for(int c=0; c<mat->c; c++){
-                TM_PRINTF("%.1f,", mat->data[y*mat->w+x]);
+                TM_PRINTF("%.1f,", mat->data[(y*mat->w+x)*mat->c+c]);
             }
         }
         TM_PRINTF("\n");

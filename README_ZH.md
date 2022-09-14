@@ -2,7 +2,12 @@
 
 中文 | [English](README.md)
 
-TinyMaix是面向单片机的超轻量级的神经网络推理库，即TinyML推理库，可以让你在任意单片机上运行轻量级深度学习模型~
+TinyMaix是面向单片机的超轻量级的神经网络推理库，即TinyML推理库，可以让你在任意单片机上运行轻量级深度学习模型~   
+我们的设计原则：**易用性** > **移植性** > **速度** > **空间**  
+
+tinyML基础介绍: [**TinyML**](tinyml_intro.md)  
+查看已移植的芯片测试结果:  [**benchmark**](benchmark.md)  
+好消息:  [**TinyMaix有奖移植**](reward.md)
 
 **关键特性**
 - 核心代码少于**400行**(tm_layers.c+tm_model.c+arch_cpu.h), 代码段(.text)少于**3KB**   
@@ -59,7 +64,7 @@ mnist demo
 ```
 
 ## TODO 
-1. 将 tm_layers.c 优化到 tm_layers_O1.c, 目标提升速度到 1.4~2.0X
+1. ~~将 tm_layers.c 优化到 tm_layers_O1.c, 目标提升速度到 1.4~2.0X~~  已完成
 2. 针对64/128/256/512KB内存限制，找到合适的骨干网络
 3. 增加例程： Detector,KWS,HAR,Gesture,OCR,...
 4. ...

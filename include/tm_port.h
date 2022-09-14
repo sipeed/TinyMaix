@@ -26,7 +26,7 @@ limitations under the License.
 
 /******************************* PORT CONFIG  ************************************/
 #define TM_ARCH         TM_ARCH_CPU
-#define TM_OPT_LEVEL    TM_OPT0 
+#define TM_OPT_LEVEL    TM_OPT0
 #define TM_MDL_TYPE     TM_MDL_INT8
 #define TM_FASTSCALE    (0)         //enable if your chip don't have FPU, may speed up 1/3, but decrease accuracy
 #define TM_ENABLE_STAT  (1)         //enable mdl stat functions
@@ -40,7 +40,7 @@ limitations under the License.
 
 
 #define TM_PRINTF(...) printf(__VA_ARGS__)
-#define TM_DBG(...)    //TM_PRINTF("###L%d: ",__LINE__);TM_PRINTF(__VA_ARGS__);
+#define TM_DBG(...)    TM_PRINTF("###L%d: ",__LINE__);TM_PRINTF(__VA_ARGS__);
 #define TM_DBGL()      TM_PRINTF("###L%d\n",__LINE__);
 
 /******************************* DBG TIME CONFIG  ************************************/
@@ -62,18 +62,20 @@ limitations under the License.
 #if TM_EN_PERF
     #define  TM_GET_TICK(x)     __ASM volatile("csrr %0, mcycle" : "=r"(x)); //edit your self
 
-    #define  TM_TICK_PERUS    (1000) //sysconf(_SC_CLK_TCK)/1000000)
-    #define  TM_PERF_INIT()   uint64_t _perf_t0, _perf_t1;
-    #define  TM_PERF_REG(x)   uint64_t x=0;
-    #define  TM_PERF_START()  TM_GET_TICK(_perf_t0);
-    #define  TM_PERF_ADD(x)   {TM_GET_TICK(_perf_t1);(x)+=(_perf_t1-_perf_t0);TM_GET_TICK(_perf_t0);};
+    #define  TM_TICK_PERUS    (380) //sysconf(_SC_CLK_TCK)/1000000)
+    #define  TM_PERF_REG(x)    uint64_t x=0;
+    #define  TM_PERF_EXTREG(x) extern uint64_t x;
+    #define  TM_PERF_INIT(x)   uint64_t _##x##_t0, _##x##_t1;
+    #define  TM_PERF_START(x)  TM_GET_TICK(_##x##_t0);
+    #define  TM_PERF_ADD(x)   {TM_GET_TICK(_##x##_t1);(x)+=(_##x##_t1-_##x##_t0);TM_GET_TICK(_##x##_t0);};
     #define  TM_PERF_PRINT(x) TM_PRINTF("PERF "#x": %ld us\r\n", (x)/TM_TICK_PERUS)
 #else 
     #define  TM_GET_TICK(x)   
     #define  TM_TICK_PERUS    
-    #define  TM_PERF_INIT()   
-    #define  TM_PERF_REG(x)   
-    #define  TM_PERF_START()  
+    #define  TM_PERF_REG(x) 
+    #define  TM_PERF_EXTREG(x)   
+    #define  TM_PERF_INIT(x)  
+    #define  TM_PERF_START(x)  
     #define  TM_PERF_ADD(x)   
     #define  TM_PERF_PRINT(x)
 #endif
