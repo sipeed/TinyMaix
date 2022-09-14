@@ -13,15 +13,17 @@ limitations under the License.
 #include "stdio.h"
 #include "tinymaix.h"
 
-/////////////////// config ////////////////////////
 #include "model_final.h"                         // model header file generted by maixhub
-static int class_num = 3;                        // class number
-static const char* labels[] = {"0", "1", "2"};   // labels from report.json
-static int input_w = 128, input_h = 128;         // input resolution
-extern unsigned char pic[128 * 128 * 3];         // test input image, hwc, RGBRGB...RGBRGB
-static float mean = 123.5, std = 58.394;         // preprocess params, input = (data - mean) / std
-                                                 // must the same as the used when training
-                                                 // can find in report.json
+#include "model_info.h"
+
+/////////////////// config ////////////////////////
+static int class_num = PARAM_CLASS_NUM;                                    // class number
+static const char* labels[] = PARAM_LABELS;                                // class names
+static int input_w = PARAM_INPUT_W, input_h = PARAM_INPUT_H;               // input resolution
+extern unsigned char pic[PARAM_INPUT_W * PARAM_INPUT_H * PARAM_INPUT_C];   // test input image, hwc, RGBRGB...RGBRGB
+static float mean = PARAM_MEAN, std = PARAM_STD;           // preprocess params, input = (data - mean) / std
+                                                           // must the same as the used when training
+                                                           // can find in report.json
 ///////////////////////////////////////////////////
 
 #if TM_MDL_TYPE != TM_MDL_INT8 && TM_MDL_TYPE != TM_MDL_FP32
