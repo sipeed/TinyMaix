@@ -283,7 +283,7 @@ TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t
 ...
 
 ## Contribution & Contacts
-If you want contribute fucntions to TinyMaix, please read "TinyMaix Design" sections, we only want functions in "Features in design" and "Features maybe added".  
+If you want contribute functions to TinyMaix, please read "TinyMaix Design" sections, we only want functions in "Features in design" and "Features maybe added".  
 
 If you want commit your port test result, please commit to benchmark.md.
 You are welcome to port TinyMaix to your chip/boards, it will prove how easy to use TinyMaix run Deeplearning model in MCUs~
