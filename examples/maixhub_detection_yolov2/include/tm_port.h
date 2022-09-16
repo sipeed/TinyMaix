@@ -13,6 +13,7 @@ limitations under the License.
 #ifndef __TM_PORT_H
 #define __TM_PORT_H
 
+
 #define TM_ARCH_CPU         (0) //default, pure cpu compute
 #define TM_ARCH_ARM_SIMD    (1) //ARM Cortex M4/M7, etc.
 #define TM_ARCH_ARM_NEON    (2) //ARM Cortex A7, etc.
@@ -32,7 +33,7 @@ limitations under the License.
 #define TM_ENABLE_STAT  (1)         //enable mdl stat functions
 #define TM_MAX_CSIZE    (1000)      //max channel num //used if INT8 mdl  //cost TM_MAX_CSIZE*4 Byte
 #define TM_MAX_KSIZE    (5*5)       //max kernel_size   //cost TM_MAX_KSIZE*4 Byte
-#define TM_MAX_KCSIZE   (3*3*256)   //max kernel_size*channels //cost TM_MAX_KSIZE*sizeof(mtype_t) Byte
+#define TM_MAX_KCSIZE   (14*14*1000)   //max kernel_size*channels //cost TM_MAX_KSIZE*sizeof(mtype_t) Byte
 
 #define TM_INLINE       __attribute__((always_inline)) static inline
 #define tm_malloc(x)    malloc(x)
@@ -40,7 +41,7 @@ limitations under the License.
 
 
 #define TM_PRINTF(...) printf(__VA_ARGS__)
-#define TM_DBG(...)    TM_PRINTF("###L%d: ",__LINE__);TM_PRINTF(__VA_ARGS__);
+#define TM_DBG(...)    //TM_PRINTF("###L%d: ",__LINE__);TM_PRINTF(__VA_ARGS__);
 #define TM_DBGL()      TM_PRINTF("###L%d\n",__LINE__);
 
 /******************************* DBG TIME CONFIG  ************************************/

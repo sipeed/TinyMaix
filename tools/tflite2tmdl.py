@@ -530,13 +530,11 @@ def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims, write_c_he
     print("    buffer size %.1fKB (%d B) RAM"%(buf_size/1024, buf_size))
     print("    single layer mode subbuff size %.1fKB (%d+%d=%d B) RAM"%\
         ((MDLBINHEAD_SIZE+max(layer_sizes))/1024, MDLBINHEAD_SIZE, max(layer_sizes), MDLBINHEAD_SIZE+max(layer_sizes)))
-    print("Saved to tinymaix model to %s" % mdl_name)
-    if write_c_header:
-        print("Saved to tinymaix model header to %s" % hmdl)
+    print("Saved to %s, %s" % (mdl_name, hmdl))
     #!ls -lh $mdl_name
 
-def tflite2tmdl(tflite_name, tmdl_name, mdl_type, out_deq, in_dims, out_dims, write_c_header=True):
-    layers = read_tflite(tflite_name)
+def tflite2tmdl(tflite_name, tmdl_name, mdl_type, out_deq, in_dims, out_dims, write_c_header=True, log_func=print):
+    layers = read_tflite(tflite_name, log_func=log_func)
     pack_tmdl(layers, tmdl_name, mdl_type, out_deq, in_dims, out_dims, write_c_header=write_c_header)
 
 def print_usage():
