@@ -129,11 +129,7 @@ tm_err_t tml_softmax(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_t in_zp,
     float sum = 0;
     for(int c=0; c <in->c; c++){
         dout[c] -= dmax;
-#if TM_LOCAL_EXP
-        dout[c] = (float)_exp(dout[c]);
-#else
-        dout[c] = (float)exp(dout[c]);
-#endif
+        dout[c] = (float)tm_exp(dout[c]);
         sum     += dout[c];
         //dout[c] -= 0.000000001;  //prevent 1.0 value (cause 256 overflow)
     }
