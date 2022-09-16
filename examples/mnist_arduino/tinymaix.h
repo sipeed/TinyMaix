@@ -244,14 +244,14 @@ typedef tm_err_t (*tm_cb_t)(tm_mdl_t* mdl, tml_head_t* lh);
 /******************************* GLOBAL VARIABLE ************************************/
 
 
-/******************************* MODEL FUCNTION ************************************/
+/******************************* MODEL FUNCTION ************************************/
 tm_err_t tm_load  (tm_mdl_t* mdl, const uint8_t* bin, uint8_t*buf, tm_cb_t cb, tm_mat_t* in);   //load model
 void     tm_unload(tm_mdl_t* mdl);                                      //remove model
 tm_err_t tm_preprocess(tm_mdl_t* mdl, tm_pp_t pp_type, tm_mat_t* in, tm_mat_t* out);            //preprocess input data
 tm_err_t tm_run   (tm_mdl_t* mdl, tm_mat_t* in, tm_mat_t* out);         //run model
 
 
-/******************************* LAYER FUCNTION ************************************/
+/******************************* LAYER FUNCTION ************************************/
 tm_err_t tml_conv2d_dwconv2d(tm_mat_t* in, tm_mat_t* out, wtype_t* w, btype_t* b, \
     int kw, int kh, int sx, int sy, int dx, int dy, int act, \
     int pad_top, int pad_bottom, int pad_left, int pad_right, int dmul, \
@@ -263,7 +263,7 @@ tm_err_t tml_softmax(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_t in_zp,
 tm_err_t tml_reshape(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_t in_zp, sctype_t out_s, zptype_t out_zp);
 
 
-/******************************* STAT FUCNTION ************************************/
+/******************************* STAT FUNCTION ************************************/
 #if TM_ENABLE_STAT
 tm_err_t tm_stat(tm_mdlbin_t* mdl);                    //stat model
 #endif
