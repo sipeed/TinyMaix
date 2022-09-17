@@ -13,7 +13,7 @@
 
 ## Board 
 
-<a href="assets/ACM32F403.jpg"><img width=300 src="C:\Users\dreamcmi\Desktop\ACM32F403-TinyMaix\assets\ACM32F403.jpg"/></a>
+<a href="assets/ACM32F403.jpg"><img width=300 src="assets/ACM32F403.jpg"/></a>
 
 ## Development Environment
 
