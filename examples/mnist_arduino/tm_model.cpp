@@ -110,17 +110,17 @@ tm_err_t tm_run(tm_mdl_t* mdl, tm_mat_t* in, tm_mat_t* out)
     int out_idx = 0;
     tml_head_t* h;
     memcpy((void*)&_in, (void*)in, sizeof(tm_mat_t));     
-    mdl->layer_body = l_bin+sizeof(tm_mdlbin_t);
+    mdl->layer_body = (uint8_t*)(l_bin+sizeof(tm_mdlbin_t));
     for(mdl->layer_i = 0; mdl->layer_i < mdl->b->layer_cnt; mdl->layer_i++){
         TM_READ_LAYER(LAYER_BODY,mdl->layer_body,sizeof(tml_head_t));
         h = (tml_head_t*)(LAYER_BODY);
         TM_READ_LAYER(LAYER_BODY,mdl->layer_body,h->size);
         
         if(mdl->layer_i>0) {
-            _in.data  = mdl->buf + h->in_oft;
+            _in.data  = (mtype_t*)(mdl->buf + h->in_oft);
             memcpy((void*)&_in, (void*)(h->in_dims), sizeof(uint16_t)*4);
         }
-        _out.data = mdl->buf + h->out_oft;
+        _out.data = (mtype_t*)(mdl->buf + h->out_oft);
         memcpy((void*)&_out, (void*)(h->out_dims), sizeof(uint16_t)*4);
         switch(h->type){
         case TML_CONV2D: 

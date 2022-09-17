@@ -188,7 +188,7 @@ void setup() {
     res = tm_load(&mdl, mdl_data, mdl_buf, layer_cb, &in);
     if(res != TM_OK) {
         TM_PRINTF("tm model load err %d\n", res);
-        return -1;
+        return ;
     }
 
     res = tm_preprocess(&mdl, TMPP_UINT2INT, &in_uint8, &in); 
