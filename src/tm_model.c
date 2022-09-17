@@ -95,10 +95,10 @@ tm_err_t __attribute__((weak)) tm_run(tm_mdl_t* mdl, tm_mat_t* in, tm_mat_t* out
     for(mdl->layer_i = 0; mdl->layer_i < mdl->b->layer_cnt; mdl->layer_i++){
         tml_head_t* h = (tml_head_t*)(mdl->layer_body);
         if(mdl->layer_i>0) {
-            _in.data  = mdl->buf + h->in_oft;
+            _in.data  = (mtype_t *)(mdl->buf + h->in_oft);
             memcpy((void*)&_in, (void*)(h->in_dims), sizeof(uint16_t)*4);
         }
-        _out.data = mdl->buf + h->out_oft;
+        _out.data = (mtype_t *)(mdl->buf + h->out_oft);
         memcpy((void*)&_out, (void*)(h->out_dims), sizeof(uint16_t)*4);
         switch(h->type){
         case TML_CONV2D: 

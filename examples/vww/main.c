@@ -87,8 +87,8 @@ int main(int argc, char** argv)
     TM_PRINTF("mnist demo\n");
     tm_mdl_t mdl;
 
-    tm_mat_t in_uint8 = {3,IMG_L,IMG_L,IMG_CH, (mtype_t*)pic};
-    tm_mat_t in = {3,IMG_L,IMG_L,IMG_CH, NULL};
+    tm_mat_t in_uint8 = {3,IMG_L,IMG_L,IMG_CH, {(mtype_t*)pic}};
+    tm_mat_t in = {3,IMG_L,IMG_L,IMG_CH, {NULL}};
     tm_mat_t outs[1];
     tm_err_t res;
     tm_stat((tm_mdlbin_t*)mdl_data); 

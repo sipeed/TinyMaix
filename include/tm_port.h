@@ -29,7 +29,7 @@ limitations under the License.
 #define TM_OPT_LEVEL    TM_OPT0
 #define TM_MDL_TYPE     TM_MDL_INT8
 #define TM_FASTSCALE    (0)         //enable if your chip don't have FPU, may speed up 1/3, but decrease accuracy
-#define TM_LOCAL_MATH   (1)         //use local math func (like exp()) to avoid libm
+#define TM_LOCAL_MATH   (0)         //use local math func (like exp()) to avoid libm
 #define TM_ENABLE_STAT  (1)         //enable mdl stat functions
 #define TM_MAX_CSIZE    (1000)      //max channel num //used if INT8 mdl  //cost TM_MAX_CSIZE*4 Byte
 #define TM_MAX_KSIZE    (5*5)       //max kernel_size   //cost TM_MAX_KSIZE*4 Byte
