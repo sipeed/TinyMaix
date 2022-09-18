@@ -304,8 +304,8 @@ tm_err_t tm_stat(tm_mdlbin_t* mdl);                    //stat model
 #endif
 
 /******************************* UTILS FUNCTION ************************************/
-uint8_t __attribute__((weak)) tm_fp32to8(float fp32);
-float __attribute__((weak)) tm_fp8to32(uint8_t fp8);
+uint8_t TM_WEAK tm_fp32to8(float fp32);
+float TM_WEAK tm_fp8to32(uint8_t fp8);
 
 
 /******************************* UTILS  ************************************/
