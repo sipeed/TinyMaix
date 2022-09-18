@@ -2,13 +2,13 @@
 
 ## Chip
 
-| Item  | Parameter    |
-| ----- | ------------ |
-| Chip  | CH32V307     |
-| Arch  | RISCV32 IMAC |
-| Freq  | 144M         |
-| Flash | 480KB        |
-| RAM   | 128KB        |
+| Item  | Parameter               |
+| ----- | ----------------------- |
+| Chip  | CH32V307                |
+| Arch  | RV32 IMACF (QingKe V4F) |
+| Freq  | 144M                    |
+| Flash | 480KB                   |
+| RAM   | 128KB                   |
 
 ## Board
 
