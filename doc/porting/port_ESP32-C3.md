@@ -13,7 +13,7 @@
 
 ## Board
 
-<a href="assets/ESP32-C3.png"><img width=300 src="assets/ESP32-C3.png"/></a>
+<a href="assets/esp32-c3.png"><img width=300 src="assets/esp32-c3.png"/></a>
 
 ## Development Environment
 
