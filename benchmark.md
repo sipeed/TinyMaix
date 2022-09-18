@@ -34,11 +34,12 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 |BL808's E907|RV32P     | 16MB|0.8+64MB| 320M| 188 | 149 | 35  | <1  |mdl in psram|
 |AT32F403A   |ARM CM4   |  1MB|    96KB| 240M| 477 | 136 | 30  | 0.6 |mbnet in 224k ram mode|
 |STM32G474RE |ARM CM4   |512KB|   128KB| 170M| XXX | 195 | 43  |  1  ||
-|CH32V307    |RV32 IMAC |480KB|   128KB| 144M| XXX | 357 | 64  |  1  ||
+|CH32V307    |RV32 IMACF</br>QingKe V4F|480KB|   128KB| 144M| XXX | 357 | 64  |  1  ||
 |STM32F411CE |ARM CM4   |512KB|   128KB| 150M| 558 | 366 | 75  |  2  ||
 |ESP32       |Xtensa LX6|  4MB|   520KB| 240M| 755 | 476 | 132 |  2  |mdl in flash|
 |ACM32F403   |ARM CM33  |512KB|   192KB| 180M| XXX | 458 | 139 |  2  ||
 |STM32F103C8 |ARM CM3   | 64KB|    20KB|  72M| XXX | XXX | XXX |  8  ||
+|CH32V103    |RV32 IMAC</br>QingKe V3A| 64KB|    20KB|  72M| XXX | XXX | XXX | 13  ||
 |STM32G030F6 |ARM CM0+  | 32KB|     8KB|  64M| XXX | XXX | XXX | 18  ||
 |Atmega328   |AVR       | 32KB|     2KB|  16M| XXX | XXX | XXX |50(*)||
 
