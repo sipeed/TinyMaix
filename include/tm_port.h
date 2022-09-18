@@ -35,9 +35,13 @@ limitations under the License.
 #define TM_MAX_KSIZE    (5*5)       //max kernel_size   //cost TM_MAX_KSIZE*4 Byte
 #define TM_MAX_KCSIZE   (3*3*256)   //max kernel_size*channels //cost TM_MAX_KSIZE*sizeof(mtype_t) Byte
 
-
+#if (defined(_WIN16) || defined(_WIN32) || defined(_WIN64)) && !defined(__WINDOWS__)
+#define TM_INLINE       static inline
+#define TM_WEAK         
+#else
 #define TM_INLINE       __attribute__((always_inline)) static inline
 #define TM_WEAK         __attribute__((weak))
+#endif
 #define tm_malloc(x)    malloc(x)
 #define tm_free(x)      free(x)
 
@@ -47,8 +51,12 @@ limitations under the License.
 #define TM_DBGL()      TM_PRINTF("###L%d\n",__LINE__);
 
 /******************************* DBG TIME CONFIG  ************************************/
+#if (defined(_WIN16) || defined(_WIN32) || defined(_WIN64)) && !defined(__WINDOWS__)
+#include <time.h>
+#else
 #include <sys/time.h>
 #include <time.h>
+#endif
 #define  TM_GET_US()       ((uint32_t)(clock()*1000000/CLOCKS_PER_SEC))
 
 #define TM_DBGT_INIT()     uint32_t _start,_finish;float _time;_start=TM_GET_US();

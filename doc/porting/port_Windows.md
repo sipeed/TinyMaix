@@ -28,10 +28,19 @@ Visual Studio 2022
 
 ### Result
 
+TM_MDL_INT8
+
 | config | mnist    | cifar | vww96 | mbnet128 | kws  |
 | ------ | -------- | ----- | ----- | -------- | ---- |
 | O0 CPU | 1        | 1     | 4     | 6        | 12   |
 | O1 CPU | 0(470us) | 1     | 3     | 6        | 12   |
+
+TM_MDL_FP32
+
+| config | mnist    | cifar | vww96 | mbnet128 | kws  |
+| ------ | -------- | ----- | ----- | -------- | ---- |
+| O0 CPU | 2        | 3     | 4     | 6        | XX   |
+| O1 CPU | 1        | 2     | 4     | 6        | XX   |
 
 ### Author
 YuzukiTsuru <gloomyghost@gloomyghost.com>
