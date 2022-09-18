@@ -104,20 +104,20 @@ TM_INLINE void l_postprocess_sum(sumtype_t sum, btype_t b, int act, mtype_t* out
 #endif
  
 //for valid or kernel in valid part, use fast method
-tm_err_t __attribute__((weak)) tml_conv2d_dwconv2d(tm_mat_t* in, tm_mat_t* out, wtype_t* w, btype_t* b, \
+tm_err_t TM_WEAK tml_conv2d_dwconv2d(tm_mat_t* in, tm_mat_t* out, wtype_t* w, btype_t* b, \
     int kw, int kh, int sx, int sy, int dx, int dy, int act, \
     int pad_top, int pad_bottom, int pad_left, int pad_right, int dmul, \
     sctype_t* ws, sctype_t in_s, zptype_t in_zp, sctype_t out_s, zptype_t out_zp) //kernel: (cho, chi, h, w)
 {   TM_PERF_INIT(t_sbuf);TM_PERF_INIT(t_dotp);TM_PERF_INIT(t_post);
     TM_PERF_INIT(t_valid);TM_PERF_INIT(t_pad);
-    TM_PERF_INIT(t_conv); TM_PERF_INIT(t_pwconv); TM_PERF_INIT(t_dwconv); 
+    TM_PERF_INIT(t_conv); TM_PERF_INIT(t_pwconv); TM_PERF_INIT(t_dwconv);
     int pad_flag = (pad_top != 0 ||pad_bottom != 0 ||pad_left != 0 ||pad_right != 0);
-    if(dx!=1 || dy!= 1) return TM_ERR_TODO;   
-    if(act >= TM_ACT_MAXCNT) return TM_ERR_UNSUPPORT;   
+    if(dx!=1 || dy!= 1) return TM_ERR_TODO;
+    if(act >= TM_ACT_MAXCNT) return TM_ERR_UNSUPPORT;
     int maxk = kw*kh;
     if(maxk>TM_MAX_KSIZE) return TM_ERR_KSIZE;
     if(maxk==1 && (pad_flag||dmul)) return TM_ERR_UNSUPPORT;   //assume no pad or dwconv when pwconv
-    int chi  = in->c; 
+    int chi  = in->c;
     int cho  = out->c;
     sumtype_t sum = 0;
     mtype_t* outp = out->data;
@@ -139,7 +139,7 @@ tm_err_t __attribute__((weak)) tml_conv2d_dwconv2d(tm_mat_t* in, tm_mat_t* out, 
         sumtype_t sums[BATCH_SIZE];
         for (int y = 0; y < out->h; y++) {
             for (int x = 0; x < out->w; x++) {
-                mtype_t* sptr = (mtype_t*)TM_MATP(in, sy*y, sx*x, 0); 
+                mtype_t* sptr = (mtype_t*)TM_MATP(in, sy*y, sx*x, 0);
                 wtype_t* kptr = (wtype_t*)w;
                 int c = 0;
                 for(; c<out->c-BATCH_SIZE+1; ){
@@ -158,7 +158,7 @@ tm_err_t __attribute__((weak)) tml_conv2d_dwconv2d(tm_mat_t* in, tm_mat_t* out, 
         TM_PERF_ADD(t_pwconv);
         return TM_OK;
     }
-    
+
     if(dmul) {TM_PERF_START(t_dwconv);} else {TM_PERF_START(t_conv);};
     int oft = 0;
     int idx = 0;
@@ -168,7 +168,7 @@ tm_err_t __attribute__((weak)) tml_conv2d_dwconv2d(tm_mat_t* in, tm_mat_t* out, 
             idx += 1;
             oft += chi;
         }
-        oft += (in->w - kw)*chi; 
+        oft += (in->w - kw)*chi;
     }
     chi  = dmul ? 1 : in->c; // dmul>=1 indicate depthwise; dummy chi for dwconv compatible
     int slow_flag = 0; //same pad part is slow
@@ -176,8 +176,8 @@ tm_err_t __attribute__((weak)) tml_conv2d_dwconv2d(tm_mat_t* in, tm_mat_t* out, 
         int src_y0 = sy*y - pad_top;
         for (int x = 0; x < out->w; x++) {
             int src_x0 = sx*x - pad_left;
-            sumtype_t sum; 
-            slow_flag = ((src_y0<0)+(src_x0<0)+(src_y0+kh>in->h)+(src_x0+kw>in->w)); 
+            sumtype_t sum;
+            slow_flag = ((src_y0<0)+(src_x0<0)+(src_y0+kh>in->h)+(src_x0+kw>in->w));
             //TM_PERF_START(t_sbuf);
             if(!slow_flag) {TM_PERF_START(t_valid); //valid or same valid part
                 mtype_t* sptr_base = (mtype_t*)TM_MATP(in, src_y0, src_x0, 0); //?c/dmul:0
@@ -189,7 +189,7 @@ tm_err_t __attribute__((weak)) tml_conv2d_dwconv2d(tm_mat_t* in, tm_mat_t* out, 
                     }
                     sidx += maxk;
                     sptr = sptr_base + (dmul?(cc+1)/dmul:(cc+1));
-                } 
+                }
             } else {  TM_PERF_START(t_pad);       //same pad part
                 int _ky0 = src_y0<0 ? -src_y0 : 0;
                 int _kx0 = src_x0<0 ? -src_x0 : 0;
@@ -197,7 +197,7 @@ tm_err_t __attribute__((weak)) tml_conv2d_dwconv2d(tm_mat_t* in, tm_mat_t* out, 
                 int _kx1 = in->w-src_x0>kw ? kw : in->w-src_x0;
                 uint32_t sidx=0;    //sbuf:cho,chi,maxk //dw:chi==1;
                 uint32_t s_step = (_ky1-_ky0)*(_kx1-_kx0);
-                mtype_t* sptr_base = (mtype_t*)TM_MATP(in, src_y0, src_x0, 0); 
+                mtype_t* sptr_base = (mtype_t*)TM_MATP(in, src_y0, src_x0, 0);
                 mtype_t* sptr = sptr_base;
             #if TM_MDL_TYPE == TM_MDL_INT8
                 memset(sbuf, in_zp, dmul?cho*maxk:chi*maxk);    //do padding
@@ -236,13 +236,13 @@ tm_err_t __attribute__((weak)) tml_conv2d_dwconv2d(tm_mat_t* in, tm_mat_t* out, 
             }
             if(!slow_flag) {TM_PERF_ADD(t_valid);} else {TM_PERF_ADD(t_pad);}
         }
-    } 
+    }
     if(dmul) {TM_PERF_ADD(t_dwconv);} else {TM_PERF_ADD(t_conv);};
     return TM_OK;
 }
 
 /*************************** TML_GAP **********************************/
-tm_err_t __attribute__((weak)) tml_gap(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_t in_zp, sctype_t out_s, zptype_t out_zp)
+tm_err_t TM_WEAK tml_gap(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_t in_zp, sctype_t out_s, zptype_t out_zp)
 {   TM_DBGT_INIT();
     mtype_t* data;
     for(int c=0; c <out->c; c++){
@@ -254,18 +254,18 @@ tm_err_t __attribute__((weak)) tml_gap(tm_mat_t* in, tm_mat_t* out, sctype_t in_
                 data += out->c;
             }
         }
-    #if TM_MDL_TYPE == TM_MDL_INT8 || TM_MDL_TYPE == TM_MDL_INT16 
+    #if TM_MDL_TYPE == TM_MDL_INT8 || TM_MDL_TYPE == TM_MDL_INT16
         out->data[c] = (mtype_t)((sum/((in->h)*(in->w))-in_zp)*in_s/out_s + out_zp); //requant
-    #elif TM_MDL_TYPE == TM_MDL_FP32 || TM_MDL_TYPE == TM_MDL_FP16 
+    #elif TM_MDL_TYPE == TM_MDL_FP32 || TM_MDL_TYPE == TM_MDL_FP16
         out->data[c] = (mtype_t)(sum/((in->h)*(in->w)));
-    //#else //#elif TM_MDL_TYPE == TM_MDL_FP8_143 || TM_MDL_TYPE == TM_MDL_FP8_152 
+    //#else //#elif TM_MDL_TYPE == TM_MDL_FP8_143 || TM_MDL_TYPE == TM_MDL_FP8_152
     #endif
     }
     return TM_OK;
 }
 
 /*************************** TML_FC **********************************/
-tm_err_t __attribute__((weak)) tml_fc(tm_mat_t* in, tm_mat_t* out,  wtype_t* w, btype_t* b, \
+tm_err_t TM_WEAK tml_fc(tm_mat_t* in, tm_mat_t* out,  wtype_t* w, btype_t* b, \
     sctype_t* ws, sctype_t in_s, zptype_t in_zp, sctype_t out_s, zptype_t out_zp)
 {   TM_DBGT_INIT();
     mtype_t* data = in->data;
@@ -273,7 +273,7 @@ tm_err_t __attribute__((weak)) tml_fc(tm_mat_t* in, tm_mat_t* out,  wtype_t* w, 
         sumtype_t sum = 0;
         tm_dot_prod(data, w+c*in->c, in->c, &sum);
         sum += b[c];    //fuse with zp
-    #if TM_MDL_TYPE == TM_MDL_INT8 || TM_MDL_TYPE == TM_MDL_INT16 
+    #if TM_MDL_TYPE == TM_MDL_INT8 || TM_MDL_TYPE == TM_MDL_INT16
         out->data[c] = (mtype_t)(sum*in_s*ws[0]/out_s + out_zp); //requant
     #else
         out->data[c] = (mtype_t)(sum);
@@ -283,13 +283,13 @@ tm_err_t __attribute__((weak)) tml_fc(tm_mat_t* in, tm_mat_t* out,  wtype_t* w, 
 }
 
 /*************************** TML_SOFTMAX **********************************/
-tm_err_t __attribute__((weak)) tml_softmax(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_t in_zp, sctype_t out_s, zptype_t out_zp)
+tm_err_t TM_WEAK tml_softmax(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_t in_zp, sctype_t out_s, zptype_t out_zp)
 {   TM_DBGT_INIT(); //note we have float size output buf even in INT8/INT16 mode
     mtype_t* din = in->data;
-    float*  dout = (float*)(out->data); 
+    float*  dout = (float*)(out->data);
     float   dmax =  -FLT_MAX;
     for(int c=0; c <in->c; c++){
-    #if TM_MDL_TYPE == TM_MDL_INT8 || TM_MDL_TYPE == TM_MDL_INT16 
+    #if TM_MDL_TYPE == TM_MDL_INT8 || TM_MDL_TYPE == TM_MDL_INT16
         dout[c] = (float)((sumtype_t)din[c] - in_zp)*in_s;
     #else
         dout[c] = din[c];
@@ -304,7 +304,7 @@ tm_err_t __attribute__((weak)) tml_softmax(tm_mat_t* in, tm_mat_t* out, sctype_t
         dout[c] -= 0.000001;  //prevent 1.0 value (cause 256 overflow)
     }
     for(int c=0; c <in->c; c++){  //int8/int16 <= fp32, so it is ok
-    #if TM_MDL_TYPE == TM_MDL_INT8 || TM_MDL_TYPE == TM_MDL_INT16 
+    #if TM_MDL_TYPE == TM_MDL_INT8 || TM_MDL_TYPE == TM_MDL_INT16
         out->data[c] = (mtype_t)(dout[c]/sum/out_s + out_zp); //requant
     #else
         out->data[c] = (mtype_t)(dout[c]/sum);
@@ -314,7 +314,7 @@ tm_err_t __attribute__((weak)) tml_softmax(tm_mat_t* in, tm_mat_t* out, sctype_t
 }
 
 /*************************** TML_RESHAPE **********************************/
-tm_err_t __attribute__((weak)) tml_reshape(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_t in_zp, sctype_t out_s, zptype_t out_zp)
+tm_err_t TM_WEAK tml_reshape(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_t in_zp, sctype_t out_s, zptype_t out_zp)
 {   
     //in fact do nothing... out shape
     return TM_OK;
