@@ -14,7 +14,7 @@
 ## Board
 
 EDU-CIAA  
-
+<a href="assets/LPC4337.jpg"><img width=300 src="assets/LPC4337.jpg"/></a>
 
 ## Development Environment
 
