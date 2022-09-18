@@ -31,7 +31,8 @@ https://github.com/starry-m/TinyMaix_STM32L496
 ## Result
 |config  |mnist|cifar|vww96|mbnet128|Note|
 |---     |---  |---  |---    |---     |---|
-|O0 CPU  |3    |149  |677    |792     ||
+|O0 CPU  |7    |194  |4293768|4293864 ||
+|O1 CPU  |3    |149  |677    |792     ||
 
 
 
