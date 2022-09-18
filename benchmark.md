@@ -45,7 +45,7 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 
 Normalization to 100M freq to compare CPU efficiency, using cifar model:  
 
-|Chip/Board  |Core      |cifar|
+|Chip/Board  |Core      |cifar(ms)|
 |---         |---       |---  |
 |BL808's NPU |BLAI      | 2   |
 |BL808's C906|RV64V     | 48  |
