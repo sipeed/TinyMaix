@@ -17,10 +17,10 @@ Lenovo ThinkCentre M73
 
 ## Development Environment
 
-Ubuntu Server 22.04
-gcc 11.2.0
-Emscripten 3.1.21
-nodejs v12.22.9
+Ubuntu Server 22.04  
+gcc 11.2.0  
+Emscripten 3.1.21  
+nodejs v12.22.9  
 
 ## Step/Project
 
@@ -28,8 +28,8 @@ https://github.com/liux-pro/TinyMaix-WebAssembly/tree/main/examples/webAssembly_
 
 ## Result
 
-`Native` means gcc compile, run in linux directly.
-`WebAssembly` means emscripten compile, run in nodejs environment.
+`Native` means gcc compile, run in linux directly.  
+`WebAssembly` means emscripten compile, run in nodejs environment.  
 
 | config         | mnist | cifar | vww96 | mbnet128 | kws    | Note |
 | -------------- | ----- | ----- | ----- |----------| ------ | ---- |
