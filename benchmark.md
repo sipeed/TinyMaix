@@ -44,7 +44,7 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 |STM32F103C8 |ARM CM3   | 64KB|    20KB|  72M| XXX | XXX | XXX |  8  ||
 |CH32V103    |RV32 IMAC</br>QingKe V3A| 64KB|    20KB|  72M| XXX | XXX | XXX | 13  ||
 |STM32G030F6 |ARM CM0+  | 32KB|     8KB|  64M| XXX | XXX | XXX | 18  ||
-|PicoRV32(GW2A)|RV32    |  1MB|    64KB|  54M| XXX | XXX | XXX | 26  ||
+|PicoRV32(GW2A)|RV32    |  1MB|    64KB|  54M| XXX | XXX | XXX | 26  |Tang Primer 20K|
 |Atmega328   |AVR       | 32KB|     2KB|  16M| XXX | XXX | XXX |50(*)||
 
 
