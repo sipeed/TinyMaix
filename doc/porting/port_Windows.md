@@ -1,5 +1,7 @@
 # Port TinyMaix to Windows x86/x64/ARM64
 
+Port Repo: https://github.com/UMUISM/TinyMaix-Windows
+
 ## Windows 10 x64
 
 ### Test Chip
