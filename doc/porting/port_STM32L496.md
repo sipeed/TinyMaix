@@ -15,7 +15,8 @@
 
 ## Board
 alios development board STM32L496VGT6
-<a href="image/board.png"><img width=300 src="image/board.png"/></a>
+
+<a href="assets/STM32L496VGT6.png"><img width=300 src="assets/STM32L496VGT6.png"/></a>
 
 ## Development Environment
 MDK 5.37
