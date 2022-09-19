@@ -60,8 +60,8 @@ Normalization to 100M freq to compare CPU efficiency, using cifar model:
 |BL808's E907|RV32P     | 112 |
 |STM32F411CE |ARM CM4   | 113 |
 |STM32L496   |ARM CM4   | 130 |
-|ESP32-C3    |Xtensa LX6| 203 |
-|ESP32-S3    |Xtensa LX6| 206 |
+|ESP32-C3    |RV32      | 203 |
+|ESP32-S3    |Xtensa LX7| 206 |
 |ACM32F403   |ARM CM33  | 250 |
 |ESP32       |Xtensa LX6| 317 |
 
