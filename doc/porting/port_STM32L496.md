@@ -32,8 +32,10 @@ https://github.com/starry-m/TinyMaix_STM32L496
 ## Result
 |config  |mnist|cifar|vww96|mbnet128|Note|
 |---     |---  |---  |---    |---     |---|
-|O0 CPU  |7    |194  |967    |11973   ||
-|O1 CPU  |3    |149  |677    |792     ||
+|O0 CPU  |4    |281  |900    |1022    |MDK AC6.-Oz image size|
+|O1 CPU  |4    |254  |923    |1044    |MDK AC6.-Oz image size|
+|O0 SIMD |4    |211  |708    |823     |MDK AC6.-Oz image size|
+|O1 SIMD |3    |162  |695    |809     |MDK AC6.-Oz image size|
 
 
 
