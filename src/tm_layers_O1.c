@@ -722,7 +722,7 @@ tm_err_t tml_conv2d_dwconv2d(tm_mat_t* in, tm_mat_t* out, wtype_t* w, btype_t* b
 
 
 /*************************** TML_GAP **********************************/
-tm_err_t __attribute__((weak)) tml_gap(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_t in_zp, sctype_t out_s, zptype_t out_zp)
+tm_err_t TM_WEAK tml_gap(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_t in_zp, sctype_t out_s, zptype_t out_zp)
 {   TM_DBGT_INIT();
     mtype_t* data;
     for(int c=0; c <out->c; c++){
@@ -745,7 +745,7 @@ tm_err_t __attribute__((weak)) tml_gap(tm_mat_t* in, tm_mat_t* out, sctype_t in_
 }
 
 /*************************** TML_FC **********************************/
-tm_err_t __attribute__((weak)) tml_fc(tm_mat_t* in, tm_mat_t* out,  wtype_t* w, btype_t* b, \
+tm_err_t TM_WEAK tml_fc(tm_mat_t* in, tm_mat_t* out,  wtype_t* w, btype_t* b, \
     sctype_t* ws, sctype_t in_s, zptype_t in_zp, sctype_t out_s, zptype_t out_zp)
 {   TM_DBGT_INIT();
     mtype_t* data = in->data;
@@ -763,7 +763,7 @@ tm_err_t __attribute__((weak)) tml_fc(tm_mat_t* in, tm_mat_t* out,  wtype_t* w, 
 }
 
 /*************************** TML_SOFTMAX **********************************/
-tm_err_t __attribute__((weak)) tml_softmax(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_t in_zp, sctype_t out_s, zptype_t out_zp)
+tm_err_t TM_WEAK tml_softmax(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_t in_zp, sctype_t out_s, zptype_t out_zp)
 {   TM_DBGT_INIT(); //note we have float size output buf even in INT8/INT16 mode
     mtype_t* din = in->data;
     float*  dout = (float*)(out->data); 
@@ -794,7 +794,7 @@ tm_err_t __attribute__((weak)) tml_softmax(tm_mat_t* in, tm_mat_t* out, sctype_t
 }
 
 /*************************** TML_RESHAPE **********************************/
-tm_err_t __attribute__((weak)) tml_reshape(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_t in_zp, sctype_t out_s, zptype_t out_zp)
+tm_err_t TM_WEAK tml_reshape(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_t in_zp, sctype_t out_s, zptype_t out_zp)
 {   
     //in fact do nothing... out shape
     return TM_OK;
