@@ -36,11 +36,15 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 |STM32G474RE |ARM CM4   |512KB|   128KB| 170M| XXX | 195 | 43  |  1  ||
 |CH32V307    |RV32 IMACF</br>QingKe V4F|480KB|   128KB| 144M| XXX | 357 | 64  |  1  ||
 |STM32F411CE |ARM CM4   |512KB|   128KB| 150M| 558 | 366 | 75  |  2  ||
+|ESP32-S3    |Xtensa LX7|  8MB|   512KB| 240M| 610 | 381 |  86 |  5  |mdl in flash|
 |ESP32       |Xtensa LX6|  4MB|   520KB| 240M| 755 | 476 | 132 |  2  |mdl in flash|
 |ACM32F403   |ARM CM33  |512KB|   192KB| 180M| XXX | 458 | 139 |  2  ||
+|STM32L496   |ARM CM4   |  1MB|   320KB|  80M| 809 | 695 | 162 |  3  ||
+|ESP32-C3    |RV32      |  4MB|   400KB| 160M| 2370|1430 | 127 |  6  |mdl in flash|
 |STM32F103C8 |ARM CM3   | 64KB|    20KB|  72M| XXX | XXX | XXX |  8  ||
 |CH32V103    |RV32 IMAC</br>QingKe V3A| 64KB|    20KB|  72M| XXX | XXX | XXX | 13  ||
 |STM32G030F6 |ARM CM0+  | 32KB|     8KB|  64M| XXX | XXX | XXX | 18  ||
+|PicoRV32(GW2A)|RV32    |  1MB|    64KB|  54M| XXX | XXX | XXX | 26  |Tang Primer 20K|
 |Atmega328   |AVR       | 32KB|     2KB|  16M| XXX | XXX | XXX |50(*)||
 
 
@@ -56,6 +60,9 @@ Normalization to 100M freq to compare CPU efficiency, using cifar model:
 |CH32V307    |RV32 IMAC | 92  |
 |BL808's E907|RV32P     | 112 |
 |STM32F411CE |ARM CM4   | 113 |
+|STM32L496   |ARM CM4   | 130 |
+|ESP32-C3    |RV32      | 203 |
+|ESP32-S3    |Xtensa LX7| 206 |
 |ACM32F403   |ARM CM33  | 250 |
 |ESP32       |Xtensa LX6| 317 |
 
