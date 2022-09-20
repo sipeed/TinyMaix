@@ -133,32 +133,36 @@ We hope TinyMaix can help any MCU run AI Neural Network Mdoels, every one can po
   - TinyMaix support MCUs to run basic model in minimum resource consumption, if you want more OPs, switch to TFlite-micro/TVM/NCNN... 
 
 ## Try Demos
-### mnist
-MNIST is handwritten digit recognition task, it is simple enough for even 8bit MCU like ATmega328.  
-Try it on PC:  
-```
-cd examples/mnist
+
+### TinyMaix as Lib
+
+1. include `tm_examples.h` on your project
+2. enable the demos you want to try in `tm_examples.h`
+
+### Demos only
+
+use cmake to enable the demos
+
+```shell
+cd examples
 mkdir build
-cd build 
-cmake ..
+cd build
+cmake -DMNIST=1 -DCIFAR10=0 -DVWW=0 -DMBNET=0 ..
 make
-./mnist
+./tinymaix_examples
 ```
+
+### Build test on PC
+
+just run `build_test.py` 
+
+### mnist
+MNIST is handwritten digit recognition task, it is simple enough for even 8bit MCU like ATmega328.
 
 ### mbnet
 mbnet (mobilenet v1) is simple classification model for mobile devices, but it is still a little heavy for MCUs.  
 The model in demo is mobilenet v1 0.25, it input 128x128x3 RGB image, output 1000 classes predict.  
-It need at least 128KB SRAM and 512KB Flash, STM32F411 is the typical minimum config for this model.  
-
-Try run mobilenet  
-```
-cd examples/mbnet
-mkdir build
-cd build 
-cmake ..
-make
-./mbnet
-```
+It need at least 128KB SRAM and 512KB Flash, STM32F411 is the typical minimum config for this model.
 
 ## How to use (API)
 ### Load Model

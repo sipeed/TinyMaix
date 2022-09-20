@@ -23,7 +23,7 @@ from os import environ
 # environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 # norm_type: "0to1", "n1to1"
-def h5_to_tflite(h5_name, tflite_name, is_quant, quant_dir, norm_type = None, mean = 0.0, std = 0.0):
+def h5_to_tflite(h5_name, tflite_name, is_quant, quant_dir=None, norm_type = None, mean = 0.0, std = 0.0):
     def representative_data_gen():
         files = os.listdir(quant_dir)
         valid_files = []
@@ -105,5 +105,4 @@ if __name__ == '__main__':
             exit()
         quant_dir   = sys.argv[4]
         norm_type   = sys.argv[5]
-    h5_to_tflite(h5_name, tflite_name, is_quant, quant_dir, norm_type = norm_type)
-
+    h5_to_tflite(h5_name, tflite_name, is_quant, quant_dir=quant_dir, norm_type=norm_type)

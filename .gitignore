@@ -52,6 +52,7 @@ Mkfile.old
 dkms.conf
 
 build
+.idea
 .vscode
 .config
 .config.old

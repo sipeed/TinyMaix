@@ -373,10 +373,10 @@ def pack_reshape(l, mdl_type):
     return b''
 
 ############################### PACK FUNCTIONS #####################################
-def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims, write_c_header=True):
+def pack_tmdl(layers, mdl_file, mdl_type, out_deq, in_dims, out_dims, write_c_header=True):
     global unit_size,w_type,b_type,b_type_np,bunit_size
     #mdl_name = "mnist.tmodel"
-    fw = open(mdl_name, "wb")
+    fw = open(mdl_file, "wb")
     if is_mdl_float(mdl_type) and layers[0]["quant"]:
         print("quant type unmatch with tflite type!")
         exit()
@@ -508,29 +508,42 @@ def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims, write_c_he
     fw.close()
     # write c header file
     if write_c_header:
-        hmdl = ".".join(mdl_name.split(".")[:-1])+".h"
-        fr=open(mdl_name, "rb")
+        mdl_file_path = mdl_file.rsplit("/", 1)
+
+        mdl_header_name = mdl_file_path[-1].rsplit(".", 1)[0]
+        if len(mdl_file_path) == 2:
+            mdl_header_path = "{}/{}.h".format(mdl_file_path[0], mdl_header_name)
+        else:
+            mdl_header_path = "{}.h".format(mdl_header_name)
+
+        fr=open(mdl_file, "rb")
         data = fr.read()
         fr.close()
-        with open(hmdl, "w", encoding="utf-8") as fw:
-            fw.writelines("#ifndef __MODEL_FILE__H\r\n")
-            fw.writelines("#define __MODEL_FILE__H\r\n\r\n")
+
+        mdl_header_name = mdl_header_name.replace(".", "_")
+        lbuf_len = MDLBINHEAD_SIZE + max(layer_sizes)
+
+        with open(mdl_header_path, "w", encoding="utf-8") as fw:
+            fw.writelines("#ifndef {}_H\r\n".format(mdl_header_name.upper()))
+            fw.writelines("#define {}_H\r\n\r\n".format(mdl_header_name.upper()))
             fw.writelines("#include <stdint.h>\r\n")
-            fw.writelines("#define MDL_BUF_LEN (%d)\r\n"%buf_size)
-            fw.writelines("#define LBUF_LEN (%d)\r\n"%(MDLBINHEAD_SIZE+max(layer_sizes)))
-            fw.writelines("const uint8_t mdl_data[%d]={\\\r\n\t"%(len(data)))
+            fw.writelines("#define {}_MDLBUFLEN ({})\r\n".format(mdl_header_name.upper(), buf_size))
+            fw.writelines("#define {}_LBUFLEN ({})\r\n".format(mdl_header_name.upper(), lbuf_len))
+            # fw.writelines("const uint8_t %s_mdl[%d]={\\\r\n\t" % (mdl_header_name, len(data)))
+            fw.writelines("static const uint8_t mdl_data[%d]={\\\r\n\t" % (len(data)))
             for i in range(len(data)):
-                fw.writelines("0x%02x, "%(data[i]))
-                if i%16 == 15:
+                fw.writelines("0x%02x, " % (data[i]))
+                if i % 16 == 15:
                     fw.writelines("\r\n\t")
             fw.writelines("\r};\r\n")
             fw.writelines("\r\n#endif\r\n")
+
+        print("Saved to %s, %s" % (mdl_file, mdl_header_path))
 
     print("    model  size %.1fKB (%d B) FLASH"%(model_size/1024, model_size))
     print("    buffer size %.1fKB (%d B) RAM"%(buf_size/1024, buf_size))
     print("    single layer mode subbuff size %.1fKB (%d+%d=%d B) RAM"%\
         ((MDLBINHEAD_SIZE+max(layer_sizes))/1024, MDLBINHEAD_SIZE, max(layer_sizes), MDLBINHEAD_SIZE+max(layer_sizes)))
-    print("Saved to %s, %s" % (mdl_name, hmdl))
     #!ls -lh $mdl_name
 
 def tflite2tmdl(tflite_name, tmdl_name, mdl_type, out_deq, in_dims, out_dims, write_c_header=True, log_func=print):

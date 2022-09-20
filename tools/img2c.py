@@ -38,7 +38,7 @@ if __name__ == '__main__':
     out_path = os.path.splitext(img_name)[0] + ".c"
     print("Write c file to ", out_path)
     fw = open(out_path, "w")
-    fw.writelines("const unsigned char pic[%d*%d*%d]={\\\n"%(img.shape[0],img.shape[1],img.shape[2]))
+    fw.writelines("static const unsigned char pic[%d*%d*%d]={\\\n"%(img.shape[0],img.shape[1],img.shape[2]))
     for y in range(img.shape[0]):
         for x in range(img.shape[1]):
             for c in range(img.shape[2]):
