@@ -1,9 +1,5 @@
 # Port TinyMaix to XR806
 
-Port Repo: 
-
-## Windows 10 x64
-
 ### Test Chip
 
 | Item         | Parameter                       |
