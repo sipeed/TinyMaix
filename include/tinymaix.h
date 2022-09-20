@@ -322,7 +322,7 @@ float TM_WEAK tm_fp8to32(uint8_t fp8);
 /******************************* LOCAL MATH FUNCTION  ************************************/
 #if TM_LOCAL_MATH
 //http://www.machinedlearnings.com/2011/06/fast-approximate-logarithm-exponential.html
-    inline float _exp(float x) {
+static inline float _exp(float x) {
         float p = 1.442695040f * x;
         uint32_t i = 0;
         uint32_t sign = (i >> 31);
