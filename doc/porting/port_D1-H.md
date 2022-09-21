@@ -31,6 +31,13 @@ TM_MDL_INT8 (ms)
 | O0 CPU | 0.397 | 4.956 | 30.440 | 59.911   |
 | O1 CPU | 0.342 | 4.786 | 29.320 | 58.957   |
 
+TM_MDL_FP16 (ms)
+
+| config | mbnet128 | mbnet224 |
+| ------ | -------- | -------- |
+| O0 CPU | 63.610   | 1521.823 |
+| O1 CPU | 42.911   | 1451.777 |
+
 
 ### Author
 YuzukiTsuru <gloomyghost@gloomyghost.com>
