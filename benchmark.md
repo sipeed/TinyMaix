@@ -32,7 +32,7 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 |i5-4590T    |AMD64     |256GB|     8GB|2000M|7/24 |5/17 |0.9/4|0.04/<1|native/wasm|
 |RK3399's A72|ARM A72   | 32GB|     4GB|1800M| 15  | 10  |  3  | 0.07||
 |RK3399's A53|ARM A53   | 32GB|     4GB|1600M| 29  | 19  |  5  | 0.14||
-|D1-H        |RV64V     |128GB|     2GB|1008M| 51  | 25  |4.1  | 0.29||
+|D1-H        |RV64V     |128GB|     2GB|1008M| 43  | 22  | 3.5 | 0.29||
 |BL808's C906|RV64V     | 16MB|0.8+64MB| 480M| 81  | 57  | 10  | <1  ||
 |STM32H750   |ARM CM7   |  1MB|  1024KB| 480M| 94  | 64  | 15  | <1  ||
 |BL808's E907|RV32P     | 16MB|0.8+64MB| 320M| 188 | 149 | 35  | <1  |mdl in psram|
@@ -52,7 +52,7 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 |STM32F103C8 |ARM CM3   | 64KB|    20KB|  72M| XXX | XXX | XXX |  8  ||
 |CH32V103    |RV32 IMAC</br>QingKe V3A| 64KB|    20KB|  72M| XXX | XXX | XXX | 13  ||
 |STM32G030F6 |ARM CM0+  | 32KB|     8KB|  64M| XXX | XXX | XXX | 18  ||
-|PicoRV32(GW2A)|RV32    |  1MB|    64KB|  54M| XXX | XXX | XXX | 26  |Tang Primer 20K|
+|PicoRV32(GW2A)|RV32    |  1MB|    64KB|  54M| XXX | XXX |26935| 385 |Tang Primer 20K|
 |Atmega328   |AVR       | 32KB|     2KB|  16M| XXX | XXX | XXX |50(*)||
 
 
@@ -61,7 +61,7 @@ Normalization to 100M freq to compare CPU efficiency, using cifar model:
 |Chip/Board  |Core      |cifar(ms)|
 |---         |---       |---  |
 |BL808's NPU |BLAI      | 2   |
-|D1-H        |RV64V     | 41  |
+|D1-H        |RV64V     | 35  |
 |BL808's C906|RV64V     | 48  |
 |RK3399's A72|ARM A72   | 52  |
 |STM32H750   |ARM CM7   | 72  |
@@ -78,6 +78,7 @@ Normalization to 100M freq to compare CPU efficiency, using cifar model:
 |ACM32F403   |ARM CM33  | 250 |
 |ESP32       |Xtensa LX6| 317 |
 |RP2040      |ARM CM0+  | 560 |
+|PicoRV32(GW2A)|RV32    |14545|
 
 
 # Infer Time & Input Size
