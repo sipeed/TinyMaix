@@ -51,7 +51,9 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 |ESP32-C3    |RV32      |  4MB|   400KB| 160M| 2370|1430 | 127 |  6  |mdl in flash|
 |STM32F103C8 |ARM CM3   | 64KB|    20KB|  72M| XXX | XXX | XXX |  8  ||
 |CH32V103    |RV32 IMAC</br>QingKe V3A| 64KB|    20KB|  72M| XXX | XXX | XXX | 13  ||
+|SAMD21G18   |ARM CM0+  |256KB|    32KB|  48M| XXX | XXX | 700 | 14  |seeed XIAO|
 |STM32G030F6 |ARM CM0+  | 32KB|     8KB|  64M| XXX | XXX | XXX | 18  ||
+|CM0(Kintex-7)|ARM CM0  |  ---|  1024KB|  50M| XXX | XXX | 1362| 23  |Kintex-7|
 |PicoRV32(GW2A)|RV32    |  1MB|    64KB|  54M| XXX | XXX |26935| 385 |Tang Primer 20K|
 |Atmega328   |AVR       | 32KB|     2KB|  16M| XXX | XXX | XXX |50(*)||
 
@@ -77,7 +79,9 @@ Normalization to 100M freq to compare CPU efficiency, using cifar model:
 |ESP32-S3    |Xtensa LX7| 206 |
 |ACM32F403   |ARM CM33  | 250 |
 |ESP32       |Xtensa LX6| 317 |
+|SAMD21G18   |ARM CM0+  | 336 |
 |RP2040      |ARM CM0+  | 560 |
+|CM0(Kintex-7)|ARM CM0  | 681 |
 |PicoRV32(GW2A)|RV32    |14545|
 
 
