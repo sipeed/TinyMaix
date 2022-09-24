@@ -102,7 +102,7 @@ Idx	Layer	         outshape	inoft	outoft	PARAM	MEMOUT OPS
 
 Total param ~1.9 KB, OPS ~0.02 MOPS, buffer 1.4 KB
 
-===tm_run use 26 ms
+===tm_run use 385 ms
 0: 0.004
 1: 0.004
 2: 0.996
@@ -116,10 +116,10 @@ Total param ~1.9 KB, OPS ~0.02 MOPS, buffer 1.4 KB
 ### Predict output is: Number 2, prob 0.996
 ```
 
-| config | mnist | Note |
-| ------ | ----- | ---- |
-| O0 CPU | 26    |      |
-| O1 CPU | 67    |      |
+| config | mnist | cifar | Note |
+| ------ | ----- | ----- | ---- |
+| O0 CPU | 423   | 30461 |      |
+| O1 CPU | 385   | 26935 |      |
 
 ## Author
 
