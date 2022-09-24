@@ -36,9 +36,10 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 |BL808's C906|RV64V     | 16MB|0.8+64MB| 480M| 81  | 57  | 10  | <1  ||
 |STM32H750   |ARM CM7   |  1MB|  1024KB| 480M| 94  | 64  | 15  | <1  ||
 |BL808's E907|RV32P     | 16MB|0.8+64MB| 320M| 188 | 149 | 35  | <1  |mdl in psram|
+|F1C200S     |ARM926EJ-S| 16MB|    64MB| 608M| 213 | 145 | 38.5| 0.75||
 |AT32F403A   |ARM CM4   |  1MB|    96KB| 240M| 477 | 136 | 30  | 0.6 |mbnet in 224k ram mode|
 |STM32G474RE |ARM CM4   |512KB|   128KB| 170M| XXX | 195 | 43  |  1  ||
-|CH32V307    |RV32 IMACF</br>QingKe V4F|480KB|   128KB| 144M| XXX | 357 | 64  |  1  ||
+|CH32V307    |RV32F</br>QingKe V4F|480KB|   128KB| 144M| XXX | 357 | 64  |  1  ||
 |STM32F411CE |ARM CM4   |512KB|   128KB| 150M| 558 | 366 | 75  |  2  ||
 |ESP32-S3    |Xtensa LX7|  8MB|   512KB| 240M| 610 | 381 |  86 |  5  |mdl in flash|
 |LPC4337     |ARM CM4F  |  1MB|   136KB| 204M| 654 | 627 |  91 |  3  |need confirm|
@@ -48,9 +49,10 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 |STM32F767   |ARM CM7   |  2MB|   512KB| 216M| 869 | 640 | 185 |  3  |need confirm|
 |STM32L496   |ARM CM4   |  1MB|   320KB|  80M| 809 | 695 | 162 |  3  ||
 |RP2040      |ARM CM0+  | 16MB|   264KB| 280M|1211 | 716 | 200 |  2  |overclock 280M|
+|CH32V203G6  |RV32</br>QingKe V4B| 32KB|    10KB| 144M| XXX | XXX | XXX | 2.5  ||
 |ESP32-C3    |RV32      |  4MB|   400KB| 160M| 2370|1430 | 127 |  6  |mdl in flash|
 |STM32F103C8 |ARM CM3   | 64KB|    20KB|  72M| XXX | XXX | XXX |  8  ||
-|CH32V103    |RV32 IMAC</br>QingKe V3A| 64KB|    20KB|  72M| XXX | XXX | XXX | 13  ||
+|CH32V103    |RV32</br>QingKe V3A| 64KB|    20KB|  72M| XXX | XXX | XXX | 13  ||
 |SAMD21G18   |ARM CM0+  |256KB|    32KB|  48M| XXX | XXX | 700 | 14  |seeed XIAO|
 |STM32G030F6 |ARM CM0+  | 32KB|     8KB|  64M| XXX | XXX | XXX | 18  ||
 |CM0(Kintex-7)|ARM CM0  |  ---|  1024KB|  50M| XXX | XXX | 1362| 23  |Kintex-7|
@@ -77,6 +79,7 @@ Normalization to 100M freq to compare CPU efficiency, using cifar model:
 |XR806       |ARMv8-M</br>Star-MC1| 166 |
 |ESP32-C3    |RV32      | 203 |
 |ESP32-S3    |Xtensa LX7| 206 |
+|F1C200S     |ARM926EJ-S| 234 |
 |ACM32F403   |ARM CM33  | 250 |
 |ESP32       |Xtensa LX6| 317 |
 |SAMD21G18   |ARM CM0+  | 336 |
