@@ -32,9 +32,9 @@ static tm_err_t layer_cb(tm_mdl_t* mdl, tml_head_t* lh)
     int w = lh->out_dims[2];
     int ch= lh->out_dims[3];
     mtype_t* output = TML_GET_OUTPUT(mdl, lh);
-    return TM_OK;
+    //return TM_OK;
     TM_PRINTF("Layer %d callback ========\n", mdl->layer_i);
-    #if 0
+    #if 1
     for(int y=0; y<h; y++){
         TM_PRINTF("[");
         for(int x=0; x<w; x++){

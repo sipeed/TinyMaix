@@ -56,6 +56,7 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 |SAMD21G18   |ARM CM0+  |256KB|    32KB|  48M| XXX | XXX | 700 | 14  |seeed XIAO|
 |STM32G030F6 |ARM CM0+  | 32KB|     8KB|  64M| XXX | XXX | XXX | 18  ||
 |CM0(Kintex-7)|ARM CM0  |  ---|  1024KB|  50M| XXX | XXX | 1362| 23  |Kintex-7|
+|STC32G12K128|80251     |128KB|    12KB|  35M| XXX | XXX | XXX | 37  ||
 |PicoRV32(GW2A)|RV32    |  1MB|    64KB|  54M| XXX | XXX |26935| 385 |Tang Primer 20K|
 |Atmega328   |AVR       | 32KB|     2KB|  16M| XXX | XXX | XXX |50(*)||
 

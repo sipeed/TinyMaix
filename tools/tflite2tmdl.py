@@ -191,7 +191,7 @@ def fill_fp8_data(mdl_type, lbody, data):
 
 
 ############################### PACK FUNCTIONS #####################################
-def pack_conv2d_dwconv2d(l, mdl_type):  #conv2d and dwconv2d
+def pack_conv2d_dwconv2d(l, mdl_type, endian):  #conv2d and dwconv2d
     lbody = b''
     if is_mdl_int(mdl_type):
         ms = l["i_scale"]
@@ -215,7 +215,7 @@ def pack_conv2d_dwconv2d(l, mdl_type):  #conv2d and dwconv2d
     lbody += struct.pack('B',  l["stride_h"]);  #stride_h
     lbody += struct.pack('B',  l["dilation_w_factor"]);#dilation_w
     lbody += struct.pack('B',  l["dilation_h_factor"]);#dilation_h
-    lbody += struct.pack('H',  l["fused_activation_function"]); #0 none, 1 relu, 2 relu1, 3 relu6, 4 tanh, 5 sign_bit
+    lbody += struct.pack(endian+'H',  l["fused_activation_function"]); #0 none, 1 relu, 2 relu1, 3 relu6, 4 tanh, 5 sign_bit
     # padding: 0,same; 1,valid
     kernel_extent_w = l["dilation_w_factor"] * (kw - 1) + 1;
     kernel_extent_h = l["dilation_h_factor"] * (kh - 1) + 1;
@@ -230,7 +230,7 @@ def pack_conv2d_dwconv2d(l, mdl_type):  #conv2d and dwconv2d
         lbody += struct.pack('B',  int(wpad//2));          #left
         lbody += struct.pack('B',  int(wpad - wpad//2));#right
     elif l["padding"] == 1: #valid
-        lbody += struct.pack('I',  0)
+        lbody += struct.pack(endian+'I',  0)
         print("    padding valid")
     elif l["padding"] == 2: #valid & fuse pad
         last_pad = l["pad"]
@@ -241,8 +241,8 @@ def pack_conv2d_dwconv2d(l, mdl_type):  #conv2d and dwconv2d
         print("unsupport padding!")
         assert 0
 
-    lbody += struct.pack('I',  0 if l["name"] == "CONV_2D" else l["depth_multiplier"]);
-    lbody += struct.pack('I',  0);#pad
+    lbody += struct.pack(endian+'I',  0 if l["name"] == "CONV_2D" else l["depth_multiplier"]);
+    lbody += struct.pack(endian+'I',  0);#pad
     # cal ws&w&b oft
     ws_oft = LAYERHEAD_SIZE + len(lbody) + 12  #add 4 uint32 oft
     ws_size= (mo_c*4+7)//8*8 if is_mdl_int(mdl_type) else 0
@@ -251,14 +251,14 @@ def pack_conv2d_dwconv2d(l, mdl_type):  #conv2d and dwconv2d
     b_oft  = w_oft+w_size
     b_size = (b.size*bunit_size+7)//8*8
 
-    lbody += struct.pack('I',  ws_oft);   #ws_oft
-    lbody += struct.pack('I',  w_oft);    #w_oft
-    lbody += struct.pack('I',  b_oft);    #b_oft
+    lbody += struct.pack(endian+'I',  ws_oft);   #ws_oft
+    lbody += struct.pack(endian+'I',  w_oft);    #w_oft
+    lbody += struct.pack(endian+'I',  b_oft);    #b_oft
     assert len(lbody)%8 == 0
     # weight scale
     if is_mdl_int(mdl_type):
         ws = l["w_scale"] 
-        lbody += struct.pack("%df"%(ws.size), *ws)
+        lbody += struct.pack(endian+"%df"%(ws.size), *ws)
         if ws_size!= ws.size*4:
             lbody += bytes(ws_size-ws.size*4) #align to 8bytes
         assert len(lbody)%8 == 0
@@ -269,9 +269,9 @@ def pack_conv2d_dwconv2d(l, mdl_type):  #conv2d and dwconv2d
         print("INT16 TODO")
         assert 0
     elif mdl_type == TM_MDL_FP32:
-        lbody += struct.pack("%df"%(w.size),  *w)
+        lbody += struct.pack(endian+"%df"%(w.size),  *w)
     elif mdl_type == TM_MDL_FP16:
-        lbody += struct.pack("%de"%(w.size),  *w)
+        lbody += struct.pack(endian+"%de"%(w.size),  *w)
     elif mdl_type == TM_MDL_FP8_143:
         lbody = fill_fp8_data(mdl_type, lbody, w)
     elif mdl_type == TM_MDL_FP8_152:
@@ -286,20 +286,20 @@ def pack_conv2d_dwconv2d(l, mdl_type):  #conv2d and dwconv2d
     if (mdl_type == TM_MDL_FP8_143) or (mdl_type == TM_MDL_FP8_152):
         lbody = fill_fp8_data(mdl_type, lbody, b)
     else:
-        lbody += struct.pack("%d"%(b.size)+b_type,  *b)
+        lbody += struct.pack(endian+"%d"%(b.size)+b_type,  *b)
     if b_size!= b.size*bunit_size:
         lbody += bytes(b_size-b.size*bunit_size) #align to 8bytes
     assert len(lbody)%8 == 0
     return lbody
 
-def pack_gap(l, mdl_type):
+def pack_gap(l, mdl_type, endian):
     if list(l["reduce_idx"]) != [0,1]:
         print("only support gap now")
         assert 0
     else:
         return b''
 
-def pack_fc(l, mdl_type):
+def pack_fc(l, mdl_type, endian):
     lbody = b''
     if is_mdl_int(mdl_type):
         ms = l["i_scale"]
@@ -321,16 +321,16 @@ def pack_fc(l, mdl_type):
     b_oft = w_oft+w_size
     b_size= (b.size*bunit_size+7)//8*8
 
-    lbody += struct.pack('I',  ws_oft);   #ws_oft
-    lbody += struct.pack('I',  w_oft);    #w_oft
-    lbody += struct.pack('I',  b_oft);    #b_oft
-    lbody += struct.pack('I',  0);        #reserve, align 8
+    lbody += struct.pack(endian+'I',  ws_oft);   #ws_oft
+    lbody += struct.pack(endian+'I',  w_oft);    #w_oft
+    lbody += struct.pack(endian+'I',  b_oft);    #b_oft
+    lbody += struct.pack(endian+'I',  0);        #reserve, align 8
     assert len(lbody)%8 == 0
 
     # weight scale
     if is_mdl_int(mdl_type):
         ws = l["w_scale"] 
-        lbody += struct.pack("%df"%(ws.size), *ws)
+        lbody += struct.pack(endian+"%df"%(ws.size), *ws)
         if ws_size!= ws.size*4:
             lbody += bytes(ws_size-ws.size*4) #align to 8bytes
         assert len(lbody)%8 == 0
@@ -341,9 +341,9 @@ def pack_fc(l, mdl_type):
         print("INT16 TODO")
         assert mdl_type!=TM_MDL_INT16
     elif mdl_type == TM_MDL_FP32:
-        lbody += struct.pack("%df"%(w.size),  *w)
+        lbody += struct.pack(endian+"%df"%(w.size),  *w)
     elif mdl_type == TM_MDL_FP16:
-        lbody += struct.pack("%de"%(w.size),  *w)
+        lbody += struct.pack(endian+"%de"%(w.size),  *w)
     elif mdl_type == TM_MDL_FP8_143:
         lbody = fill_fp8_data(mdl_type, lbody, w)
     elif mdl_type == TM_MDL_FP8_152:
@@ -359,21 +359,21 @@ def pack_fc(l, mdl_type):
     if (mdl_type == TM_MDL_FP8_143) or (mdl_type == TM_MDL_FP8_152):
         lbody = fill_fp8_data(mdl_type, lbody, b)
     else:
-        lbody += struct.pack("%d"%(b.size)+b_type,  *b)
+        lbody += struct.pack(endian+"%d"%(b.size)+b_type,  *b)
     if b_size!= b.size*bunit_size:
         lbody += bytes(b_size-b.size*bunit_size) #align to 8bytes
 
     assert len(lbody)%8 == 0
     return lbody
 
-def pack_softmax(l, mdl_type):
+def pack_softmax(l, mdl_type, endian):
     return b''
 
-def pack_reshape(l, mdl_type):
+def pack_reshape(l, mdl_type, endian):
     return b''
 
 ############################### PACK FUNCTIONS #####################################
-def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims, write_c_header=True):
+def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims, endian, write_c_header=True):
     global unit_size,w_type,b_type,b_type_np,bunit_size
     #mdl_name = "mnist.tmodel"
     fw = open(mdl_name, "wb")
@@ -404,15 +404,15 @@ def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims, write_c_he
     print("================ pack model head ================")
     model_size = 0
     head  = b'MAIX'
-    head += struct.pack('B',  mdl_type);  print("mdl_type   =%d"%mdl_type)
-    head += struct.pack('B',  out_deq);   print("out_deq    =%d"%out_deq)
-    head += struct.pack('H',  input_cnt); print("input_cnt  =%d"%input_cnt)
-    head += struct.pack('H',  output_cnt);print("output_cnt =%d"%output_cnt)
-    head += struct.pack('H',  layer_cnt); print("layer_cnt  =%d"%layer_cnt)
-    head += struct.pack('I',  buf_size);  print("buf_size   =%d"%buf_size)
-    head += struct.pack('I',  sub_size);  print("sub_size   =%d"%sub_size)
-    head += struct.pack('4H', *in_dims);  print("in_dims    =",in_dims)
-    head += struct.pack('4H', *out_dims); print("out_dims   =",out_dims)
+    head += struct.pack(endian+'B',  mdl_type);  print("mdl_type   =%d"%mdl_type)
+    head += struct.pack(endian+'B',  out_deq);   print("out_deq    =%d"%out_deq)
+    head += struct.pack(endian+'H',  input_cnt); print("input_cnt  =%d"%input_cnt)
+    head += struct.pack(endian+'H',  output_cnt);print("output_cnt =%d"%output_cnt)
+    head += struct.pack(endian+'H',  layer_cnt); print("layer_cnt  =%d"%layer_cnt)
+    head += struct.pack(endian+'I',  buf_size);  print("buf_size   =%d"%buf_size)
+    head += struct.pack(endian+'I',  sub_size);  print("sub_size   =%d"%sub_size)
+    head += struct.pack(endian+'4H', *in_dims);  print("in_dims    =",in_dims)
+    head += struct.pack(endian+'4H', *out_dims); print("out_dims   =",out_dims)
     head += bytes(28)
     #print(head)
     assert len(head)%8 == 0   #print("head not align on 8byte!")
@@ -465,38 +465,38 @@ def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims, write_c_he
             out_s = 1; out_zp= 0;
 
         lh = bytearray(0)
-        lh += struct.pack('H',  layer_type);
-        lh += struct.pack('H',  l["is_output"]);
-        lh += struct.pack('I',  layer_size);
-        lh += struct.pack('I',  in_oft);
-        lh += struct.pack('I',  out_oft);
-        lh += struct.pack('4H', *in_dims);
-        lh += struct.pack('4H', *out_dims);
-        lh += struct.pack('f',  in_s);  #TODO: fast scale
-        lh += struct.pack('f' if is_mdl_float(mdl_type) else 'i',  in_zp)
-        lh += struct.pack('f',  out_s);
-        lh += struct.pack('f' if is_mdl_float(mdl_type) else 'i',  out_zp); 
+        lh += struct.pack(endian+'H',  layer_type);
+        lh += struct.pack(endian+'H',  l["is_output"]);
+        lh += struct.pack(endian+'I',  layer_size);
+        lh += struct.pack(endian+'I',  in_oft);
+        lh += struct.pack(endian+'I',  out_oft);
+        lh += struct.pack(endian+'4H', *in_dims);
+        lh += struct.pack(endian+'4H', *out_dims);
+        lh += struct.pack(endian+'f',  in_s);  #TODO: fast scale
+        lh += struct.pack(endian+'f' if is_mdl_float(mdl_type) else endian+'i',  in_zp)
+        lh += struct.pack(endian+'f',  out_s);
+        lh += struct.pack(endian+'f' if is_mdl_float(mdl_type) else endian+'i',  out_zp); 
         #print(lh)
         assert len(lh) == LAYERHEAD_SIZE   #print("layer head not align on 8byte!")
 
         # layer body
         if l["name"] == "CONV_2D" or l["name"] == "DEPTHWISE_CONV_2D":
-            lbody = pack_conv2d_dwconv2d(l, mdl_type)
+            lbody = pack_conv2d_dwconv2d(l, mdl_type, endian)
         elif l["name"] == "MEAN":
-            lbody = pack_gap(l, mdl_type)
+            lbody = pack_gap(l, mdl_type, endian)
         elif l["name"] == "FULLY_CONNECTED":
-            lbody = pack_fc(l, mdl_type)
+            lbody = pack_fc(l, mdl_type, endian)
         elif l["name"] == "SOFTMAX":
-            lbody = pack_softmax(l, mdl_type)
+            lbody = pack_softmax(l, mdl_type, endian)
         elif l["name"] == "RESHAPE":
-            lbody = pack_reshape(l, mdl_type)
+            lbody = pack_reshape(l, mdl_type, endian)
         else:
             print("unsupport layer type %s"%l["name"])
             assert 0
 
         # fill layer size
         layer_size = len(lh)+len(lbody)
-        lh[4:8] = struct.pack("I", layer_size)
+        lh[4:8] = struct.pack(endian+"I", layer_size)
         print("    layer_size=%d"%layer_size)
         layer_sizes.append(layer_size)
         #write to file
@@ -533,16 +533,17 @@ def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims, write_c_he
     print("Saved to %s, %s" % (mdl_name, hmdl))
     #!ls -lh $mdl_name
 
-def tflite2tmdl(tflite_name, tmdl_name, mdl_type, out_deq, in_dims, out_dims, write_c_header=True, log_func=print):
+def tflite2tmdl(tflite_name, tmdl_name, mdl_type, out_deq, in_dims, out_dims, endian, write_c_header=True, log_func=print):
     layers = read_tflite(tflite_name, log_func=log_func)
-    pack_tmdl(layers, tmdl_name, mdl_type, out_deq, in_dims, out_dims, write_c_header=write_c_header)
+    pack_tmdl(layers, tmdl_name, mdl_type, out_deq, in_dims, out_dims, endian, write_c_header=write_c_header)
 
 def print_usage():
-    print("Usage: python3 tflite2tmdl.py tflite_name tmdl_name mdl_type out_deq in_dims out_dims")
+    print("Usage: python3 tflite2tmdl.py tflite_name tmdl_name mdl_type out_deq in_dims out_dims [is_be]")
     print("       mdl_type: fp32, int8, int16, fp16, fp8_143, fp8_152")
     print("       out_deq: if enable output dequant")
     print("       in_dims,out_dims: dims except batch dim, max 3dims")
     print("       currently only support single input/output convert")
+    print("       is_be: is big endian, default 0")
 
 
 # python3 tflite2tmdl.py tflite/mnist_dw_f.tflite tmdl/mnist_dw_fp16.tmdl fp16 1 28,28,1 10
@@ -554,7 +555,7 @@ def print_usage():
 # python3 tflite2tmdl.py tflite/mbnet_f.tflite tmdl/mbnet_fp8.tmdl fp8_152 1 128,128,3 1000
 mdl_type_dict={"fp32":TM_MDL_FP32, "int8":TM_MDL_INT8, "int16":TM_MDL_INT16, "fp16":TM_MDL_FP16, "fp8_143":TM_MDL_FP8_143, "fp8_152":TM_MDL_FP8_152}
 if __name__ == '__main__':
-    if len(sys.argv) != 7:
+    if len(sys.argv) < 7:
         print_usage()
         exit()
 
@@ -564,12 +565,15 @@ if __name__ == '__main__':
     out_deq     = int(sys.argv[4])
     in_dims     = sys.argv[5]
     out_dims    = sys.argv[6]
-
+    endian      = "<"
+    if len(sys.argv) > 7:
+        endian  = ">" if int(sys.argv[7]) != 0 else "<"
+        
     in_dims  = in_dims.split(",")
     in_dims  = [int(i) for i in in_dims]
     out_dims = out_dims.split(",")
     out_dims = [int(i) for i in out_dims]
-    tflite2tmdl(tflite_name, tmdl_name, mdl_type, out_deq, in_dims, out_dims)
+    tflite2tmdl(tflite_name, tmdl_name, mdl_type, out_deq, in_dims, out_dims, endian)
 
 
 
