@@ -26,13 +26,16 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 > Note2: all model record fastest model type's infer time, for example, C906 use FP16 result.
 > Note3: XXX means impossible run this model on that chip
 
+
 |Chip/Board  |Core      |Flash|RAM     |Freq |mbnet|vww96|cifar|mnist|Note|
 |---         |---       |---  |---     |---  |---  |---  |---  |---  |---|
 |BL808's NPU |BLAI      | 16MB|0.8+64MB| 320M| 5   | 3   | <1  | <1  ||
 |i5-4590T    |AMD64     |256GB|     8GB|2000M|7/24 |5/17 |0.9/4|0.04/<1|native/wasm|
 |RK3399's A72|ARM A72   | 32GB|     4GB|1800M| 15  | 10  |  3  | 0.07||
+|TH1520      |RV64V(C910)|16GB|     4GB|1848M| 17  | 10.4| 3.6 | 0.15|fp16|
 |RK3399's A53|ARM A53   | 32GB|     4GB|1600M| 29  | 19  |  5  | 0.14||
 |D1-H        |RV64V     |128GB|     2GB|1008M| 43  | 22  | 3.5 | 0.29||
+|ZYNQ7010's A9|ARM A9   | 32GB|     1GB| 667M| 66  | 44  | 7.8 |0.34 ||
 |BL808's C906|RV64V     | 16MB|0.8+64MB| 480M| 81  | 57  | 10  | <1  ||
 |STM32H750   |ARM CM7   |  1MB|  1024KB| 480M| 94  | 64  | 15  | <1  ||
 |BL808's E907|RV32P     | 16MB|0.8+64MB| 320M| 188 | 149 | 35  | <1  |mdl in psram|
@@ -47,15 +50,19 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 |ESP32       |Xtensa LX6|  4MB|   520KB| 240M| 755 | 476 | 132 |  2  |mdl in flash|
 |ACM32F403   |ARM CM33  |512KB|   192KB| 180M| XXX | 458 | 139 |  2  ||
 |STM32F767   |ARM CM7   |  2MB|   512KB| 216M| 869 | 640 | 185 |  3  |need confirm|
+|SC5864B's DSP|HIFI3    | 32MB|8MB+192KB|160M| 805 |---  |---  |15   |need confirm|
 |STM32L496   |ARM CM4   |  1MB|   320KB|  80M| 809 | 695 | 162 |  3  ||
 |RP2040      |ARM CM0+  | 16MB|   264KB| 280M|1211 | 716 | 200 |  2  |overclock 280M|
 |CH32V203G6  |RV32</br>QingKe V4B| 32KB|    10KB| 144M| XXX | XXX | XXX | 2.5  ||
-|ESP32-C3    |RV32      |  4MB|   400KB| 160M| 2370|1430 | 127 |  6  |mdl in flash|
-|STM32F103C8 |ARM CM3   | 64KB|    20KB|  72M| XXX | XXX | XXX |  8  ||
+|ESP32-C3    |RV32      |  4MB|   400KB| 160M|2370 |1430 | 127 |  6  |mdl in flash|
+|MM32F3270   |ARM CM3   |512KB|   128KB|  96M|3126 |2919 | 257 | 11  ||
+|STM32F103RC |ARM CM3   |256KB|    48KB|  72M|XXX  |XXX  | 445 |  7  ||
+|STM32F103C8 |ARM CM3   | 64KB|    20KB|  72M| XXX | XXX | XXX |  7  ||
 |CH32V103    |RV32</br>QingKe V3A| 64KB|    20KB|  72M| XXX | XXX | XXX | 13  ||
 |SAMD21G18   |ARM CM0+  |256KB|    32KB|  48M| XXX | XXX | 700 | 14  |seeed XIAO|
 |STM32G030F6 |ARM CM0+  | 32KB|     8KB|  64M| XXX | XXX | XXX | 18  ||
 |CM0(Kintex-7)|ARM CM0  |  ---|  1024KB|  50M| XXX | XXX | 1362| 23  |Kintex-7|
+|CH582       |RV32</br>QingKe V4A|448KB|32KB|60M|XXX|XXX |XXX  | 31  ||
 |STC32G12K128|80251     |128KB|    12KB|  35M| XXX | XXX | XXX | 37  ||
 |PicoRV32(GW2A)|RV32    |  1MB|    64KB|  54M| XXX | XXX |26935| 385 |Tang Primer 20K|
 |Atmega328   |AVR       | 32KB|     2KB|  16M| XXX | XXX | XXX |50(*)||
@@ -69,6 +76,8 @@ Normalization to 100M freq to compare CPU efficiency, using cifar model:
 |D1-H        |RV64V     | 35  |
 |BL808's C906|RV64V     | 48  |
 |RK3399's A72|ARM A72   | 52  |
+|ZYNQ7010's A9|ARM A9   | 52  |
+|TH1520      |RV64V(C910)| 66 |
 |STM32H750   |ARM CM7   | 72  |
 |AT32F403A   |ARM CM4   | 72  |
 |STM32G474RE |ARM CM4   | 73  |
@@ -81,8 +90,10 @@ Normalization to 100M freq to compare CPU efficiency, using cifar model:
 |ESP32-C3    |RV32      | 203 |
 |ESP32-S3    |Xtensa LX7| 206 |
 |F1C200S     |ARM926EJ-S| 234 |
+|MM32F3270   |ARM CM3   | 247 |
 |ACM32F403   |ARM CM33  | 250 |
 |ESP32       |Xtensa LX6| 317 |
+|STM32F103RC |ARM cM3   | 320 |
 |SAMD21G18   |ARM CM0+  | 336 |
 |RP2040      |ARM CM0+  | 560 |
 |CM0(Kintex-7)|ARM CM0  | 681 |
