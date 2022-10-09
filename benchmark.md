@@ -44,6 +44,7 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 |STM32G474RE |ARM CM4   |512KB|   128KB| 170M| XXX | 195 | 43  |  1  ||
 |CH32V307    |RV32F</br>QingKe V4F|480KB|   128KB| 144M| XXX | 357 | 64  |  1  ||
 |STM32F411CE |ARM CM4   |512KB|   128KB| 150M| 558 | 366 | 75  |  2  ||
+| W801       |CSKYV2 ck804ef|2MB|160+128KB+8MB| 240M|606|364|52|<2| mdl in psram/(or sram if fit) |
 |ESP32-S3    |Xtensa LX7|  8MB|   512KB| 240M| 610 | 381 |  86 |  5  |mdl in flash|
 |LPC4337     |ARM CM4F  |  1MB|   136KB| 204M| 654 | 627 |  91 |  3  |need confirm|
 |XR806       |ARMv8-M</br>Star-MC1|2MB|288KB|160M|712|453| 104 |  1  ||
@@ -85,6 +86,7 @@ Normalization to 100M freq to compare CPU efficiency, using cifar model:
 |CH32V307    |RV32 IMAC | 92  |
 |BL808's E907|RV32P     | 112 |
 |STM32F411CE |ARM CM4   | 113 |
+|W801        |CSKYV2 ck804ef| 125 |
 |STM32L496   |ARM CM4   | 130 |
 |XR806       |ARMv8-M</br>Star-MC1| 166 |
 |ESP32-C3    |RV32      | 203 |
@@ -169,6 +171,15 @@ BL808 C906 core run mbnet 0.25, 128x128x3 input (mdl in psram, VLEN=128, cpu run
 |TM_ARCH_RV64V| INT8| 123ms|  95ms|
 |TM_ARCH_RV64V| FP32| 160ms| 121ms|
 |TM_ARCH_RV64V| FP16| 129ms|  81ms|
+
+## TM_ARCH_CSKYV2
+Optimization for CskyV2 MCU which have DSP instructions (like ck804ef), suoport INT8 acceleration  
+w801 ck804ef core run mbnet 0.25, 128x128x3 input (mdl in psram, cpu run at 240M,psram overclock to 120M, O3, with data cache on)
+
+|ARCH|MDL_TYPE|OPT0 time|OPT1 time|
+|---|---|---|---|
+|TM_ARCH_CPU     | INT8| 950ms| 816ms|
+|TM_ARCH_CSKYV2  | INT8| 724ms| 606ms|
 
 # Compare to other infer library
 Use SmallCifar model. TinyMaix use stride=2's time multipy by 4.   
