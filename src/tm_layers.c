@@ -28,6 +28,8 @@ limitations under the License.
     #include "arch_rv32p.h"
 #elif TM_ARCH==TM_ARCH_RV64V
     #include "arch_rv64v.h"
+#elif TM_ARCH==TM_ARCH_CSKYV2
+    #include "arch_cskyv2.h"
 #else
     #error "UNSUPPORT ARCH!"
 #endif

@@ -19,6 +19,7 @@ limitations under the License.
 #define TM_ARCH_ARM_MVEI    (3) //ARMv8.1: M55, etc.
 #define TM_ARCH_RV32P       (4) //T-head E907, etc.
 #define TM_ARCH_RV64V       (5) //T-head C906,C910, etc.
+#define TM_ARCH_CSKYV2      (6) //cskyv2 with dsp core
 
 #define TM_OPT0             (0) //default, least code and buf
 #define TM_OPT1             (1) //opt for speed, need more code and buf
