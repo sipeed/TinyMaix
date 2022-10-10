@@ -53,6 +53,7 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 |STM32F767   |ARM CM7   |  2MB|   512KB| 216M| 869 | 640 | 185 |  3  |need confirm|
 |SC5864B's DSP|HIFI3    | 32MB|8MB+192KB|160M| 805 |---  |---  |15   |need confirm|
 |STM32L496   |ARM CM4   |  1MB|   320KB|  80M| 809 | 695 | 162 |  3  ||
+|ESP32-S2    |Xtensa LX7|  4MB|   320KB| 240M|1079 | 659 | 241 |  2.5|need confirm|
 |RP2040      |ARM CM0+  | 16MB|   264KB| 280M|1211 | 716 | 200 |  2  |overclock 280M|
 |CH32V203G6  |RV32</br>QingKe V4B| 32KB|    10KB| 144M| XXX | XXX | XXX | 2.5  ||
 |ESP32-C3    |RV32      |  4MB|   400KB| 160M|2370 |1430 | 127 |  6  |mdl in flash|
@@ -98,6 +99,7 @@ Normalization to 100M freq to compare CPU efficiency, using cifar model:
 |STM32F103RC |ARM cM3   | 320 |
 |SAMD21G18   |ARM CM0+  | 336 |
 |RP2040      |ARM CM0+  | 560 |
+|ESP32-S2    |Xtensa LX7| 578 |
 |CM0(Kintex-7)|ARM CM0  | 681 |
 |PicoRV32(GW2A)|RV32    |14545|
 
