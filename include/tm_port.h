@@ -44,7 +44,7 @@ limitations under the License.
 
 
 #define TM_PRINTF(...) printf(__VA_ARGS__)
-#define TM_DBG(...)    TM_PRINTF("###L%d: ",__LINE__);TM_PRINTF(__VA_ARGS__);
+#define TM_DBG(...)    //TM_PRINTF("###L%d: ",__LINE__);TM_PRINTF(__VA_ARGS__);
 #define TM_DBGL()      TM_PRINTF("###L%d\n",__LINE__);
 
 /******************************* DBG TIME CONFIG  ************************************/
