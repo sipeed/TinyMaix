@@ -48,13 +48,14 @@ TM_PERF_REG(t_sbuf);TM_PERF_REG(t_dotp);TM_PERF_REG(t_post);
 TM_PERF_REG(t_valid); TM_PERF_REG(t_pad); 
 TM_PERF_REG(t_conv); TM_PERF_REG(t_pwconv); TM_PERF_REG(t_dwconv); 
 
-#define BATCH_SIZE 16  //batch sum size
+#define BATCH_SIZE 8  //batch sum size
 /*************************** TML_CONV2D **********************************/
 static uint32_t k_oft[TM_MAX_KSIZE]; 
 static mtype_t sbuf[TM_MAX_KCSIZE]; 
 #if (TM_MDL_TYPE==TM_MDL_FP32) || (TM_MDL_TYPE==TM_MDL_FP16) 
 #define SUMSCALE NULL
 static sctype_t outscale;
+#define OUTSCALE outscale
 
 #elif (TM_MDL_TYPE==TM_MDL_INT8) || (TM_MDL_TYPE==TM_MDL_INT16) 
 

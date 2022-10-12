@@ -373,7 +373,7 @@ TM_INLINE void tm_dot_prod_3x3x1(mtype_t* sptr, mtype_t* kptr, sumtype_t* result
 #error "ERR MDL TYPE"
 #endif
 
-#if (TM_MDL_TYPE==TM_MDL_FP32) || (TM_MDL_TYPE==TM_MDL_FP16) 
+#if (TM_MDL_TYPE==TM_MDL_FP32)
 
 TM_INLINE void l_postprocess_sum(int n, sumtype_t* sums, btype_t* bs, int act, mtype_t* outp, \
     sctype_t* scales, sctype_t out_s, zptype_t out_zp)
@@ -393,6 +393,48 @@ TM_INLINE void l_postprocess_sum(int n, sumtype_t* sums, btype_t* bs, int act, m
             break;
         }
         outp[i] = (mtype_t)sum;
+    }
+    return;
+}
+
+#elif (TM_MDL_TYPE==TM_MDL_FP16) 
+
+TM_INLINE void l_postprocess_sum(int n, sumtype_t* sums, btype_t* bs, int act, mtype_t* outp, \
+    sctype_t* scales, sctype_t out_s, zptype_t out_zp)
+{
+    if(n < 4) {
+        for(int i = 0; i < n; i++) {
+            sumtype_t sum = sums[i];
+            sum += bs[i];
+            switch(act){    //activation func
+            case TM_ACT_RELU:
+            case TM_ACT_RELU6: //treat relu6 as relu in float mode //speed up
+                sum = sum>0?sum:0;
+                break;
+            //    sum = sum>0?sum:0;
+            //    sum = sum>6?6:sum;
+            //    break;
+            default:
+                break;
+            }
+            outp[i] = (mtype_t)sum;
+        }
+    } else {
+        size_t vl = vsetvl_e16m2(n);
+        vfloat16m2_t s16 = vle16_v_f16m2(sums, vl);           //load f16
+        vfloat16m2_t b16 = vle16_v_f16m2(bs, vl);
+        s16 = vfadd_vv_f16m2(s16,b16,vl);                    //add bias
+
+        switch(act){    //activation func
+        case TM_ACT_RELU:
+        case TM_ACT_RELU6:
+            s16 = vfmax_vf_f16m2(s16, 0.f, vl);
+            break;
+        default:
+            break;
+        }
+
+        vse16_v_f16m2(outp, s16, vl);
     }
     return;
 }
