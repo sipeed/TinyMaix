@@ -312,7 +312,6 @@ TM_INLINE  void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_
 
 TM_INLINE  void tm_dot_prod_pack2(mtype_t* sptr, mtype_t* kptr, uint32_t size, sumtype_t* result)
 { 
-    int32_t sumbuf[PACK_N];
     int32_t sum0 = 0;
     int32_t sum1 = 0;
     mtype_t* kptr0 = kptr;
@@ -320,19 +319,19 @@ TM_INLINE  void tm_dot_prod_pack2(mtype_t* sptr, mtype_t* kptr, uint32_t size, s
     int cnt=size/PACK_N;
     if(cnt>0){
         size_t vl = vsetvl_e8m1(PACK_N); 
-        vint32m4_t sumv0 = vmv_v_x_i32m4(0, vl);         //set sum=0
-        vint32m4_t sumv1 = vmv_v_x_i32m4(0, vl);         //set sum=0
+        register vint32m4_t sumv0 asm("v0") = vmv_v_x_i32m4(0, vl);         //set sum=0
+        register vint32m4_t sumv1 asm("v4") = vmv_v_x_i32m4(0, vl);         //set sum=0
         vint32m1_t v_zero0 = vmv_v_x_i32m1(0, vl);  
         vint32m1_t v_zero1 = vmv_v_x_i32m1(0, vl);  
         for(int i=0; i<cnt; i++){
-            vint8m1_t  s8  = vle8_v_i8m1(sptr, vl);     //load i8
-            vint8m1_t  k80  = vle8_v_i8m1(kptr0, vl);
-            vint8m1_t  k81  = vle8_v_i8m1(kptr1, vl);
-            vint16m2_t s16 = vwcvt_x_x_v_i16m2(s8,vl);  //cvt i8 to i16
-            vint16m2_t k160 = vwcvt_x_x_v_i16m2(k80,vl);
-            vint16m2_t k161 = vwcvt_x_x_v_i16m2(k81,vl);
-            sumv0 = vwmacc_vv_i32m4(sumv0, s16, k160, vl); //mac
-            sumv1 = vwmacc_vv_i32m4(sumv1, s16, k161, vl); //mac
+            register vint8m1_t  s8 asm("v8")    = vle8_v_i8m1(sptr, vl);     //load i8
+            register vint8m1_t  k80 asm("v12")  = vle8_v_i8m1(kptr0, vl);
+            register vint8m1_t  k81 asm("v16")  = vle8_v_i8m1(kptr1, vl);
+            register vint16m2_t p160 asm("v20") = vwmul_vv_i16m2(s8,k80,vl); //product i16
+            register vint16m2_t p161 asm("v24") = vwmul_vv_i16m2(s8,k81,vl);
+            asm volatile ("vsetvli zero,zero,e16,m2,d1");
+            asm volatile ("vwadd.wv %0,%0,%1" : "+vr"(sumv0) : "vr"(p160));  //add sum
+            asm volatile ("vwadd.wv %0,%0,%1" : "+vr"(sumv1) : "vr"(p161));  //add sum
             sptr += PACK_N;
             kptr0 += PACK_N;
             kptr1 += PACK_N;
@@ -372,4 +371,102 @@ TM_INLINE void tm_dot_prod_3x3x1(mtype_t* sptr, mtype_t* kptr, sumtype_t* result
 
 #else
 #error "ERR MDL TYPE"
+#endif
+
+#if (TM_MDL_TYPE==TM_MDL_FP32) || (TM_MDL_TYPE==TM_MDL_FP16) 
+
+TM_INLINE void l_postprocess_sum(int n, sumtype_t* sums, btype_t* bs, int act, mtype_t* outp, \
+    sctype_t* scales, sctype_t out_s, zptype_t out_zp)
+{
+    for(int i = 0; i < n; i++) {
+        sumtype_t sum = sums[i];
+        sum += bs[i];
+        switch(act){    //activation func
+        case TM_ACT_RELU:
+        case TM_ACT_RELU6: //treat relu6 as relu in float mode //speed up
+            sum = sum>0?sum:0;
+            break;
+        //    sum = sum>0?sum:0;
+        //    sum = sum>6?6:sum;
+        //    break;
+        default:
+            break;
+        }
+        outp[i] = (mtype_t)sum;
+    }
+    return;
+}
+
+#elif (TM_MDL_TYPE==TM_MDL_INT8) || (TM_MDL_TYPE==TM_MDL_INT16) 
+
+#if !TM_FASTSCALE
+TM_INLINE void l_postprocess_sum(int n, sumtype_t* sums, btype_t* bs, int act, mtype_t* outp, sctype_t* scales, sctype_t out_s_inv, zptype_t out_zp)
+#else
+TM_INLINE void l_postprocess_sum(int n, sumtype_t* sums, btype_t* bs, int act, mtype_t* outp, int32_t* scales, int32_t out_s, zptype_t out_zp)
+#endif
+{
+    #if !TM_FASTSCALE
+    if(n < 4) {
+    #endif
+        for(int i = 0; i < n; i++) {
+            sumtype_t sum = sums[i];
+            sum += bs[i];
+            #if !TM_FASTSCALE
+                float sumf = sum*scales[i];
+            #else 
+                sumtype_t sumf = (sum<<TM_FASTSCALE_SHIFT)/scales[i];
+            #endif
+            switch(act){    //activation func
+            case TM_ACT_RELU:
+                sumf = fmaxf(sumf, 0.f);
+                break;
+            case TM_ACT_RELU6:
+                sumf = fmaxf(sumf, 0.f);
+            #if (!TM_FASTSCALE)
+                sumf = fminf(sumf, 6.f);
+            #else
+                sumf = sumf>(6<<TM_FASTSCALE_SHIFT)?(6<<TM_FASTSCALE_SHIFT):sumf;
+            #endif
+                break;
+            default:
+                break;
+            }
+            #if !TM_FASTSCALE
+                outp[i] = (mtype_t)(sumf*out_s_inv + out_zp);  //(mtype_t)((int)(sumf/out_s) + out_zp) //(mtype_t)((int)(sumf/out_s +0.5) + out_zp)
+            #else 
+                outp[i] = (mtype_t)(((sumf*out_s)>>(TM_FASTSCALE_SHIFT+TM_FASTSCALE_SHIFT))+out_zp);
+            #endif
+        }
+    #if !TM_FASTSCALE
+    } else {
+        size_t vl = vsetvl_e8m1(n);
+        vint32m4_t s32 = vle32_v_i32m4(sums, vl);           //load i32
+        vint32m4_t b32 = vle32_v_i32m4(bs, vl);
+        s32 = vadd_vv_i32m4(s32,b32,vl);                    //add bias
+
+        vfloat32m4_t scalesf = vle32_v_f32m4(scales, vl);   //load f32
+        vfloat32m4_t sumsf = vfcvt_f_x_v_f32m4(s32, vl);     //convert to float
+        sumsf = vfmul_vv_f32m4(sumsf, scalesf, vl);
+
+        switch(act){    //activation func
+        case TM_ACT_RELU:
+            sumsf = vfmax_vf_f32m4(sumsf, 0.f, vl);
+            break;
+        case TM_ACT_RELU6:
+            sumsf = vfmax_vf_f32m4(sumsf, 0.f, vl);
+            sumsf = vfmin_vf_f32m4(sumsf, 6.f, vl);
+            break;
+        default:
+            break;
+        }
+
+        sumsf = vfmul_vf_f32m4(sumsf, out_s_inv, vl);
+        sumsf = vfadd_vf_f32m4(sumsf, out_zp, vl);
+        vint16m2_t s16 = vfncvt_x_f_w_i16m2(sumsf, vl); // rvv0.7 doesn't support rtz
+        vint8m1_t s8 = vncvt_x_x_w_i8m1(s16, vl);
+        vse8_v_i8m1(outp, s8, vl);
+    }
+    #endif
+    return;
+}
 #endif
