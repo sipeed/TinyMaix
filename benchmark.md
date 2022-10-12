@@ -40,6 +40,7 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 |STM32H750   |ARM CM7   |  1MB|  1024KB| 480M| 94  | 64  | 15  | <1  ||
 |BL808's E907|RV32P     | 16MB|0.8+64MB| 320M| 188 | 149 | 35  | <1  |mdl in psram|
 |F1C200S     |ARM926EJ-S| 16MB|    64MB| 608M| 213 | 145 | 38.5| 0.75||
+|MT7621A     |MIPS1004Kc|128MB|   128MB| 880M| 413 | 244 | 41  |  1  |need confirm|
 |AT32F403A   |ARM CM4   |  1MB|    96KB| 240M| 477 | 136 | 30  | 0.6 |mbnet in 224k ram mode|
 |STM32G474RE |ARM CM4   |512KB|   128KB| 170M| XXX | 195 | 43  |  1  ||
 |CH32V307    |RV32F</br>QingKe V4F|480KB|   128KB| 144M| XXX | 357 | 64  |  1  ||
@@ -98,6 +99,7 @@ Normalization to 100M freq to compare CPU efficiency, using cifar model:
 |ESP32       |Xtensa LX6| 317 |
 |STM32F103RC |ARM cM3   | 320 |
 |SAMD21G18   |ARM CM0+  | 336 |
+|MT7621A     |MIPS1004Kc| 360 |
 |RP2040      |ARM CM0+  | 560 |
 |ESP32-S2    |Xtensa LX7| 578 |
 |CM0(Kintex-7)|ARM CM0  | 681 |
