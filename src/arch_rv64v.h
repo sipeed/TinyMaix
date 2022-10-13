@@ -375,7 +375,7 @@ TM_INLINE void tm_dot_prod_3x3x1(mtype_t* sptr, mtype_t* kptr, sumtype_t* result
 
 #if (TM_MDL_TYPE==TM_MDL_FP32)
 
-TM_INLINE void l_postprocess_sum(int n, sumtype_t* sums, btype_t* bs, int act, mtype_t* outp, \
+TM_INLINE void tm_postprocess_sum(int n, sumtype_t* sums, btype_t* bs, int act, mtype_t* outp, \
     sctype_t* scales, sctype_t out_s, zptype_t out_zp)
 {
     for(int i = 0; i < n; i++) {
@@ -399,7 +399,7 @@ TM_INLINE void l_postprocess_sum(int n, sumtype_t* sums, btype_t* bs, int act, m
 
 #elif (TM_MDL_TYPE==TM_MDL_FP16) 
 
-TM_INLINE void l_postprocess_sum(int n, sumtype_t* sums, btype_t* bs, int act, mtype_t* outp, \
+TM_INLINE void tm_postprocess_sum(int n, sumtype_t* sums, btype_t* bs, int act, mtype_t* outp, \
     sctype_t* scales, sctype_t out_s, zptype_t out_zp)
 {
     if(n < 4) {
@@ -442,9 +442,9 @@ TM_INLINE void l_postprocess_sum(int n, sumtype_t* sums, btype_t* bs, int act, m
 #elif (TM_MDL_TYPE==TM_MDL_INT8) || (TM_MDL_TYPE==TM_MDL_INT16) 
 
 #if !TM_FASTSCALE
-TM_INLINE void l_postprocess_sum(int n, sumtype_t* sums, btype_t* bs, int act, mtype_t* outp, sctype_t* scales, sctype_t out_s_inv, zptype_t out_zp)
+TM_INLINE void tm_postprocess_sum(int n, sumtype_t* sums, btype_t* bs, int act, mtype_t* outp, sctype_t* scales, sctype_t out_s_inv, zptype_t out_zp)
 #else
-TM_INLINE void l_postprocess_sum(int n, sumtype_t* sums, btype_t* bs, int act, mtype_t* outp, int32_t* scales, int32_t out_s, zptype_t out_zp)
+TM_INLINE void tm_postprocess_sum(int n, sumtype_t* sums, btype_t* bs, int act, mtype_t* outp, int32_t* scales, int32_t out_s, zptype_t out_zp)
 #endif
 {
     #if !TM_FASTSCALE
