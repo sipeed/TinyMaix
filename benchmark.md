@@ -60,6 +60,7 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 |CH32V203G6  |RV32</br>QingKe V4B| 32KB|    10KB| 144M| XXX | XXX | XXX | 2.5  ||
 |ESP32-C3    |RV32      |  4MB|   400KB| 160M|2370 |1430 | 127 |  6  |mdl in flash|
 |MM32F3270   |ARM CM3   |512KB|   128KB|  96M|3126 |2919 | 257 | 11  ||
+|Nuclei N300 |RV32IMAFDC| 16MB|   512KB|  16M|XXXX |2946 | 795 | 11  |need confirm|
 |STM32F103RC |ARM CM3   |256KB|    48KB|  72M|XXX  |XXX  | 445 |  7  ||
 |STM32F103C8 |ARM CM3   | 64KB|    20KB|  72M| XXX | XXX | XXX |  7  ||
 |CH32V103    |RV32</br>QingKe V3A| 64KB|    20KB|  72M| XXX | XXX | XXX | 13  ||
@@ -90,6 +91,7 @@ Normalization to 100M freq to compare CPU efficiency, using cifar model:
 |BL808's E907|RV32P     | 112 |
 |STM32F411CE |ARM CM4   | 113 |
 |W801        |CSKYV2 ck804ef| 125 |
+|Nuclei N300 |RV32IMAFDC| 127 |
 |STM32L496   |ARM CM4   | 130 |
 |NRF52832    |ARM CM4   | 139 |
 |XR806       |ARMv8-M</br>Star-MC1| 166 |
