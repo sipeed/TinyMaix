@@ -72,9 +72,9 @@ TM_INLINE  void tm_dot_prod_pack2(mtype_t* sptr, mtype_t* kptr, uint32_t size, s
         k80 = vld1_s8(kptr0);
         k81 = vld1_s8(kptr1);
         _sum0 = vmlal_s16(_sum0, vget_low_s16(vmovl_s8(s8)), vget_low_s16(vmovl_s8(k80)));
-        _sum1 = vmlal_s16(_sum0, vget_low_s16(vmovl_s8(s8)), vget_low_s16(vmovl_s8(k81)));
+        _sum1 = vmlal_s16(_sum1, vget_low_s16(vmovl_s8(s8)), vget_low_s16(vmovl_s8(k81)));
         _sum0 = vmlal_s16(_sum0, vget_high_s16(vmovl_s8(s8)),vget_high_s16( vmovl_s8(k80)));
-        _sum1 = vmlal_s16(_sum0, vget_high_s16(vmovl_s8(s8)),vget_high_s16( vmovl_s8(k81)));
+        _sum1 = vmlal_s16(_sum1, vget_high_s16(vmovl_s8(s8)),vget_high_s16( vmovl_s8(k81)));
         sptr += PARALLEL_CNT;
         kptr0 += PARALLEL_CNT;
         kptr1 += PARALLEL_CNT;
