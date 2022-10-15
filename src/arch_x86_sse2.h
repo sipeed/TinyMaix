@@ -45,6 +45,7 @@ TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t
         __m128i _sl = _mm_mullo_epi16(s16, k16);
         __m128i _sh = _mm_mulhi_epi16(s16, k16);
         _sum = _mm_add_epi32(_sum, _mm_unpacklo_epi16(_sl, _sh));
+        _sum = _mm_add_epi32(_sum, _mm_unpackhi_epi16(_sl, _sh));
         sptr += PARALLEL_CNT;
         kptr += PARALLEL_CNT;
     }
@@ -87,6 +88,8 @@ TM_INLINE  void tm_dot_prod_pack2(mtype_t* sptr, mtype_t* kptr, uint32_t size, s
         __m128i _sh1 = _mm_mulhi_epi16(s16, k161);
         _sum0 = _mm_add_epi32(_sum0, _mm_unpacklo_epi16(_sl0, _sh0));
         _sum1 = _mm_add_epi32(_sum1, _mm_unpacklo_epi16(_sl1, _sh1));
+        _sum0 = _mm_add_epi32(_sum0, _mm_unpackhi_epi16(_sl0, _sh0));
+        _sum1 = _mm_add_epi32(_sum1, _mm_unpackhi_epi16(_sl1, _sh1));
         sptr += PARALLEL_CNT;
         kptr0 += PARALLEL_CNT;
         kptr1 += PARALLEL_CNT;
