@@ -19,7 +19,6 @@ limitations under the License.
 
 /********************************** TM_MDL_INT8 ***********************************************/
 #if TM_MDL_TYPE==TM_MDL_INT8
-#define PARALLEL_CNT 8
 TM_INLINE int _mm_reduce_add_epi32(__m128i x)
 {
     __m128i hi64 = _mm_unpackhi_epi64(x, x);
@@ -29,13 +28,34 @@ TM_INLINE int _mm_reduce_add_epi32(__m128i x)
     return _mm_cvtsi128_si32(sum32);
 }
 
-TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t* result){
-    uint32_t cnt;
+TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t* result)
+{
+    uint32_t i = 0;
     sumtype_t sum = 0;
-    cnt = size/PARALLEL_CNT;
 
-    __m128i _sum = _mm_setzero_si128();
-    for(int i = 0; i < cnt; i++) {
+    __m128i _sum0 = _mm_setzero_si128();
+    __m128i _sum1 = _mm_setzero_si128();
+    for(; i + 15 < size; i += 16) {
+        __m128i s8 = _mm_loadu_si128((const __m128i*)sptr);
+        __m128i k8 = _mm_loadu_si128((const __m128i*)kptr);
+        __m128i _exts8 = _mm_cmpgt_epi8(_mm_setzero_si128(), s8);
+        __m128i _extk8 = _mm_cmpgt_epi8(_mm_setzero_si128(), k8);
+        __m128i s16l = _mm_unpacklo_epi8(s8, _exts8);
+        __m128i s16h = _mm_unpackhi_epi8(s8, _exts8);
+        __m128i k16l = _mm_unpacklo_epi8(k8, _extk8);
+        __m128i k16h = _mm_unpackhi_epi8(k8, _extk8);
+        __m128i _sll = _mm_mullo_epi16(s16l, k16l);
+        __m128i _slh = _mm_mulhi_epi16(s16l, k16l);
+        __m128i _shl = _mm_mullo_epi16(s16h, k16h);
+        __m128i _shh = _mm_mulhi_epi16(s16h, k16h);
+        _sum0 = _mm_add_epi32(_sum0, _mm_unpacklo_epi16(_sll, _slh));
+        _sum1 = _mm_add_epi32(_sum1, _mm_unpackhi_epi16(_sll, _slh));
+        _sum0 = _mm_add_epi32(_sum0, _mm_unpacklo_epi16(_shl, _shh));
+        _sum1 = _mm_add_epi32(_sum1, _mm_unpackhi_epi16(_shl, _shh));
+        sptr += 16;
+        kptr += 16;
+    }
+    for(; i + 7 < size; i += 8) {
         __m128i s8 = _mm_loadl_epi64((const __m128i*)sptr);
         __m128i k8 = _mm_loadl_epi64((const __m128i*)kptr);
         __m128i _exts8 = _mm_cmpgt_epi8(_mm_setzero_si128(), s8);
@@ -44,17 +64,15 @@ TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t
         __m128i k16 = _mm_unpacklo_epi8(k8, _extk8);
         __m128i _sl = _mm_mullo_epi16(s16, k16);
         __m128i _sh = _mm_mulhi_epi16(s16, k16);
-        _sum = _mm_add_epi32(_sum, _mm_unpacklo_epi16(_sl, _sh));
-        _sum = _mm_add_epi32(_sum, _mm_unpackhi_epi16(_sl, _sh));
-        sptr += PARALLEL_CNT;
-        kptr += PARALLEL_CNT;
+        _sum0 = _mm_add_epi32(_sum0, _mm_unpacklo_epi16(_sl, _sh));
+        _sum1 = _mm_add_epi32(_sum1, _mm_unpackhi_epi16(_sl, _sh));
+        sptr += 8;
+        kptr += 8;
     }
-    sum += _mm_reduce_add_epi32(_sum);
+    sum += _mm_reduce_add_epi32(_mm_add_epi32(_sum0, _sum1));
 
-    cnt = size % PARALLEL_CNT;
-    while (cnt > 0U){
+    for(; i < size; i++) {
         sum += (int32_t) ((int16_t) *sptr++ * *kptr++);
-        cnt--;
     }
 
     *result = sum;
@@ -63,16 +81,48 @@ TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t
 
 TM_INLINE  void tm_dot_prod_pack2(mtype_t* sptr, mtype_t* kptr, uint32_t size, sumtype_t* result)
 {
-    uint32_t cnt;
+    uint32_t i = 0;
     sumtype_t sum0 = 0;
     sumtype_t sum1 = 0;
     mtype_t* kptr0 = kptr;
     mtype_t* kptr1 = kptr+size;
-    cnt = size/PARALLEL_CNT;
 
     __m128i _sum0 = _mm_setzero_si128();
     __m128i _sum1 = _mm_setzero_si128();
-    for(int i = 0; i < cnt; i++) {
+    for(; i + 15 < size; i += 16) {
+        __m128i s8 = _mm_loadu_si128((const __m128i*)sptr);
+        __m128i k80 = _mm_loadu_si128((const __m128i*)kptr0);
+        __m128i k81 = _mm_loadu_si128((const __m128i*)kptr1);
+        __m128i _exts8 = _mm_cmpgt_epi8(_mm_setzero_si128(), s8);
+        __m128i _extk80 = _mm_cmpgt_epi8(_mm_setzero_si128(), k80);
+        __m128i _extk81 = _mm_cmpgt_epi8(_mm_setzero_si128(), k81);
+        __m128i s16l = _mm_unpacklo_epi8(s8, _exts8);
+        __m128i s16h = _mm_unpackhi_epi8(s8, _exts8);
+        __m128i k160l = _mm_unpacklo_epi8(k80, _extk80);
+        __m128i k160h = _mm_unpackhi_epi8(k80, _extk80);
+        __m128i k161l = _mm_unpacklo_epi8(k81, _extk81);
+        __m128i k161h = _mm_unpackhi_epi8(k81, _extk81);
+        __m128i _sll0 = _mm_mullo_epi16(s16l, k160l);
+        __m128i _slh0 = _mm_mulhi_epi16(s16l, k160l);
+        __m128i _sll1 = _mm_mullo_epi16(s16l, k161l);
+        __m128i _slh1 = _mm_mulhi_epi16(s16l, k161l);
+        __m128i _shl0 = _mm_mullo_epi16(s16h, k160h);
+        __m128i _shh0 = _mm_mulhi_epi16(s16h, k160h);
+        __m128i _shl1 = _mm_mullo_epi16(s16h, k161h);
+        __m128i _shh1 = _mm_mulhi_epi16(s16h, k161h);
+        _sum0 = _mm_add_epi32(_sum0, _mm_unpacklo_epi16(_sll0, _slh0));
+        _sum1 = _mm_add_epi32(_sum1, _mm_unpacklo_epi16(_sll1, _slh1));
+        _sum0 = _mm_add_epi32(_sum0, _mm_unpackhi_epi16(_sll0, _slh0));
+        _sum1 = _mm_add_epi32(_sum1, _mm_unpackhi_epi16(_sll1, _slh1));
+        _sum0 = _mm_add_epi32(_sum0, _mm_unpacklo_epi16(_shl0, _shh0));
+        _sum1 = _mm_add_epi32(_sum1, _mm_unpacklo_epi16(_shl1, _shh1));
+        _sum0 = _mm_add_epi32(_sum0, _mm_unpackhi_epi16(_shl0, _shh0));
+        _sum1 = _mm_add_epi32(_sum1, _mm_unpackhi_epi16(_shl1, _shh1));
+        sptr += 16;
+        kptr0 += 16;
+        kptr1 += 16;
+    }
+    for(; i + 7 < size; i += 8) {
         __m128i s8 = _mm_loadl_epi64((const __m128i*)sptr);
         __m128i k80 = _mm_loadl_epi64((const __m128i*)kptr0);
         __m128i k81 = _mm_loadl_epi64((const __m128i*)kptr1);
@@ -90,18 +140,16 @@ TM_INLINE  void tm_dot_prod_pack2(mtype_t* sptr, mtype_t* kptr, uint32_t size, s
         _sum1 = _mm_add_epi32(_sum1, _mm_unpacklo_epi16(_sl1, _sh1));
         _sum0 = _mm_add_epi32(_sum0, _mm_unpackhi_epi16(_sl0, _sh0));
         _sum1 = _mm_add_epi32(_sum1, _mm_unpackhi_epi16(_sl1, _sh1));
-        sptr += PARALLEL_CNT;
-        kptr0 += PARALLEL_CNT;
-        kptr1 += PARALLEL_CNT;
+        sptr += 8;
+        kptr0 += 8;
+        kptr1 += 8;
     }
     sum0 += _mm_reduce_add_epi32(_sum0);
     sum1 += _mm_reduce_add_epi32(_sum1);
 
-    cnt = size % PARALLEL_CNT;
-    while (cnt > 0U){
+    for(; i < size; i++) {
         sum0 += (int32_t) ((int16_t) *sptr * *kptr0++);
         sum1 += (int32_t) ((int16_t) *sptr++ * *kptr1++);
-        cnt--;
     }
 
     result[0] = sum0;
@@ -127,7 +175,6 @@ TM_INLINE void tm_dot_prod_3x3x1(mtype_t* sptr, mtype_t* kptr, sumtype_t* result
 
 /********************************** TM_MDL_FP32 ***********************************************/
 #elif TM_MDL_TYPE==TM_MDL_FP32
-#define PARALLEL_CNT 4
 TM_INLINE float _mm_reduce_add_ps(__m128 x128)
 {
     const __m128 x64 = _mm_add_ps(x128, _mm_movehl_ps(x128, x128));
@@ -135,25 +182,23 @@ TM_INLINE float _mm_reduce_add_ps(__m128 x128)
     return _mm_cvtss_f32(x32);
 }
 
-TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t* result){
-    uint32_t cnt;
+TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t* result)
+{
+    uint32_t i = 0;
     sumtype_t sum = 0;
-    cnt = size/PARALLEL_CNT;
 
     __m128 _sum = _mm_setzero_ps();
-    for(int i = 0; i < cnt; i++) {
+    for(; i + 3 < size; i += 4) {
         __m128 s = _mm_loadu_ps(sptr);
         __m128 k = _mm_loadu_ps(kptr);
         _sum = _mm_add_ps(_mm_mul_ps(s, k), _sum);
-        sptr += PARALLEL_CNT;
-        kptr += PARALLEL_CNT;
+        sptr += 4;
+        kptr += 4;
     }
     sum += _mm_reduce_add_ps(_sum);
 
-    cnt = size % PARALLEL_CNT;
-    while (cnt > 0U){
+    for(; i < size; i++) {
         sum += (int32_t) ((int16_t) *sptr++ * *kptr++);
-        cnt--;
     }
 
     *result = sum;
@@ -162,33 +207,30 @@ TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t
 
 TM_INLINE  void tm_dot_prod_pack2(mtype_t* sptr, mtype_t* kptr, uint32_t size, sumtype_t* result)
 {
-    uint32_t cnt;
+    uint32_t i = 0;
     sumtype_t sum0 = 0;
     sumtype_t sum1 = 0;
     mtype_t* kptr0 = kptr;
     mtype_t* kptr1 = kptr+size;
-    cnt = size/PARALLEL_CNT;
 
     __m128 _sum0 = _mm_setzero_ps();
     __m128 _sum1 = _mm_setzero_ps();
-    for(int i = 0; i < cnt; i++) {
+    for(; i + 3 < size; i += 4) {
         __m128 s = _mm_loadu_ps(sptr);
         __m128 k0 = _mm_loadu_ps(kptr0);
         __m128 k1 = _mm_loadu_ps(kptr1);
         _sum0 = _mm_add_ps(_mm_mul_ps(s, k0), _sum0);
         _sum1 = _mm_add_ps(_mm_mul_ps(s, k1), _sum1);
-        sptr += PARALLEL_CNT;
-        kptr0 += PARALLEL_CNT;
-        kptr1 += PARALLEL_CNT;
+        sptr += 4;
+        kptr0 += 4;
+        kptr1 += 4;
     }
     sum0 += _mm_reduce_add_ps(_sum0);
     sum1 += _mm_reduce_add_ps(_sum1);
 
-    cnt = size % PARALLEL_CNT;
-    while (cnt > 0U){
+    for(; i < size; i++) {
         sum0 +=  (*sptr * *kptr0++);
         sum1 +=  (*sptr++ * *kptr1++);
-        cnt--;
     }
 
     result[0] = sum0;
