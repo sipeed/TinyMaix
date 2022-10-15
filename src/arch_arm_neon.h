@@ -24,31 +24,39 @@ limitations under the License.
 
 /********************************** TM_MDL_INT8 ***********************************************/
 #if TM_MDL_TYPE==TM_MDL_INT8
-#define PARALLEL_CNT 8
-TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t* result){
-    uint32_t cnt;                       
-    sumtype_t sum = 0;                                            
-    cnt = size/PARALLEL_CNT;
+TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t* result)
+{
+    uint32_t i = 0;
+    sumtype_t sum = 0;
 
     int32x4_t _sum = vdupq_n_s32(0);
-    for(int i = 0; i < cnt; i++) {
-        int8x8_t s8, k8;
-        s8 = vld1_s8(sptr);//8 value
-        k8 = vld1_s8(kptr);
-        _sum = vmlal_s16(_sum, vget_low_s16(vmovl_s8(s8)), vget_low_s16(vmovl_s8(k8)));
-        _sum = vmlal_s16(_sum, vget_high_s16(vmovl_s8(s8)),vget_high_s16( vmovl_s8(k8)));
-        sptr += PARALLEL_CNT;
-        kptr += PARALLEL_CNT;
+    for(; i + 15 < size; i += 16) {
+        int8x16_t s8 = vld1q_s8(sptr);
+        int8x16_t k8 = vld1q_s8(kptr);
+        int16x8_t _s = vmull_s8(vget_low_s8(s8), vget_low_s8(k8));
+        _s = vmlal_s8(_s, vget_high_s8(s8), vget_high_s8(k8));
+        _sum = vpadalq_s16(_sum, _s);
+        sptr += 16;
+        kptr += 16;
     }
-    int32_t _sums[4];
-    vst1q_s32(_sums, _sum);
-    for(int i = 0; i < 4; i++) 
-        sum += _sums[i];
+    for(; i + 7 < size; i += 8) {
+        int8x8_t s8 = vld1_s8(sptr);
+        int8x8_t k8 = vld1_s8(kptr);
+        int16x8_t _s = vmull_s8(s8, k8);
+        _sum = vpadalq_s16(_sum, _s);
+        sptr += 8;
+        kptr += 8;
+    }
+#if __aarch64__
+    sum += vaddvq_s32(_sum);
+#else
+    int32x2_t _ss = vadd_s32(vget_low_s32(_sum), vget_high_s32(_sum));
+    _ss = vpadd_s32(_ss, _ss);
+    sum += vget_lane_s32(_ss, 0);
+#endif
 
-    cnt = size % PARALLEL_CNT;
-    while (cnt > 0U){
+    for(; i < size; i++) {
         sum += (int32_t) ((int16_t) *sptr++ * *kptr++);
-        cnt--;
     }
 
     *result = sum;
@@ -56,43 +64,56 @@ TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t
 }
 
 TM_INLINE  void tm_dot_prod_pack2(mtype_t* sptr, mtype_t* kptr, uint32_t size, sumtype_t* result)
-{ 
-    uint32_t cnt;                       
-    sumtype_t sum0 = 0;  
-    sumtype_t sum1 = 0;           
+{
+    uint32_t i = 0;
+    sumtype_t sum0 = 0;
+    sumtype_t sum1 = 0;
     mtype_t* kptr0 = kptr;
-    mtype_t* kptr1 = kptr+size;                                
-    cnt = size/PARALLEL_CNT;
+    mtype_t* kptr1 = kptr+size;
 
     int32x4_t _sum0 = vdupq_n_s32(0);
     int32x4_t _sum1 = vdupq_n_s32(0);
-    for(int i = 0; i < cnt; i++) {
-        int8x8_t s8, k80,k81;
-        s8 = vld1_s8(sptr);//8 value
-        k80 = vld1_s8(kptr0);
-        k81 = vld1_s8(kptr1);
-        _sum0 = vmlal_s16(_sum0, vget_low_s16(vmovl_s8(s8)), vget_low_s16(vmovl_s8(k80)));
-        _sum1 = vmlal_s16(_sum1, vget_low_s16(vmovl_s8(s8)), vget_low_s16(vmovl_s8(k81)));
-        _sum0 = vmlal_s16(_sum0, vget_high_s16(vmovl_s8(s8)),vget_high_s16( vmovl_s8(k80)));
-        _sum1 = vmlal_s16(_sum1, vget_high_s16(vmovl_s8(s8)),vget_high_s16( vmovl_s8(k81)));
-        sptr += PARALLEL_CNT;
-        kptr0 += PARALLEL_CNT;
-        kptr1 += PARALLEL_CNT;
+    for(; i + 15 < size; i += 16) {
+        int8x16_t s8 = vld1q_s8(sptr);
+        int8x16_t k80 = vld1q_s8(kptr0);
+        int8x16_t k81 = vld1q_s8(kptr1);
+        int16x8_t _s0 = vmull_s8(vget_low_s8(s8), vget_low_s8(k80));
+        int16x8_t _s1 = vmull_s8(vget_low_s8(s8), vget_low_s8(k81));
+        _s0 = vmlal_s8(_s0, vget_high_s8(s8), vget_high_s8(k80));
+        _s1 = vmlal_s8(_s1, vget_high_s8(s8), vget_high_s8(k81));
+        _sum0 = vpadalq_s16(_sum0, _s0);
+        _sum1 = vpadalq_s16(_sum1, _s1);
+        sptr += 16;
+        kptr0 += 16;
+        kptr1 += 16;
     }
-    int32_t _sums0[4];
-    int32_t _sums1[4];
-    vst1q_s32(_sums0, _sum0);
-    vst1q_s32(_sums1, _sum1);
-    for(int i = 0; i < 4; i++) {
-        sum0 += _sums0[i];
-        sum1 += _sums1[i];
+    for(; i + 7 < size; i += 8) {
+        int8x8_t s8 = vld1_s8(sptr);//8 value
+        int8x8_t k80 = vld1_s8(kptr0);
+        int8x8_t k81 = vld1_s8(kptr1);
+        int16x8_t _s0 = vmull_s8(s8, k80);
+        int16x8_t _s1 = vmull_s8(s8, k81);
+        _sum0 = vpadalq_s16(_sum0, _s0);
+        _sum1 = vpadalq_s16(_sum1, _s1);
+        sptr += 8;
+        kptr0 += 8;
+        kptr1 += 8;
     }
+#if __aarch64__
+    sum0 += vaddvq_s32(_sum0);
+    sum1 += vaddvq_s32(_sum1);
+#else
+    int32x2_t _ss0 = vadd_s32(vget_low_s32(_sum0), vget_high_s32(_sum0));
+    int32x2_t _ss1 = vadd_s32(vget_low_s32(_sum1), vget_high_s32(_sum1));
+    _ss0 = vpadd_s32(_ss0, _ss0);
+    _ss1 = vpadd_s32(_ss1, _ss1);
+    sum0 += vget_lane_s32(_ss0, 0);
+    sum1 += vget_lane_s32(_ss1, 0);
+#endif
 
-    cnt = size % PARALLEL_CNT;
-    while (cnt > 0U){
+    for(; i < size; i++) {
         sum0 += (int32_t) ((int16_t) *sptr * *kptr0++);
         sum1 += (int32_t) ((int16_t) *sptr++ * *kptr1++);
-        cnt--;
     }
 
     result[0] = sum0;
@@ -105,7 +126,7 @@ TM_INLINE void tm_dot_prod_gap_3x3x1(mtype_t* sptr, mtype_t* kptr, uint32_t* k_o
     *result = sptr[k_oft[0]]*kptr[0] + sptr[k_oft[1]]*kptr[1] + sptr[k_oft[2]]*kptr[2] + \
         sptr[k_oft[3]]*kptr[3] + sptr[k_oft[4]]*kptr[4] + sptr[k_oft[5]]*kptr[5] + \
         sptr[k_oft[6]]*kptr[6] + sptr[k_oft[7]]*kptr[7] + sptr[k_oft[8]]*kptr[8] ;
-    return;                  
+    return;
 }
 
 TM_INLINE void tm_dot_prod_3x3x1(mtype_t* sptr, mtype_t* kptr, sumtype_t* result)
@@ -120,13 +141,13 @@ TM_INLINE void tm_dot_prod_3x3x1(mtype_t* sptr, mtype_t* kptr, sumtype_t* result
 #elif TM_MDL_TYPE==TM_MDL_FP32
 #define PARALLEL_CNT 4
 TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t* result){
-    uint32_t cnt;                       
-    sumtype_t sum = 0;                                             
+    uint32_t cnt;
+    sumtype_t sum = 0;
     cnt = size/PARALLEL_CNT;
 
     float32x4_t _sum = vdupq_n_f32(0);
     for(int i = 0; i < cnt; i++) {
-        float32x4_t s = vld1q_f32(sptr); 
+        float32x4_t s = vld1q_f32(sptr);
         float32x4_t k = vld1q_f32(kptr);
         _sum = vmlaq_f32(_sum, s, k);
         sptr += PARALLEL_CNT;
@@ -134,9 +155,9 @@ TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t
     }
     float32_t _sums[PARALLEL_CNT];
     vst1q_f32(_sums, _sum);
-    for(int i = 0; i < PARALLEL_CNT; i++) 
+    for(int i = 0; i < PARALLEL_CNT; i++)
         sum += _sums[i];
-    
+
     cnt = size % PARALLEL_CNT;
     while (cnt > 0U){
         sum += (int32_t) ((int16_t) *sptr++ * *kptr++);
@@ -148,18 +169,18 @@ TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t
 }
 
 TM_INLINE  void tm_dot_prod_pack2(mtype_t* sptr, mtype_t* kptr, uint32_t size, sumtype_t* result)
-{ 
-    uint32_t cnt;                       
-    sumtype_t sum0 = 0;  
-    sumtype_t sum1 = 0;           
+{
+    uint32_t cnt;
+    sumtype_t sum0 = 0;
+    sumtype_t sum1 = 0;
     mtype_t* kptr0 = kptr;
-    mtype_t* kptr1 = kptr+size;                                
+    mtype_t* kptr1 = kptr+size;
     cnt = size/PARALLEL_CNT;
 
     float32x4_t _sum0 = vdupq_n_f32(0);
     float32x4_t _sum1 = vdupq_n_f32(0);
     for(int i = 0; i < cnt; i++) {
-        float32x4_t s = vld1q_f32(sptr); 
+        float32x4_t s = vld1q_f32(sptr);
         float32x4_t k0 = vld1q_f32(kptr0);
         float32x4_t k1 = vld1q_f32(kptr1);
         _sum0 = vmlaq_f32(_sum0, s, k0);
@@ -176,7 +197,7 @@ TM_INLINE  void tm_dot_prod_pack2(mtype_t* sptr, mtype_t* kptr, uint32_t size, s
         sum0 += _sums0[i];
         sum1 += _sums1[i];
     }
-    
+
     cnt = size % PARALLEL_CNT;
     while (cnt > 0U){
         sum0 +=  (*sptr * *kptr0++);
@@ -194,7 +215,7 @@ TM_INLINE void tm_dot_prod_gap_3x3x1(mtype_t* sptr, mtype_t* kptr, uint32_t* k_o
     *result = sptr[k_oft[0]]*kptr[0] + sptr[k_oft[1]]*kptr[1] + sptr[k_oft[2]]*kptr[2] + \
         sptr[k_oft[3]]*kptr[3] + sptr[k_oft[4]]*kptr[4] + sptr[k_oft[5]]*kptr[5] + \
         sptr[k_oft[6]]*kptr[6] + sptr[k_oft[7]]*kptr[7] + sptr[k_oft[8]]*kptr[8] ;
-    return;                  
+    return;
 }
 
 TM_INLINE void tm_dot_prod_3x3x1(mtype_t* sptr, mtype_t* kptr, sumtype_t* result)
@@ -205,6 +226,6 @@ TM_INLINE void tm_dot_prod_3x3x1(mtype_t* sptr, mtype_t* kptr, sumtype_t* result
     return;
 }
 
-#else  
+#else
     #error "TODO"
 #endif
