@@ -105,7 +105,7 @@ TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t
     return;
 }
 
-TM_INLINE void l_postprocess_sum(sumtype_t sum, btype_t b, int act, mtype_t* outp, \
+TM_INLINE void tm_postprocess_sum(sumtype_t sum, btype_t b, int act, mtype_t* outp, \
     sctype_t scale, sctype_t out_s, zptype_t out_zp)
 {   //printf("sum=%.6f,", sum);
     sum += tm_fp8to32(b); //printf("%.6f,", sum);
@@ -128,4 +128,67 @@ TM_INLINE void l_postprocess_sum(sumtype_t sum, btype_t b, int act, mtype_t* out
 
 #endif
 
+#if (TM_MDL_TYPE==TM_MDL_FP32) || (TM_MDL_TYPE==TM_MDL_FP16) 
 
+TM_INLINE void tm_postprocess_sum(int n, sumtype_t* sums, btype_t* bs, int act, mtype_t* outp, \
+    sctype_t* scales, sctype_t out_s, zptype_t out_zp)
+{
+    for(int i = 0; i < n; i++) {
+        sumtype_t sum = sums[i];
+        sum += bs[i];
+        switch(act){    //activation func
+        case TM_ACT_RELU:
+        case TM_ACT_RELU6: //treat relu6 as relu in float mode //speed up
+            sum = sum>0?sum:0;
+            break;
+        //    sum = sum>0?sum:0;
+        //    sum = sum>6?6:sum;
+        //    break;
+        default:
+            break;
+        }
+        outp[i] = (mtype_t)sum;
+    }
+    return;
+}
+
+#elif (TM_MDL_TYPE==TM_MDL_INT8) || (TM_MDL_TYPE==TM_MDL_INT16) 
+
+#if !TM_FASTSCALE
+TM_INLINE void tm_postprocess_sum(int n, sumtype_t* sums, btype_t* bs, int act, mtype_t* outp, sctype_t* scales, sctype_t out_s_inv, zptype_t out_zp)
+#else
+TM_INLINE void tm_postprocess_sum(int n, sumtype_t* sums, btype_t* bs, int act, mtype_t* outp, int32_t* scales, int32_t out_s, zptype_t out_zp)
+#endif
+{
+    for(int i = 0; i < n; i++) {
+        sumtype_t sum = sums[i];
+        sum += bs[i];
+        #if !TM_FASTSCALE
+            float sumf = sum*scales[i];
+        #else 
+            sumtype_t sumf = (sum<<TM_FASTSCALE_SHIFT)/scales[i];
+        #endif
+        switch(act){    //activation func
+        case TM_ACT_RELU:
+            sumf = sumf>0?sumf:0;
+            break;
+        case TM_ACT_RELU6:
+            sumf = sumf>0?sumf:0;
+        #if (!TM_FASTSCALE)
+            sumf = sumf>6?6:sumf;
+        #else
+            sumf = sumf>(6<<TM_FASTSCALE_SHIFT)?(6<<TM_FASTSCALE_SHIFT):sumf;
+        #endif
+            break;
+        default:
+            break;
+        }
+        #if !TM_FASTSCALE
+            outp[i] = (mtype_t)(sumf*out_s_inv + out_zp);  //(mtype_t)((int)(sumf/out_s) + out_zp) //(mtype_t)((int)(sumf/out_s +0.5) + out_zp)
+        #else 
+            outp[i] = (mtype_t)(((sumf*out_s)>>(TM_FASTSCALE_SHIFT+TM_FASTSCALE_SHIFT))+out_zp);
+        #endif
+    }
+    return;
+}
+#endif
