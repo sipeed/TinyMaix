@@ -40,6 +40,7 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 |STM32H750   |ARM CM7   |  1MB|  1024KB| 480M| 94  | 64  | 15  | <1  ||
 |BL808's E907|RV32P     | 16MB|0.8+64MB| 320M| 188 | 149 | 35  | <1  |mdl in psram|
 |F1C200S     |ARM926EJ-S| 16MB|    64MB| 608M| 213 | 145 | 38.5| 0.75||
+|MT7621A     |MIPS1004Kc|128MB|   128MB| 880M| 413 | 244 | 41  |  1  |need confirm|
 |AT32F403A   |ARM CM4   |  1MB|    96KB| 240M| 477 | 136 | 30  | 0.6 |mbnet in 224k ram mode|
 |STM32G474RE |ARM CM4   |512KB|   128KB| 170M| XXX | 195 | 43  |  1  ||
 |CH32V307    |RV32F</br>QingKe V4F|480KB|   128KB| 144M| XXX | 357 | 64  |  1  ||
@@ -53,11 +54,13 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 |STM32F767   |ARM CM7   |  2MB|   512KB| 216M| 869 | 640 | 185 |  3  |need confirm|
 |SC5864B's DSP|HIFI3    | 32MB|8MB+192KB|160M| 805 |---  |---  |15   |need confirm|
 |STM32L496   |ARM CM4   |  1MB|   320KB|  80M| 809 | 695 | 162 |  3  ||
+|NRF52832    |ARM CM4   |512KB|    64KB|  64M|XXX  |xxx  | 217 |  4  ||
 |ESP32-S2    |Xtensa LX7|  4MB|   320KB| 240M|1079 | 659 | 241 |  2.5|need confirm|
 |RP2040      |ARM CM0+  | 16MB|   264KB| 280M|1211 | 716 | 200 |  2  |overclock 280M|
 |CH32V203G6  |RV32</br>QingKe V4B| 32KB|    10KB| 144M| XXX | XXX | XXX | 2.5  ||
 |ESP32-C3    |RV32      |  4MB|   400KB| 160M|2370 |1430 | 127 |  6  |mdl in flash|
 |MM32F3270   |ARM CM3   |512KB|   128KB|  96M|3126 |2919 | 257 | 11  ||
+|Nuclei N300 |RV32IMAFDC| 16MB|   512KB|  16M|XXXX |2946 | 795 | 11  |need confirm|
 |STM32F103RC |ARM CM3   |256KB|    48KB|  72M|XXX  |XXX  | 445 |  7  ||
 |STM32F103C8 |ARM CM3   | 64KB|    20KB|  72M| XXX | XXX | XXX |  7  ||
 |CH32V103    |RV32</br>QingKe V3A| 64KB|    20KB|  72M| XXX | XXX | XXX | 13  ||
@@ -88,7 +91,9 @@ Normalization to 100M freq to compare CPU efficiency, using cifar model:
 |BL808's E907|RV32P     | 112 |
 |STM32F411CE |ARM CM4   | 113 |
 |W801        |CSKYV2 ck804ef| 125 |
+|Nuclei N300 |RV32IMAFDC| 127 |
 |STM32L496   |ARM CM4   | 130 |
+|NRF52832    |ARM CM4   | 139 |
 |XR806       |ARMv8-M</br>Star-MC1| 166 |
 |ESP32-C3    |RV32      | 203 |
 |ESP32-S3    |Xtensa LX7| 206 |
@@ -98,6 +103,7 @@ Normalization to 100M freq to compare CPU efficiency, using cifar model:
 |ESP32       |Xtensa LX6| 317 |
 |STM32F103RC |ARM cM3   | 320 |
 |SAMD21G18   |ARM CM0+  | 336 |
+|MT7621A     |MIPS1004Kc| 360 |
 |RP2040      |ARM CM0+  | 560 |
 |ESP32-S2    |Xtensa LX7| 578 |
 |CM0(Kintex-7)|ARM CM0  | 681 |

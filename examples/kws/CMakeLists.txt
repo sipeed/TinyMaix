@@ -18,5 +18,5 @@ include_directories(. ${CMAKE_CURRENT_SOURCE_DIR}/../../include)
 
 #set(LIB_INFER ${CMAKE_CURRENT_SOURCE_DIR}/../../lib/libtinymaix.a)
 
-add_executable(${PROJECT_NAME} main.c mel_test.c ${lib_tinymaix})
+add_executable(${PROJECT_NAME} main.c ${lib_tinymaix})
 target_link_libraries(${PROJECT_NAME} -lm)

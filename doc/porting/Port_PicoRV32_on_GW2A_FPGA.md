@@ -116,10 +116,10 @@ Total param ~1.9 KB, OPS ~0.02 MOPS, buffer 1.4 KB
 ### Predict output is: Number 2, prob 0.996
 ```
 
-| config | mnist | cifar | Note |
-| ------ | ----- | ----- | ---- |
-| O0 CPU | 423   | 30461 |      |
-| O1 CPU | 385   | 26935 |      |
+| config | mnist | cifar | kws64-4k | kws64-8k | Note |
+| ------ | ----- | ----- | -------- | ---------| ---- |
+| O0 CPU | 423   | 30461 | 2831     | 4016     |      |
+| O1 CPU | 385   | 26935 | 2470     | 3497     |      |
 
 ## Author
 

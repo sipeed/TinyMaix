@@ -13,18 +13,23 @@ limitations under the License.
 #include "stdio.h"
 #include "tinymaix.h"
 
-#if TM_MDL_TYPE == TM_MDL_INT8
+#if TM_MDL_TYPE == TM_MDL_INT8 
 #include "kws_mdl.h"
 #else
 #error "not add demo yet!"
 #endif
 
 #define MEL_N   (40)
-#define WAV_T   (128*7/2)  //448, 1.5s
-#define KWS_CNT (12)
+#define WAV_T   (32*2)  //2s
+#define KWS_CNT (3)
 
-extern uint8_t mel_test_buf[];
+static const char* kws_str[KWS_CNT] = {"Hi xiaowen", "Nihao wenwen", "Background"};
 
+#include "audio/0a.c"  //hi xiaowen, male
+//#include "audio/fbank0a.c"  //hi xiaowen, female
+//#include "audio/fbank1a.c"  //nihao wenwen, male
+//#include "audio/fbank2a.c"  //noise
+//#include "audio/fbank2b.c"  //noise
 
 static tm_err_t layer_cb(tm_mdl_t* mdl, tml_head_t* lh)
 {   //dump middle result
@@ -33,8 +38,8 @@ static tm_err_t layer_cb(tm_mdl_t* mdl, tml_head_t* lh)
     int ch= lh->out_dims[3];
     mtype_t* output = TML_GET_OUTPUT(mdl, lh);
     //return TM_OK;
-    TM_PRINTF("Layer %d callback ========\n", mdl->layer_i);
-    #if 1
+    //TM_PRINTF("Layer %d callback ========\n", mdl->layer_i);
+    #if 0
     for(int y=0; y<h; y++){
         TM_PRINTF("[");
         for(int x=0; x<w; x++){
@@ -68,7 +73,7 @@ static void parse_output(tm_mat_t* outs)
             maxp = data[i];
         }
     }
-    TM_PRINTF("### Predict output is: Number %2d, prob %.3f\n", maxi, maxp);
+    TM_PRINTF("### Predict output is: Class %2d [%s], prob %.3f\n", maxi, kws_str[maxi], maxp);
     return;
 }
 
@@ -77,7 +82,7 @@ int main(int argc, char** argv)
     TM_PRINTF("kws demo\n");
     tm_mdl_t mdl;
 
-    tm_mat_t in_uint8 = {3,WAV_T,MEL_N,1, (mtype_t*)mel_test_buf};
+    tm_mat_t in_uint8 = {3,WAV_T,MEL_N,1, (mtype_t*)mel_buf};
     tm_mat_t in = {3,WAV_T,MEL_N,1, NULL};
     tm_mat_t outs[1];
     tm_err_t res;
