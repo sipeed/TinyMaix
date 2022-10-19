@@ -40,6 +40,8 @@ conv
     #include "arch_rv64v.h"
 #elif TM_ARCH==TM_ARCH_CSKYV2
     #include "arch_cskyv2.h"
+#elif TM_ARCH==TM_ARCH_X86_SSE2
+    #include "arch_x86_sse2.h"
 #else
     #error "UNSUPPORT ARCH!"
 #endif
