@@ -274,10 +274,22 @@ Saved to tmdl/mnist_q.tmdl, tmdl/mnist_q.h
 
 ## 怎样添加新平台的加速代码
 
-TinyMaix使用基础的点积函数加速卷积运算
-你需要在src里添加arch_xxx_yyy.h, 并晚上你自己平台的点积加速函数：
+对于新增平台，你只需要在src里添加arch_xxx.h文件并实现其中的函数即可，主要为以下几个函数（重要性降序排列，不重要的函数可以直接拷贝纯CPU运算的函数）：
+
 ```
-TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t* result);
+a. TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t* result)
+	实现平台相关的点积函数，可以使用MAC相关的加速指令加速。
+
+b. TM_INLINE void tm_dot_prod_pack2(mtype_t* sptr, mtype_t* kptr, uint32_t size, sumtype_t* result)
+	实现平台相关的双通道点积函数。（仅提供到双通道是因为有些芯片平台的寄存器不足以支持更多通道的点积加速）
+
+c. TM_INLINE void tm_postprocess_sum(int n, sumtype_t* sums, btype_t* bs, int act, mtype_t* outp, sctype_t* scales, sctype_t out_s, zptype_t out_zp)
+	实现平台相关的批量后处理函数，注意n为2的次幂。
+
+d. TM_INLINE void tm_dot_prod_3x3x1(mtype_t* sptr, mtype_t* kptr, sumtype_t* result)
+	实现平台相关的3x3点积加速
+e. TM_INLINE void tm_dot_prod_gap_3x3x1(mtype_t* sptr, mtype_t* kptr, uint32_t* k_oft, sumtype_t* result)
+	实现平台相关的3x3 gap的点积加速
 ```
 
 

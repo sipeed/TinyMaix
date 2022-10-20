@@ -27,7 +27,7 @@ limitations under the License.
 #define TM_OPT2             (2) //TODO
 
 /******************************* PORT CONFIG  ************************************/
-#define TM_ARCH         TM_ARCH_CPU
+#define TM_ARCH         TM_ARCH_X86_SSE2
 #define TM_OPT_LEVEL    TM_OPT0
 #define TM_MDL_TYPE     TM_MDL_INT8
 #define TM_FASTSCALE    (0)         //enable if your chip don't have FPU, may speed up 1/3, but decrease accuracy

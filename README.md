@@ -274,10 +274,25 @@ You can download models from [MaixHub](https://maixhub.com) or train your AI mod
 
 ## How to add new platform acceleration code
 
-TinyMaix use basic dot_product function to accelerate Conv computing.  
-You just need add arch_xxx_yyy.h in src dir, and implement your platform's dot_product function:
+For new platforms, you just need add arch_xxx.h to src dir, and implement functions inside.   
+Here is the main functions you need implement (sort by importance):
+
 ```
-TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t* result);
+a. TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t* result)
+	implement platform's dot product functions, usually use MAC related instructions. 
+
+b. TM_INLINE void tm_dot_prod_pack2(mtype_t* sptr, mtype_t* kptr, uint32_t size, sumtype_t* result)
+	implement platform's dual channel dot product functions  
+  (not 4 or more channel, because some chip platform's register is not enough to support more channels)
+
+c. TM_INLINE void tm_postprocess_sum(int n, sumtype_t* sums, btype_t* bs, int act, mtype_t* outp, sctype_t* scales, sctype_t out_s, zptype_t out_zp)
+	implement platform's batch postprocess functions, note n is power of 2.
+
+d. TM_INLINE void tm_dot_prod_3x3x1(mtype_t* sptr, mtype_t* kptr, sumtype_t* result)
+	implement platform 3x3 dot product. mostly use handwrite cpu code.
+  
+e. TM_INLINE void tm_dot_prod_gap_3x3x1(mtype_t* sptr, mtype_t* kptr, uint32_t* k_oft, sumtype_t* result)
+	implement platform 3x3 gap dot product. 
 ```
 
 ...
