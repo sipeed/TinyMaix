@@ -14,7 +14,7 @@
 
 FK-G030M1-C8T6
 
-<a href="assets/STM32G030.jpg"><img width=300 src="assets/STM32G030.jpg"/></a>
+<a href="assets/STM32G030.png"><img width=300 src="assets/STM32G030.png"/></a>
 
 ## Development Environment
 
@@ -24,7 +24,7 @@ MDK 5.20
 
 Just simple edit `tm_port.h`
 
-https://github.com/XOXVXOX/TinyMaix
+https://github.com/XOXVXOX/stm32G030_tinyMaix.git
 
 ## Result
 
