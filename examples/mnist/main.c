@@ -15,8 +15,10 @@ limitations under the License.
 
 #if TM_MDL_TYPE == TM_MDL_INT8
 #include "../../tools/tmdl/mnist_valid_q.h"
+//#include "../../tools/tmdl/mnist_resnet_q.h"
 #elif TM_MDL_TYPE == TM_MDL_FP32
 #include "../../tools/tmdl/mnist_valid_f.h"
+//#include "../../tools/tmdl/mnist_resnet_f.h"
 #elif TM_MDL_TYPE == TM_MDL_FP16
 #include "../../tools/tmdl/mnist_valid_fp16.h"
 #elif TM_MDL_TYPE == TM_MDL_FP8_143
@@ -25,7 +27,7 @@ limitations under the License.
 #include "../../tools/tmdl/mnist_fp8_152.h"
 #endif
 
-#if 1
+#if 0
 uint8_t mnist_pic[28*28]={
   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,

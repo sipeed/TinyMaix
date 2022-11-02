@@ -280,4 +280,31 @@ tm_err_t TM_WEAK tml_reshape(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_
     return TM_OK;
 }
 
+
+tm_err_t TM_WEAK tml_add(tm_mat_t* in0, tm_mat_t* in1, tm_mat_t* out, \
+    sctype_t in_s0, zptype_t in_zp0, sctype_t in_s1, zptype_t in_zp1, sctype_t out_s, zptype_t out_zp)
+{   //TODO: check in0 shape == in1 shape 
+    //It is simple and experimental implement for ADD, could be more way faster
+    mtype_t* d0 = in0->data;
+    mtype_t* d1 = in1->data;
+    mtype_t* res = out->data; 
+    int size = in0->h*in0->w*in0->c;
+    TM_PRINTF("s0=%.3f,zp0=%d; s1=%.3f,zp1=%d\r\n", in_s0, in_zp0, in_s1, in_zp1);
+#if TM_MDL_TYPE == TM_MDL_FP16 || TM_MDL_TYPE == TM_MDL_FP32 || TM_MDL_TYPE == TM_MDL_INT8
+    int i;
+    for(i=0; i+4<=size; ){
+        res[i] = TM_QUANT(TM_DEQUANT(d0[i],in_s0,in_zp0)+TM_DEQUANT(d1[i],in_s1,in_zp1), out_s, out_zp); i++;
+        res[i] = TM_QUANT(TM_DEQUANT(d0[i],in_s0,in_zp0)+TM_DEQUANT(d1[i],in_s1,in_zp1), out_s, out_zp); i++;
+        res[i] = TM_QUANT(TM_DEQUANT(d0[i],in_s0,in_zp0)+TM_DEQUANT(d1[i],in_s1,in_zp1), out_s, out_zp); i++;
+        res[i] = TM_QUANT(TM_DEQUANT(d0[i],in_s0,in_zp0)+TM_DEQUANT(d1[i],in_s1,in_zp1), out_s, out_zp); i++;
+    }
+    for(; i<size; i++){
+        res[i] = TM_QUANT(TM_DEQUANT(d0[i],in_s0,in_zp0)+TM_DEQUANT(d1[i],in_s1,in_zp1), out_s, out_zp);
+    }
+#else
+    #error "ADD not support this data type yet"
+#endif
+    return TM_OK;
+}
+
 #endif

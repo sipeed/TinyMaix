@@ -42,6 +42,7 @@ TML_FC        = 2
 TML_SOFTMAX   = 3
 TML_RESHAPE   = 4
 TML_DWCONV2D  = 5
+TML_ADD       = 6
 
 TM_PAD_VALID  = 0
 TM_PAD_SAME   = 1
@@ -56,6 +57,7 @@ layername2type={\
     "SOFTMAX"          :TML_SOFTMAX,
     "RESHAPE"          :TML_RESHAPE,
     "DEPTHWISE_CONV_2D":TML_DWCONV2D,
+    "ADD"              :TML_ADD,
 }
 
 MDLBINHEAD_SIZE=64
@@ -88,25 +90,39 @@ def is_mdl_int(mdl_type):
 def align8(x):
     return (x+7)//8*8
 
+# Note: it is dirty implement for "ADD", only suit for simple resnet like network, no error warning for other network
+# and it is simple implement for memory manage in "ADD", it can be optimize many here...
+# Ping-pong buf + extra-ADD buf
 def cal_buf_size(layers, mdl_type, out_deq):
     buf_sizes  = []
+    keep_sizes = [0]
     global unit_sizes 
     unit_size  = unit_sizes[mdl_type]
+    
     for l in layers:
         if l["is_output"] and out_deq and (mdl_type != TM_MDL_FP32) :  #fp16/fp8 also need deq
             buf_size = align8(np.prod(l["in_shape"])*unit_size)+align8(np.prod(l["out_shape"])*unit_size)+align8(np.prod(l["out_shape"])*4)
+            if l["is_keep"]:
+                raise "not support keep flag in output"
         elif (l["name"] == "SOFTMAX"): #reserve float place for deq or  middle
             buf_size = align8(np.prod(l["in_shape"])*unit_size)+align8(np.prod(l["out_shape"])*4)
+            if l["is_keep"]:
+                raise "not support keep flag in SOFTMAX"
         else:
             buf_size = align8(np.prod(l["in_shape"])*unit_size)+align8(np.prod(l["out_shape"])*unit_size)
+            if l["is_keep"]:
+                keep_sizes.append(align8(np.prod(l["out_shape"])*unit_size))
 
         if (l["name"] == "RESHAPE"):
             buf_size -= align8(np.prod(l["in_shape"])*unit_size) #as reshape is inplace
         #print("%s: %d"%(l["name"], buf_size))
         buf_sizes.append(buf_size)
+    
     buf_size = max(buf_sizes)
+    keep_size = max(keep_sizes)
     #print(buf_size)
-    return buf_size
+    print("ping-pong buf %d Byte, ADD-buf %d Byte; Total %d Byte"%(buf_size, keep_size, buf_size+keep_size))
+    return buf_size,keep_size
 
 #dims: 3,h,w,c; 2,1,w,c; 1,1,1,c 
 def shape2dims(shape):
@@ -372,6 +388,16 @@ def pack_softmax(l, mdl_type, endian):
 def pack_reshape(l, mdl_type, endian):
     return b''
 
+def pack_add(l, mdl_type, endian, buf_size):
+    if l["fused_activation_function"]:
+        assert "Not support ADD with fused_activation_function now"
+    lbody = b''
+    lbody += struct.pack(endian+'i',  buf_size);  #input1-buf oft 
+    lbody += struct.pack(endian+'f',  l["i_scale1"]);  
+    lbody += struct.pack(endian+'f' if is_mdl_float(mdl_type) else endian+'i',  l["i_zeropoint1"])
+    lbody += struct.pack(endian+'i',  0);
+    return lbody
+
 ############################### PACK FUNCTIONS #####################################
 def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims, endian, write_c_header=True):
     global unit_size,w_type,b_type,b_type_np,bunit_size
@@ -389,7 +415,7 @@ def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims, endian, wr
     input_cnt = 1
     output_cnt= 1
     layer_cnt = len(layers) 
-    buf_size  = cal_buf_size(layers, mdl_type, out_deq)
+    buf_size,keep_size = cal_buf_size(layers, mdl_type, out_deq)
     sub_size  = 0
     in_dims   = shape2dims(in_dims)
     out_dims  = shape2dims(out_dims)
@@ -409,7 +435,7 @@ def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims, endian, wr
     head += struct.pack(endian+'H',  input_cnt); print("input_cnt  =%d"%input_cnt)
     head += struct.pack(endian+'H',  output_cnt);print("output_cnt =%d"%output_cnt)
     head += struct.pack(endian+'H',  layer_cnt); print("layer_cnt  =%d"%layer_cnt)
-    head += struct.pack(endian+'I',  buf_size);  print("buf_size   =%d"%buf_size)
+    head += struct.pack(endian+'I',  buf_size+keep_size);  print("buf_size   =%d, keep_size=%d, Total=%d"%(buf_size, keep_size, buf_size+keep_size))
     head += struct.pack(endian+'I',  sub_size);  print("sub_size   =%d"%sub_size)
     head += struct.pack(endian+'4H', *in_dims);  print("in_dims    =",in_dims)
     head += struct.pack(endian+'4H', *out_dims); print("out_dims   =",out_dims)
@@ -425,9 +451,10 @@ def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims, endian, wr
     out_flag = 0
     out_size = np.prod(in_dims[1:])*unit_size
     layer_sizes = []
+    keep_flag = 0
     for index in range(len(layers)):
         l  = layers[index]
-        print(l["name"])
+        print("%s    %s"%(l["name"], "KEEP" if l["is_keep"] else ""))
         assert l["name"] in layername2type  #print("layertype not support!")
         tmp = l["in_shape"][1:]; in_dims = [len(tmp)] + [1]*(3-len(tmp)); in_dims.extend(tmp)
         tmp = l["out_shape"][1:]; out_dims = [len(tmp)] + [1]*(3-len(tmp)); out_dims.extend(tmp)
@@ -441,6 +468,11 @@ def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims, endian, wr
             else:
                 print("only support 1 output")
                 assert 0
+                
+        if l["is_keep"]:
+            if keep_flag == 1:
+                assert "Not support multi tmp buf for ADD branch"
+            keep_flag = 1
 
         layer_size = 0  #dummy
         in_size = out_size
@@ -455,7 +487,15 @@ def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims, endian, wr
         if (l["name"] == "RESHAPE"): # inplace
             out_oft= in_oft
         else:
-            out_oft    = 0 if out_oft != 0 else buf_size-out_size
+            if out_oft != buf_size:  
+                if l["is_keep"] == 0: # normal, last out_oft not in keep_buf, and this out is not keep too
+                    out_oft = 0 if out_oft != 0 else buf_size-out_size
+                else: #need keep
+                    out_oft_virt = 0 if out_oft != 0 else buf_size-out_size
+                    out_oft = buf_size
+            else:
+                out_oft = 0 if out_oft_virt != 0 else buf_size-out_size
+                
         print("    in_oft:%d, size:%d;  out_oft:%d, size:%d"%(in_oft, in_size, out_oft, out_size))
         if mdl_type == TM_MDL_INT8 or mdl_type == TM_MDL_INT16:
             in_s  = l["i_scale"]; in_zp = int(l["i_zeropoint"])
@@ -490,6 +530,9 @@ def pack_tmdl(layers, mdl_name, mdl_type, out_deq, in_dims, out_dims, endian, wr
             lbody = pack_softmax(l, mdl_type, endian)
         elif l["name"] == "RESHAPE":
             lbody = pack_reshape(l, mdl_type, endian)
+        elif l["name"] == "ADD":
+            lbody = pack_add(l, mdl_type, endian, buf_size)
+            keep_flag = 0
         else:
             print("unsupport layer type %s"%l["name"])
             assert 0

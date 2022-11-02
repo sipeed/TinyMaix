@@ -44,7 +44,6 @@ tm_err_t TM_WEAK tm_load  (tm_mdl_t* mdl, const uint8_t* bin, uint8_t*buf, tm_cb
 void TM_WEAK tm_unload(tm_mdl_t* mdl)
 {
     if(mdl->main_alloc) tm_free(mdl->buf);
-    if(mdl->subbuf) tm_free(mdl->subbuf);
     return;
 }
 
@@ -87,7 +86,7 @@ tm_err_t TM_WEAK tm_preprocess(tm_mdl_t* mdl, tm_pp_t pp_type, tm_mat_t* in, tm_
 //mdl: model handle; in: input mat; out: output mat
 tm_err_t TM_WEAK tm_run(tm_mdl_t* mdl, tm_mat_t* in, tm_mat_t* out)
 {
-    tm_mat_t _in, _out;
+    tm_mat_t _in, _in1, _out;
     tm_err_t res = TM_OK;
     int out_idx = 0;
     memcpy((void*)&_in, (void*)in, sizeof(tm_mat_t));       
@@ -125,6 +124,12 @@ tm_err_t TM_WEAK tm_run(tm_mdl_t* mdl, tm_mat_t* in, tm_mat_t* out)
         case TML_RESHAPE: {
             tml_reshape_t* l = (tml_reshape_t*)(mdl->layer_body);
             res = tml_reshape(&_in, &_out, h->in_s, h->in_zp, h->out_s, h->out_zp);
+            break; }
+        case TML_ADD: {
+            tml_add_t* l = (tml_add_t*)(mdl->layer_body);
+            memcpy((void*)&_in1, (void*)(h->in_dims), sizeof(uint16_t)*4);
+            _in1.data = (mtype_t *)(mdl->buf + l->in_oft1);
+            res = tml_add(&_in, &_in1, &_out, h->in_s, h->in_zp, l->in_s1, l->in_zp1, h->out_s, h->out_zp);
             break; }
         default:
             res = TM_ERR_LAYERTYPE;

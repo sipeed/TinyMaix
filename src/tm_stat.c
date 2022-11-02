@@ -29,6 +29,7 @@ static const char* tml_str_tbl[TML_MAXCNT] = {
     "Softmax",  /*TML_SOFTMAX = 3,*/
     "Reshape",  /*TML_RESHAPE = 4,*/
     "DWConv2D", /*TML_DWCONV2D= 5,*/
+    "ADD",      /*TML_ADD     = 6,*/
 };
 
 static const int tml_headsize_tbl[TML_MAXCNT] = {
@@ -38,6 +39,7 @@ static const int tml_headsize_tbl[TML_MAXCNT] = {
     sizeof(tml_softmax_t),
     sizeof(tml_reshape_t),
     sizeof(tml_conv2d_dw_t),
+    sizeof(tml_add_t),
 };
 
 tm_err_t tm_stat(tm_mdlbin_t* b)

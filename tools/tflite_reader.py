@@ -98,6 +98,7 @@ def read_tflite(tflite_name, log_func=print):
         op_code = op_codes[op_idx]['builtin_code']
         layer_name = BuiltinCodeToName(op_code) 
         l["name"]=layer_name
+        l["is_keep"] = 0
         log_func(layer_name)
 
         #layer param
@@ -130,6 +131,7 @@ def read_tflite(tflite_name, log_func=print):
             l.update({"in_shape":shape})
         l.update({"in_name":tensors[input_idx]["name"]})
         log_func("    input: %s"%(tensors[input_idx]["name"]))
+            
         if tensors[input_idx]["quantization"]['scale'] is not None:
             l.update({"i_scale":tensors[input_idx]['quantization' ]['scale'][0]})
             l.update({"i_zeropoint":tensors[input_idx]['quantization' ]['zero_point'][0]})
@@ -142,6 +144,7 @@ def read_tflite(tflite_name, log_func=print):
         output_idx = output_tensor_idx[0]
         l.update({"out_shape":tensors[output_idx]["shape"]})
         l.update({"out_name":tensors[output_idx]["name"]})
+        log_func("    output: %s"%(tensors[output_idx]["name"]))
         if tensors[output_idx]["quantization"]['scale'] is not None:
             l.update({"o_scale":tensors[output_idx]['quantization' ]['scale'][0]})
             l.update({"o_zeropoint":tensors[output_idx]['quantization' ]['zero_point'][0]})
@@ -232,6 +235,36 @@ def read_tflite(tflite_name, log_func=print):
                     raise Exception("only deal with pad+conv_valid")
             else:
                 raise Exception("only deal with pad+conv/dwconv")
+        elif layer_name == "ADD":
+            if len(input_tensor_idx)>1:
+                input_idx1 = input_tensor_idx[1]
+                l.update({"in_shape1":tensors[input_idx1]["shape"]})
+                l.update({"in_name1":tensors[input_idx1]["name"]})
+                log_func("    input1: %s"%(tensors[input_idx1]["name"]))
+                if tensors[input_idx]["quantization"]['scale'] is not None:
+                    l.update({"i_scale1":tensors[input_idx1]['quantization' ]['scale'][0]})
+                    l.update({"i_zeropoint1":tensors[input_idx1]['quantization' ]['zero_point'][0]})
+                else:
+                    l.update({"i_scale1":1})
+                    l.update({"i_zeropoint1":0})
+                is_in = 0
+                idx0 = -1
+                idx1 = -1
+                for _i in range(len(layers)):
+                    if layers[_i]["out_name"] ==  tensors[input_idx]["name"]:
+                        idx0 = _i
+                        break
+                for _i in range(len(layers)):
+                    if layers[_i]["out_name"] ==  tensors[input_idx1]["name"]:
+                        idx1 = _i
+                        break
+                if idx0 < 0 or idx1 < 0:
+                    raise Exception("not found input0 or input1 node before!")
+                if abs(idx-idx0) > abs(idx-idx1):   #keep far one in tmpbuf
+                    layers[idx0]["is_keep"] = 1
+                else:
+                    layers[idx1]["is_keep"] = 1
+            log_func("    add no param")
         elif layer_name in ["SHAPE", "STRIDED_SLICE", "PACK"]:
             log_func("    ignore %s" % layer_name)
             continue
