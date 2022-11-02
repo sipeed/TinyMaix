@@ -65,6 +65,7 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 |STM32F103C8 |ARM CM3   | 64KB|    20KB|  72M| XXX | XXX | XXX |  7  ||
 |CH32V103    |RV32</br>QingKe V3A| 64KB|    20KB|  72M| XXX | XXX | XXX | 13  ||
 |SAMD21G18   |ARM CM0+  |256KB|    32KB|  48M| XXX | XXX | 700 | 14  |seeed XIAO|
+|APM32F072CB |ARM CM0+  | 128KB|   16KB|  48M| XXX | XXX | XXX | 17  ||
 |STM32G030F6 |ARM CM0+  | 32KB|     8KB|  64M| XXX | XXX | XXX | 18  ||
 |CM0(Kintex-7)|ARM CM0  |  ---|  1024KB|  50M| XXX | XXX | 1362| 23  |Kintex-7|
 |CH582       |RV32</br>QingKe V4A|448KB|32KB|60M|XXX|XXX |XXX  | 31  ||
