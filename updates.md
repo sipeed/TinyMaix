@@ -1,5 +1,8 @@
 # UPDATES LOG
 
+## 2022.11.02
+Add "ADD" OPS, now support resnet/mbnet v2 experimental~
+
 ## 2022.08.30
 take time to optimize O0&O1.  now new O0 almost as fast as old O1~   
 fast RVV fp16 model in 97ms now!!!   

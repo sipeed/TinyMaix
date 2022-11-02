@@ -6,14 +6,14 @@ TinyMaix is a tiny inference Neural Network library specifically for microcontro
 We design it follow the rule:  **Easy-to-Use** > **Portable** > **Speed** > **Space**  
 
 Introduction to tinyML: [**TinyML**](tinyml_intro.md)  
-See tested **42** chips and benchmark:  [**benchmark**](benchmark.md)  
+See tested **43** chips and benchmark:  [**benchmark**](benchmark.md)  
 Good News:  [**Rewarded Porting TinyMaix**](reward.md)
 
 **Highlights**
 - Core Code less than **400 lines**(tm_layers.c+tm_model.c+arch_cpu.h), code .text section less than **3KB**   
 - Low ram consume, even **Arduino ATmega328** (32KB Flash, 2KB Ram) can run mnist with TinyMaix~  
 - Support **INT8/FP32/FP16** model, experimentally support **FP8**, convert from keras h5 or tflite.
-- Supoort multi architecture accelerate:  **ARM SIMD/NEON/MVEI，RV32P, RV64V** ~
+- Supoort multi architecture accelerate:  **ARM SIMD/NEON/MVEI，RV32P, RV64V, CSKYV2, X86 SSE2** ~
 - User-friendly interfaces, just load/run models~
 - Support Full Static Memory config
 - [MaixHub](https://maixhub.com) **Online Model Training** support
@@ -65,9 +65,10 @@ mnist demo
 
 ## TODO List
 1. ~~optimize tm_layers.c to tm_layers_O1.c, aimed to speed up to 1.4~2.0X~~  Done
-2. Train good backbone for 64KB/128KB/256KB/512KB ram litmit
-3. Add example: Detector,KWS,HAR,Gesture,OCR,...
-4. ...
+2. ~~Add "ADD" OPS to support resnet/mbnet v2 ~~ Done!
+3. Train good backbone for 64KB/128KB/256KB/512KB ram litmit
+4. Add example: Detector,KWS,HAR,Gesture,OCR,...
+5. ...
 
 Do you want take participate in development of TinyMaix, or discuss with TinyML hobbyist?  
 **Join our telegram group:** https://t.me/tinymaix
@@ -92,6 +93,7 @@ We hope TinyMaix can help any MCU run AI Neural Network Mdoels, every one can po
 - [x] Support up to mobilenet v1, RepVGG backbone
   - they are most common used, efficient structure for MCUs
   - [x] Basic Conv2d, dwConv2d, FC, Relu/Relu6/Softmax, GAP, Reshape
+  - [x] ADD (for resnet,mbnet v2 struct, experimental)
   - [ ] MaxPool, AvgPool (now use stride instead)
 - [x] FP32 model, INT8 quant model, FP16 model(**NEW**)
 - [x] Convert tmdl from keras h5 or tflite
