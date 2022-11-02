@@ -27,7 +27,7 @@ limitations under the License.
 #include "../../tools/tmdl/mnist_fp8_152.h"
 #endif
 
-#if 0
+#if 1
 uint8_t mnist_pic[28*28]={
   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
