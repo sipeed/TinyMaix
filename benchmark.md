@@ -37,6 +37,7 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 |D1-H        |RV64V     |128GB|     2GB|1008M| 43  | 22  | 3.5 | 0.29||
 |ZYNQ7010's A9|ARM A9   | 32GB|     1GB| 667M| 66  | 44  | 7.8 |0.34 ||
 |BL808's C906|RV64V     | 16MB|0.8+64MB| 480M| 81  | 57  | 10  | <1  ||
+|HPM6750     |Andes D45</br>RV32IMAFDCP|  8MB|2MB+32MB| 816M| 174  | 112  | 33  | 0.45  ||
 |STM32H750   |ARM CM7   |  1MB|  1024KB| 480M| 94  | 64  | 15  | <1  ||
 |BL808's E907|RV32P     | 16MB|0.8+64MB| 320M| 188 | 149 | 35  | <1  |mdl in psram|
 |F1C200S     |ARM926EJ-S| 16MB|    64MB| 608M| 213 | 145 | 38.5| 0.75||
