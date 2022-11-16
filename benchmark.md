@@ -35,6 +35,7 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 |TH1520      |RV64V(C910)|16GB|     4GB|1848M| 17  | 10.4| 3.6 | 0.15|fp16|
 |RK3399's A53|ARM A53   | 32GB|     4GB|1600M| 29  | 19  |  5  | 0.14||
 |D1-H        |RV64V     |128GB|     2GB|1008M| 43  | 22  | 3.5 | 0.29||
+|SSD201      |ARM A7    |128MB|    64MB|1200M| 66  | 42  | 10  |0.23 ||
 |ZYNQ7010's A9|ARM A9   | 32GB|     1GB| 667M| 66  | 44  | 7.8 |0.34 ||
 |BL808's C906|RV64V     | 16MB|0.8+64MB| 480M| 81  | 57  | 10  | <1  ||
 |HPM6750     |Andes D45</br>RV32IMAFDCP|  8MB|2MB+32MB| 816M| 174  | 112  | 33  | 0.45  ||
@@ -92,6 +93,7 @@ Normalization to 100M freq to compare CPU efficiency, using cifar model:
 |CH32V307    |RV32 IMAC | 92  |
 |BL808's E907|RV32P     | 112 |
 |STM32F411CE |ARM CM4   | 113 |
+|SSD201      |ARM A7    | 123 |
 |W801        |CSKYV2 ck804ef| 125 |
 |Nuclei N300 |RV32IMAFDC| 127 |
 |STM32L496   |ARM CM4   | 130 |
