@@ -12,7 +12,7 @@
 
 ## Board 
 
-![ESP_01](assets\ESP_01.jpg)
+![ESP_01](assets/ESP_01.jpg)
 
 ## Development Environment
 
