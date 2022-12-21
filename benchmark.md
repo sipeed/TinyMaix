@@ -74,7 +74,7 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 |STC32G12K128|80251     |128KB|    12KB|  35M| XXX | XXX | XXX | 37  ||
 |PicoRV32(GW2A)|RV32    |  1MB|    64KB|  54M| XXX | XXX |26935| 385 |Tang Primer 20K|
 |Atmega328   |AVR       | 32KB|     2KB|  16M| XXX | XXX | XXX |50(*)||
-
+|ESP8266|Tensilica L106)|512KB|    50KB| 160M| XXX | XXX | XXX | 12  ||
 
 Normalization to 100M freq to compare CPU efficiency, using cifar model:  
 
