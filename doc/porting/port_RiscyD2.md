@@ -6,7 +6,7 @@
 | ------------ | -------------------|
 | Chip         | RiscyD2 (softcore) |
 | Arch         | RV32IM             |
-| Freq         | 20M                |
+| Freq         | 100M               |
 | Flash        | 48KB               |
 | RAM          | 8KB                |
 
@@ -32,13 +32,14 @@ Minor modifications in `tm_port.h`:
 * `printf` is not used in favor of uart based printing (macro defined in `main.c`)
 * `TM_GET_US` is not used in favor of cycles based time measurement (defined in `riscyd2.h`)
 
+Porting project in:
 https://github.com/wpmed92/TinyMaix-RiscyD2
 
 ## Result
 
 | config | mnist | Note |
 | ------ | ----- | ---- |
-| O0 CPU | 17    |      |
+| O0 CPU | 18    |      |
 | O1 CPU | 12    |      |
 
 
