@@ -65,6 +65,7 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 |Nuclei N300 |RV32IMAFDC| 16MB|   512KB|  16M|XXXX |2946 | 795 | 11  |need confirm|
 |STM32F103RC |ARM CM3   |256KB|    48KB|  72M|XXX  |XXX  | 445 |  7  ||
 |STM32F103C8 |ARM CM3   | 64KB|    20KB|  72M| XXX | XXX | XXX |  7  ||
+|RiscyD2     |RV32IM    | 48KB|     8KB| 100M| XXX | XXX | XXX | 12  |Digilent Arty A7-35T|
 |CH32V103    |RV32</br>QingKe V3A| 64KB|    20KB|  72M| XXX | XXX | XXX | 13  ||
 |SAMD21G18   |ARM CM0+  |256KB|    32KB|  48M| XXX | XXX | 700 | 14  |seeed XIAO|
 |APM32F072CB |ARM CM0+  | 128KB|   16KB|  48M| XXX | XXX | XXX | 17  ||
