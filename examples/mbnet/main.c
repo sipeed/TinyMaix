@@ -25,7 +25,7 @@ limitations under the License.
     #elif TM_MDL_TYPE==TM_MDL_FP16
     #include "../../tools/tmdl/mbnet128_0.25_fp16.h"
     #elif TM_MDL_TYPE==TM_MDL_INT8
-    #include "../../tools/tmdl/mbnet128_0.25_q.h"
+    #include "../../tools/mbtestv2.h"
     #elif TM_MDL_TYPE==TM_MDL_FP8_143
     #include "../../tools/tmdl/mbnet128_0.25_fp8_143.h"
     #elif TM_MDL_TYPE==TM_MDL_FP8_152
