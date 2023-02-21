@@ -38,8 +38,9 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 |SSD201      |ARM A7    |128MB|    64MB|1200M| 66  | 42  | 10  |0.23 ||
 |ZYNQ7010's A9|ARM A9   | 32GB|     1GB| 667M| 66  | 44  | 7.8 |0.34 ||
 |BL808's C906|RV64V     | 16MB|0.8+64MB| 480M| 81  | 57  | 10  | <1  ||
-|HPM6750     |Andes D45</br>RV32IMAFDCP|  8MB|2MB+32MB| 816M| 174  | 112  | 33  | 0.45  ||
 |STM32H750   |ARM CM7   |  1MB|  1024KB| 480M| 94  | 64  | 15  | <1  ||
+|V851S' E907 |RV32P     |128MB|     4MB| 600M| 108 |  99 | 32  | 0.5  ||
+|HPM6750     |Andes D45</br>RV32IMAFDCP|  8MB|2MB+32MB| 816M| 174  | 112  | 33  | 0.45  ||
 |BL808's E907|RV32P     | 16MB|0.8+64MB| 320M| 188 | 149 | 35  | <1  |mdl in psram|
 |F1C200S     |ARM926EJ-S| 16MB|    64MB| 608M| 213 | 145 | 38.5| 0.75||
 |MT7621A     |MIPS1004Kc|128MB|   128MB| 880M| 413 | 244 | 41  |  1  |need confirm|
