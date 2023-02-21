@@ -6,7 +6,7 @@
 | ------------ | ------------------------------ |
 | Chip         | Allwinner V85x E907 Core       |
 | Arch         | Xuantie E907 RV32IMAC @ 600MHz |
-| Freq         | 160MHz                         |
+| Freq         | 600MHz                         |
 | Flash        | 128MByte                       |
 | RAM          | 4096KB DDR2 SDRAM              |
 | Acceleration | CPU                            |
