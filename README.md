@@ -6,7 +6,7 @@ TinyMaix is a tiny inference Neural Network library specifically for microcontro
 We design it follow the rule:  **Easy-to-Use** > **Portable** > **Speed** > **Space**  
 
 Introduction to tinyML: [**TinyML**](tinyml_intro.md)  
-See tested **47** chips and benchmark:  [**benchmark**](benchmark.md)  
+See tested **48** chips and benchmark:  [**benchmark**](benchmark.md)  
 Good News:  [**Rewarded Porting TinyMaix**](reward.md)
 
 **Highlights**
