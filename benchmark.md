@@ -57,6 +57,7 @@ Sort by performance, compare priority: mbnet128 > vww96 > cifar > mnist
 |STM32F767   |ARM CM7   |  2MB|   512KB| 216M| 869 | 640 | 185 |  3  |need confirm|
 |SC5864B's DSP|HIFI3    | 32MB|8MB+192KB|160M| 805 |---  |---  |15   |need confirm|
 |STM32L496   |ARM CM4   |  1MB|   320KB|  80M| 809 | 695 | 162 |  3  ||
+|BK7256      |RISC-V    |  4MB|   512KB| 320M|1036 | 678 | 186 |  2.8||
 |NRF52832    |ARM CM4   |512KB|    64KB|  64M|XXX  |xxx  | 217 |  4  ||
 |ESP32-S2    |Xtensa LX7|  4MB|   320KB| 240M|1079 | 659 | 241 |  2.5|need confirm|
 |RP2040      |ARM CM0+  | 16MB|   264KB| 280M|1211 | 716 | 200 |  2  |overclock 280M|
