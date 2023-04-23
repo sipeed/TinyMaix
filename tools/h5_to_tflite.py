@@ -34,7 +34,7 @@ def h5_to_tflite(h5_name, tflite_name, is_quant, quant_dir, norm_type = None, me
                 continue
             valid_files.append(os.path.join(quant_dir, name))
         if len(valid_files) == 0:
-            raise Exception("No valid files in quant_input dir {}, support format: ".format(quant_dir, valid_format))
+            raise Exception("No valid files in quant_input dir {}, support format: {}".format(quant_dir, valid_format))
         for path in valid_files:
             img = Image.open(path)
             img = np.array(img).astype(np.float32)
