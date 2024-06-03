@@ -26,6 +26,11 @@ limitations under the License.
 #define  TM_MDL_FP8_152 5 //experimental
 #include "tm_port.h"
 
+#ifndef TM_STATIC
+// Set default value, if not defined in tm_port.h
+#define TM_STATIC static
+#endif
+
 /******************************* MARCO ************************************/
 #define TM_MDL_MAGIC 'XIAM'     //mdl magic sign
 #define TM_ALIGN_SIZE   (8)     //8 byte align

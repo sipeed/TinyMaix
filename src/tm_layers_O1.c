@@ -52,23 +52,23 @@ TM_PERF_REG(t_conv); TM_PERF_REG(t_pwconv); TM_PERF_REG(t_dwconv);
 
 #define BATCH_SIZE 8  //batch sum size
 /*************************** TML_CONV2D **********************************/
-static uint32_t k_oft[TM_MAX_KSIZE]; 
-static mtype_t sbuf[TM_MAX_KCSIZE]; 
+TM_STATIC uint32_t k_oft[TM_MAX_KSIZE]; 
+TM_STATIC mtype_t sbuf[TM_MAX_KCSIZE]; 
 #if (TM_MDL_TYPE==TM_MDL_FP32) || (TM_MDL_TYPE==TM_MDL_FP16) 
 #define SUMSCALE NULL
-static sctype_t outscale;
+TM_STATIC sctype_t outscale;
 #define OUTSCALE outscale
 
 #elif (TM_MDL_TYPE==TM_MDL_INT8) || (TM_MDL_TYPE==TM_MDL_INT16) 
 
 #if TM_FASTSCALE
-    static int32_t sumscale[TM_MAX_CSIZE];
-    static int32_t outscale;
+    TM_STATIC int32_t sumscale[TM_MAX_CSIZE];
+    TM_STATIC int32_t outscale;
     #define OUTSCALE outscale
 #else
-    static float sumscale[TM_MAX_CSIZE];
-    static sctype_t outscale;
-    static sctype_t outscale_inv;
+    TM_STATIC float sumscale[TM_MAX_CSIZE];
+    TM_STATIC sctype_t outscale;
+    TM_STATIC sctype_t outscale_inv;
     #define OUTSCALE outscale_inv
 #endif
 #define SUMSCALE (sumscale + c)
@@ -397,8 +397,8 @@ TM_INLINE tm_err_t l_tml_dwconv2d_3x3_part(tm_mat_t* in, tm_mat_t* out, wtype_t*
 #define CONV_BLK_H (4) 
 #define CONV_BLK_STEPX (CONV_BLK_W-3+1)
 #define CONV_BLK_STEPY (CONV_BLK_H-3+1)
-static mtype_t dw_sbuf[CONV_BLK_W*CONV_BLK_H*TM_MAX_CSIZE];
-static uint32_t dw_koft[CONV_BLK_W*CONV_BLK_H];
+TM_STATIC mtype_t dw_sbuf[CONV_BLK_W*CONV_BLK_H*TM_MAX_CSIZE];
+TM_STATIC uint32_t dw_koft[CONV_BLK_W*CONV_BLK_H];
 
 // 40ms->27ms
 TM_INLINE tm_err_t l_tml_dwconv2d_3x3_nostride(tm_mat_t* in, tm_mat_t* out, wtype_t* w, btype_t* b, \

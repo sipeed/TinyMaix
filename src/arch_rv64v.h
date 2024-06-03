@@ -279,7 +279,7 @@ TM_INLINE void tm_dot_prod_3x3x1(mtype_t* sptr, mtype_t* kptr, sumtype_t* result
 //Vector Widening Integer Multiply-Add Operations
 //  vint32m4_t vwmacc_vv_i32m4 (vint32m4_t vd, vint16m2_t vs1, vint16m2_t vs2, size_t vl);
 uint32_t tdot = 0;
-static uint32_t size0=0;
+TM_STATIC uint32_t size0=0;
 TM_INLINE  void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t* result)
 { 
     int32_t sumbuf[PACK_N];

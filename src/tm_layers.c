@@ -42,8 +42,8 @@ TM_PERF_REG(t_valid); TM_PERF_REG(t_pad);
 TM_PERF_REG(t_conv); TM_PERF_REG(t_pwconv); TM_PERF_REG(t_dwconv); 
 
 /*************************** TML_CONV2D **********************************/
-static uint32_t k_oft[TM_MAX_KSIZE]; 
-static mtype_t sbuf[TM_MAX_KCSIZE]; 
+TM_STATIC uint32_t k_oft[TM_MAX_KSIZE]; 
+TM_STATIC mtype_t sbuf[TM_MAX_KCSIZE]; 
 #if (TM_MDL_TYPE==TM_MDL_FP32) || (TM_MDL_TYPE==TM_MDL_FP16) 
 #define SUMSCALE NULL
 #define OUTSCALE outscale
@@ -51,10 +51,10 @@ static mtype_t sbuf[TM_MAX_KCSIZE];
 #elif (TM_MDL_TYPE==TM_MDL_INT8) || (TM_MDL_TYPE==TM_MDL_INT16) 
 
 #if TM_FASTSCALE
-    static int32_t sumscale[TM_MAX_CSIZE];
+    TM_STATIC int32_t sumscale[TM_MAX_CSIZE];
     #define OUTSCALE outscale
 #else
-    static float sumscale[TM_MAX_CSIZE];
+    TM_STATIC float sumscale[TM_MAX_CSIZE];
     #define OUTSCALE outscale_inv
 #endif
 #define SUMSCALE (sumscale + c)
