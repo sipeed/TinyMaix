@@ -220,17 +220,17 @@ And now just put them into your project, compile it~
 
 ## How to train/convert models
 There are training scripts in examples/mnist to learn how to train simple mnist models. 
-> Note: you need install TensorFlow (>=2.7) first.
+> Note: you need install TinyMaix first.
 
 After training and save h5 models, you can use scripts in tools to convert to tmdl or c header files.   
 
 1. h5_to_tflite.py   
   convert h5 model to float or int8 quant tflite files   
-  python3 h5_to_tflite.py h5/mnist.h5 tflite/mnist_f.tflite 0   
-  python3 h5_to_tflite.py h5/mnist.h5 tflite/mnist_q.tflite 1 quant_img_mnist/ 0to1   
+  python -m tinymaix.tools.h5_to_tflite h5/mnist.h5 tflite/mnist_f.tflite 0
+  python -m tinymaix.tools.h5_to_tflite h5/mnist.h5 tflite/mnist_q.tflite 1 quant_img_mnist/ 0to1
 2. tflite2tmdl.py  
   convert tflite file to tmdl or c header files.    
-  python3 tflite2tmdl.py tflite/mnist_q.tflite tmdl/mnist_q.tmdl int8 1 28,28,1 10  
+  python -m tinymaix.tools.tflite2tmdl tflite/mnist_q.tflite tmdl/mnist_q.tmdl int8 1 28,28,1 10
 ```
 ================ pack model head ================
 mdl_type   =0

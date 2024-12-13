@@ -198,17 +198,17 @@ TinyMaix的核心文件只有这5个：tm_model.c, tm_layers.c, tinymaix.h, tm_p
 
 ## 怎样训练/转换模型
 在examples/mnist下有训练脚本可以学习如何训练基础的mnist模型
-> 注意：你需要先安装TensorFlow (>=2.7) 环境.
+> 注意：你需要先安装TinyMaix 环境.
 
 完成训练并保存h5模型后，你可以使用以下脚本转换原始模型到tmdl或者c头文件。 
 
 1. h5_to_tflite.py   
   转换h5模型到浮点或者int8量化的tflite模型
-  python3 h5_to_tflite.py h5/mnist.h5 tflite/mnist_f.tflite 0   
-  python3 h5_to_tflite.py h5/mnist.h5 tflite/mnist_q.tflite 1 quant_img_mnist/ 0to1   
+  python -m tinymaix.tools.h5_to_tflite h5/mnist.h5 tflite/mnist_f.tflite 0
+  python -m tinymaix.tools.h5_to_tflite h5/mnist.h5 tflite/mnist_q.tflite 1 quant_img_mnist/ 0to1
 2. tflite2tmdl.py  
   转换tflite文件到tmdl或者c头文件   
-  python3 tflite2tmdl.py tflite/mnist_q.tflite tmdl/mnist_q.tmdl int8 1 28,28,1 10  
+  python -m tinymaix.tools.tflite2tmdl tflite/mnist_q.tflite tmdl/mnist_q.tmdl int8 1 28,28,1 10
 ```
 ================ pack model head ================
 mdl_type   =0
