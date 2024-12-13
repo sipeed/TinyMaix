@@ -162,6 +162,27 @@ make
 ./mbnet
 ```
 
+
+## How to install
+
+TinyMaix can be installed as a Python package
+
+```
+pip install git+https://github.com/sipeed/TinyMaix@master
+```
+
+TinyMaix requires [Tensorflow](https://www.tensorflow.org/) version `<= 2.14`.
+There are multiple options for how to install this, see the TensorFlow documentation.
+
+For example:
+```
+pip install 'tensorflow-cpu<=2.14.1'
+```
+
+NOTE: Tensorflow 2.14 supports up until Python 3.11.
+However, *Python 3.12 is not supported* by Tensorflow 2.14.
+
+
 ## How to use (API)
 ### Load Model
 tm_err_t tm_load  (tm_mdl_t* mdl, const uint8_t* bin, uint8_t*buf, tm_cb_t cb, tm_mat_t* in);   
