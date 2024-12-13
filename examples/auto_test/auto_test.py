@@ -1,17 +1,19 @@
 import os,sys,time
-from subprocess import *
-import datetime,time
-import threading
+import datetime
+import subprocess
+
 
 ### This script do auto testing before release code.
 test_list = ["mnist_f", "mnist_q", "mbnet_f", "mbnet_q"] 
 
 
 def runcmd(cmd):
-    r=Popen(cmd,stdin=PIPE,stdout=PIPE,stderr=PIPE, shell=True)
+
+    stdout = subprocess.check_output(cmd, shell=True)
+    # stdin=PIPE,stdout=PIPE,stderr=PIPE
     a=[]
-    for line in r.stdout.readlines():
-        a.append(line.decode("utf8").strip())
+    for line in stdout.decode("utf8").readlines():
+        a.append(line.strip())
     return a
 
 
