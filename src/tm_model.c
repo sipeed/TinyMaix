@@ -67,11 +67,11 @@ tm_err_t TM_WEAK tm_preprocess(tm_mdl_t* mdl, tm_pp_t pp_type, tm_mat_t* in, tm_
 #else
     case TMPP_UINT2FP01:
         for(int i=0; i<in_size; i++)
-            out->data[i] = (((uint8_t*)(in->data))[i])/255.0;
+            out->data[i] = (((uint8_t*)(in->data))[i])/255.0f;
         break;
     case TMPP_UINT2FPN11:
         for(int i=0; i<in_size; i++)
-            out->data[i] = ((((uint8_t*)(in->data))[i])-128)/128.0;
+            out->data[i] = ((((uint8_t*)(in->data))[i])-128)/128.0f;
         break;
 #endif
     default:    //don't do anything
