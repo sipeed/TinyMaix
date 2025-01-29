@@ -261,7 +261,7 @@ tm_err_t TM_WEAK tml_softmax(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_
         dout[c] -= dmax;
         dout[c] = (float)tm_exp(dout[c]);
         sum     += dout[c];
-        dout[c] -= 0.000001;  //prevent 1.0 value (cause 256 overflow)
+        dout[c] -= 0.000001f;  //prevent 1.0 value (cause 256 overflow)
     }
     for(int c=0; c <in->c; c++){  //int8/int16 <= fp32, so it is ok
     #if TM_MDL_TYPE == TM_MDL_INT8 || TM_MDL_TYPE == TM_MDL_INT16
