@@ -21,7 +21,7 @@ jobs:
 
       - name: Install OS dependencies
         run: |
-          sudo apt-get install -yqq python-tk git
+          sudo apt-get install -yqq python3-tk git
       - name: Install Python dependencies
         run: |
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
