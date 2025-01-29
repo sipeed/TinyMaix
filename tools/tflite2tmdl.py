@@ -18,11 +18,7 @@ import numpy as np
 import tensorflow as tf
 import time, struct
 from PIL import Image
-try:
-    from .tflite_reader import read_tflite
-except:
-    from tflite_reader import read_tflite
-
+from .tflite_reader import read_tflite
 
 # constant
 TM_MDL_INT8  = 0
