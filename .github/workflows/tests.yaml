@@ -5,7 +5,7 @@ on: [push, pull_request]
 jobs:
   test:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         python-version: ["3.10"]
@@ -21,7 +21,7 @@ jobs:
 
       - name: Install OS dependencies
         run: |
-          sudo apt-get install -yqq python-tk git
+          sudo apt-get install -yqq python3-tk git
       - name: Install Python dependencies
         run: |
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
