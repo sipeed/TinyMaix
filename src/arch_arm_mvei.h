@@ -47,14 +47,7 @@ TM_INLINE void tm_dot_prod(mtype_t* sptr, mtype_t* kptr,uint32_t size, sumtype_t
 }
 
 TM_INLINE  void tm_dot_prod_pack2(mtype_t* sptr, mtype_t* kptr, uint32_t size, sumtype_t* result)
-{ 
-    uint32_t cnt;                       
-    sumtype_t sum0 = 0;  
-    sumtype_t sum1 = 0;           
-    mtype_t* kptr0 = kptr;
-    mtype_t* kptr1 = kptr+size;                                
-    cnt = size/PARALLEL_CNT;
-
+{         
     uint32_t  cnt;           
     int8x16_t vecA;
     int8x16_t vecB;
