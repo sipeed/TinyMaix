@@ -318,9 +318,10 @@ TM_WEAK tm_err_t tm_stat(tm_mdlbin_t* mdl);                    //stat model
 #endif
 
 /******************************* UTILS FUNCTION ************************************/
+#if TM_ENABLE_FP8
 TM_WEAK uint8_t tm_fp32to8(float fp32);
 TM_WEAK float tm_fp8to32(uint8_t fp8);
-
+#endif
 
 /******************************* UTILS  ************************************/
 
