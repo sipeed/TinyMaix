@@ -61,7 +61,7 @@ TM_STATIC mtype_t sbuf[TM_MAX_KCSIZE];
 #endif
  
 //for valid or kernel in valid part, use fast method
-tm_err_t TM_WEAK tml_conv2d_dwconv2d(tm_mat_t* in, tm_mat_t* out, wtype_t* w, btype_t* b, \
+TM_WEAK tm_err_t tml_conv2d_dwconv2d(tm_mat_t* in, tm_mat_t* out, wtype_t* w, btype_t* b, \
     int kw, int kh, int sx, int sy, int dx, int dy, int act, \
     int pad_top, int pad_bottom, int pad_left, int pad_right, int dmul, \
     sctype_t* ws, sctype_t in_s, zptype_t in_zp, sctype_t out_s, zptype_t out_zp) //kernel: (cho, chi, h, w)
@@ -202,7 +202,7 @@ tm_err_t TM_WEAK tml_conv2d_dwconv2d(tm_mat_t* in, tm_mat_t* out, wtype_t* w, bt
 }
 
 /*************************** TML_GAP **********************************/
-tm_err_t TM_WEAK tml_gap(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_t in_zp, sctype_t out_s, zptype_t out_zp)
+TM_WEAK tm_err_t tml_gap(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_t in_zp, sctype_t out_s, zptype_t out_zp)
 {   TM_DBGT_INIT();
     mtype_t* data;
     for(int c=0; c <out->c; c++){
@@ -225,7 +225,7 @@ tm_err_t TM_WEAK tml_gap(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_t in
 }
 
 /*************************** TML_FC **********************************/
-tm_err_t TM_WEAK tml_fc(tm_mat_t* in, tm_mat_t* out,  wtype_t* w, btype_t* b, \
+TM_WEAK tm_err_t tml_fc(tm_mat_t* in, tm_mat_t* out,  wtype_t* w, btype_t* b, \
     sctype_t* ws, sctype_t in_s, zptype_t in_zp, sctype_t out_s, zptype_t out_zp)
 {   TM_DBGT_INIT();
     mtype_t* data = in->data;
@@ -243,7 +243,7 @@ tm_err_t TM_WEAK tml_fc(tm_mat_t* in, tm_mat_t* out,  wtype_t* w, btype_t* b, \
 }
 
 /*************************** TML_SOFTMAX **********************************/
-tm_err_t TM_WEAK tml_softmax(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_t in_zp, sctype_t out_s, zptype_t out_zp)
+TM_WEAK tm_err_t tml_softmax(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_t in_zp, sctype_t out_s, zptype_t out_zp)
 {   TM_DBGT_INIT(); //note we have float size output buf even in INT8/INT16 mode
     mtype_t* din = in->data;
     float*  dout = (float*)(out->data);
@@ -274,14 +274,14 @@ tm_err_t TM_WEAK tml_softmax(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_
 }
 
 /*************************** TML_RESHAPE **********************************/
-tm_err_t TM_WEAK tml_reshape(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_t in_zp, sctype_t out_s, zptype_t out_zp)
+TM_WEAK tm_err_t tml_reshape(tm_mat_t* in, tm_mat_t* out, sctype_t in_s, zptype_t in_zp, sctype_t out_s, zptype_t out_zp)
 {   
     //in fact do nothing... out shape
     return TM_OK;
 }
 
 
-tm_err_t TM_WEAK tml_add(tm_mat_t* in0, tm_mat_t* in1, tm_mat_t* out, \
+TM_WEAK tm_err_t tml_add(tm_mat_t* in0, tm_mat_t* in1, tm_mat_t* out, \
     sctype_t in_s0, zptype_t in_zp0, sctype_t in_s1, zptype_t in_zp1, sctype_t out_s, zptype_t out_zp)
 {   //TODO: check in0 shape == in1 shape 
     //It is simple and experimental implement for ADD, could be more way faster

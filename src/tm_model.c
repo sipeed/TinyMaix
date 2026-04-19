@@ -14,7 +14,7 @@ limitations under the License.
 //load model
 //mdl: model handle; bin: model bin buf; buf: main buf for middle output; cb: layer callback; 
 //in: return input mat, include buf addr; //you can ignore it if use static buf
-tm_err_t TM_WEAK tm_load  (tm_mdl_t* mdl, const uint8_t* bin, uint8_t*buf, tm_cb_t cb, tm_mat_t* in)
+TM_WEAK tm_err_t tm_load  (tm_mdl_t* mdl, const uint8_t* bin, uint8_t*buf, tm_cb_t cb, tm_mat_t* in)
 {
     tm_mdlbin_t* mdl_bin = (tm_mdlbin_t*)bin;
     if(mdl_bin->magic != TM_MDL_MAGIC)   return TM_ERR_MAGIC;   //FIXME: big-endian not compatible
@@ -41,14 +41,14 @@ tm_err_t TM_WEAK tm_load  (tm_mdl_t* mdl, const uint8_t* bin, uint8_t*buf, tm_cb
 }
 
 //remove model
-void TM_WEAK tm_unload(tm_mdl_t* mdl)
+TM_WEAK void tm_unload(tm_mdl_t* mdl)
 {
     if(mdl->main_alloc) tm_free(mdl->buf);
     return;
 }
 
 //preprocess data input
-tm_err_t TM_WEAK tm_preprocess(tm_mdl_t* mdl, tm_pp_t pp_type, tm_mat_t* in, tm_mat_t* out)
+TM_WEAK tm_err_t tm_preprocess(tm_mdl_t* mdl, tm_pp_t pp_type, tm_mat_t* in, tm_mat_t* out)
 {
     tml_head_t* l0h = (tml_head_t*)mdl->b->layers_body;
     sctype_t in_s = l0h->in_s;
@@ -84,7 +84,7 @@ tm_err_t TM_WEAK tm_preprocess(tm_mdl_t* mdl, tm_pp_t pp_type, tm_mat_t* in, tm_
 
 //run model
 //mdl: model handle; in: input mat; out: output mat
-tm_err_t TM_WEAK tm_run(tm_mdl_t* mdl, tm_mat_t* in, tm_mat_t* out)
+TM_WEAK tm_err_t tm_run(tm_mdl_t* mdl, tm_mat_t* in, tm_mat_t* out)
 {
     tm_mat_t _in, _in1, _out;
     tm_err_t res = TM_OK;
