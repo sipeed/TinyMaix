@@ -22,7 +22,7 @@ from tensorflow.keras.layers import Conv2D, Dense, MaxPooling2D, Softmax, Activa
 from tensorflow.keras.layers import MaxPool2D, AvgPool2D, AveragePooling2D, GlobalAveragePooling2D,ZeroPadding2D,Input,Embedding,PReLU
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import TensorBoard
-from keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import keras.backend as K
 import tensorflow as tf
 import time
